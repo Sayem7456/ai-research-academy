@@ -1,0 +1,15 @@
+[
+  {
+    "id": "math/sample",
+    "section": "math",
+    "slug": "sample",
+    "title": "Sample: Linear Algebra — Eigenvectors",
+    "tags": [
+      "math",
+      "linear-algebra"
+    ],
+    "date": "2026-06-08T00:00:00.000Z",
+    "excerpt": "This sample demonstrates math, code blocks, and custom callouts in MDX. Below is an inline equation and a displayed equation: ![Example matrix](https://via",
+    "text": "This sample demonstrates math, code blocks, and custom callouts in MDX. Below is an inline equation and a displayed equation: ![Example matrix](https://via.placeholder.com/400x200.png?text=Matrix+Visual)"
+  }
+]
