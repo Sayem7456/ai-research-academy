@@ -5,6 +5,7 @@ import { bundleMDX } from "mdx-bundler";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
 import katex from "katex";
 
 const CONTENT_PATH = path.join(process.cwd(), "content");
@@ -22,16 +23,12 @@ export function getAllSlugs(section = "") {
 
 export async function getContentBySlug(section: string, slug: string) {
   const filePath = path.join(CONTENT_PATH, section, `${slug}.mdx`);
-  console.log("getContentBySlug filePath=", filePath);
-  console.log("exists=", fs.existsSync(filePath));
   const source = fs.readFileSync(filePath, "utf8");
-  // mdx-bundler needs esbuild binary path on some platforms; callers can set env if needed
   try {
-    console.log("bundleMDX: source contains $$?", source.includes("$$"));
     const result = await bundleMDX({
       source,
       xdmOptions(options) {
-        options.remarkPlugins = [...(options.remarkPlugins || []), remarkMath as any];
+        options.remarkPlugins = [...(options.remarkPlugins || []), remarkMath as any, remarkGfm as any];
 
         options.rehypePlugins = [
           ...(options.rehypePlugins || []),
@@ -43,8 +40,6 @@ export async function getContentBySlug(section: string, slug: string) {
     });
 
     const { code, frontmatter } = result;
-    console.log("bundleMDX: output code includes katex markup?", code.includes("katex") || code.includes("katex-display") || code.includes("class=\"katex\""));
-    console.log("bundleMDX: sample output code snippet:\n", code.slice(0, 800));
     return { code, frontmatter };
   } catch (err) {
     throw new Error(`Failed to bundle MDX for ${filePath}: ${String(err)}`);

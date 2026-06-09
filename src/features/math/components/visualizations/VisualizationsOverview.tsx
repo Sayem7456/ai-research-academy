@@ -107,22 +107,6 @@ export default function VisualizationsOverview() {
       ))}
 
       {/* Info card */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-6">
-        <h3 className="font-bold text-blue-900 dark:text-blue-300 mb-2">
-          About These Visualizations
-        </h3>
-        <p className="text-sm text-blue-800 dark:text-blue-300">
-          Each visualization is built with React, TypeScript, and Framer Motion for smooth animations.
-          They use SVG rendering for precise mathematical graphics. All interactions are client-side —
-          try dragging sliders, clicking buttons, and watching the real-time updates.
-        </p>
-        <div className="flex gap-4 mt-3 text-xs text-blue-700 dark:text-blue-400">
-          <span>React + TypeScript</span>
-          <span>Framer Motion</span>
-          <span>SVG Rendering</span>
-          <span>No Backend Required</span>
-        </div>
-      </div>
     </div>
   );
 }

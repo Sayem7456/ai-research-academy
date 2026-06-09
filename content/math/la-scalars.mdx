@@ -70,11 +70,16 @@ import numpy as np
 # Scalar operations in NumPy
 learning_rate = 0.01
 loss = 0.5
-updated_weight = weight - learning_rate * gradient
 
 # Scalar multiplication of a vector
 v = np.array([1, 2, 3])
 scaled = 2.5 * v  # [2.5, 5.0, 7.5]
+
+# Gradient descent update (scalar learning rate × gradient vector)
+weight = np.array([0.5, -0.3, 0.8])
+gradient = np.array([0.1, -0.2, 0.05])
+updated_weight = weight - learning_rate * gradient
+# [0.499, -0.298, 0.7995]
 ```
 
 ## Key Takeaway

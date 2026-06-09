@@ -16,7 +16,7 @@ export default function MDXRenderer({ code }: Props) {
 
   return (
     <article className="prose max-w-none">
-      <Content />
+      <Content components={mdxComponents as any} />
     </article>
   );
 }
