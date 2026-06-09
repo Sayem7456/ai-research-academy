@@ -1,0 +1,117 @@
+---
+title: "Covariance"
+date: 2025-01-27
+tags:
+  - math
+  - statistics
+  - covariance
+  - pca
+---
+
+<Callout type="info">Covariance measures how two variables change together — the building block of the covariance matrix, which captures the complete second-order structure of multivariate data.</Callout>
+
+## What Problem Does It Solve?
+
+Correlation tells us the direction and strength of a relationship, but covariance preserves the original units. The covariance matrix captures how all pairs of features co-vary — essential for PCA, Gaussian models, and understanding data geometry.
+
+## Definition
+
+For two random variables $X$ and $Y$:
+
+$$
+\text{Cov}(X, Y) = E[(X - \mu_X)(Y - \mu_Y)] = E[XY] - E[X]E[Y]
+$$
+
+Sample covariance:
+
+$$
+\hat{\text{Cov}}(X, Y) = \frac{1}{n-1} \sum_{i=1}^{n} (x_i - \bar{x})(y_i - \bar{y})
+$$
+
+## Properties
+
+| Property | Formula |
+|----------|---------|
+| Self-covariance | $\text{Cov}(X, X) = \text{Var}(X)$ |
+| Symmetry | $\text{Cov}(X, Y) = \text{Cov}(Y, X)$ |
+| Independence | $X \perp Y \implies \text{Cov}(X,Y) = 0$ |
+| Linearity | $\text{Cov}(aX+b, cY+d) = ac \cdot \text{Cov}(X,Y)$ |
+
+<Callout type="warning">Zero covariance does NOT imply independence (unless variables are jointly Gaussian). It only implies no LINEAR relationship.</Callout>
+
+## Covariance Matrix
+
+For a random vector $\mathbf{x} \in \mathbb{R}^d$:
+
+$$
+\Sigma = \text{Cov}(\mathbf{x}) = E[(\mathbf{x} - \boldsymbol{\mu})(\mathbf{x} - \boldsymbol{\mu})^T]
+$$
+
+$$
+\Sigma_{ij} = \text{Cov}(x_i, x_j)
+$$
+
+Properties:
+- **Symmetric**: $\Sigma = \Sigma^T$
+- **Positive semi-definite**: $\mathbf{v}^T \Sigma \mathbf{v} \geq 0$ for all $\mathbf{v}$
+- **Diagonal**: $\Sigma_{ii} = \text{Var}(x_i)$
+
+## Relation to Correlation
+
+$$
+\text{Corr}(X, Y) = \frac{\text{Cov}(X, Y)}{\sigma_X \sigma_Y}
+$$
+
+Correlation is normalized covariance, always in $[-1, 1]$.
+
+## Whitening
+
+Transform data so the covariance becomes the identity:
+
+$$
+\mathbf{z} = \Sigma^{-1/2} (\mathbf{x} - \boldsymbol{\mu})
+$$
+
+After whitening: $\text{Cov}(\mathbf{z}) = I$. All features are uncorrelated with unit variance.
+
+## Applications in PCA
+
+PCA diagonalizes the covariance matrix. The eigenvectors of $\Sigma$ are the principal components, and the eigenvalues are the variances along those directions:
+
+$$
+\Sigma = V \Lambda V^T
+$$
+
+```python
+import numpy as np
+
+np.random.seed(42)
+n = 1000
+
+# Generate data with known covariance
+mean = [0, 0]
+cov_true = [[2.0, 1.5], [1.5, 3.0]]
+data = np.random.multivariate_normal(mean, cov_true, size=n)
+
+# Sample covariance matrix
+cov_sample = np.cov(data, rowvar=False)
+print(f"True covariance:\n{np.array(cov_true)}")
+print(f"Sample covariance:\n{cov_sample.round(3)}")
+
+# Properties
+print(f"\nSymmetric: {np.allclose(cov_sample, cov_sample.T)}")
+eigvals = np.linalg.eigvalsh(cov_sample)
+print(f"Eigenvalues: {eigvals.round(4)}")
+print(f"Positive semi-definite: {np.all(eigvals >= -1e-10)}")
+
+# Whitening
+eigvals_full, eigvecs = np.linalg.eigh(cov_sample)
+W = eigvecs @ np.diag(1.0 / np.sqrt(eigvals_full)) @ eigvecs.T
+data_white = (data - data.mean(axis=0)) @ W
+cov_white = np.cov(data_white, rowvar=False)
+print(f"\nWhitened covariance:\n{cov_white.round(3)}")  # ≈ Identity
+```
+
+## Key Takeaway
+
+The covariance matrix is the cornerstone of multivariate statistics. It captures all pairwise relationships, powers PCA, defines Gaussian distributions, and enables data whitening. Understanding covariance is essential for dimensionality reduction, generative modeling, and analyzing the geometry of high-dimensional data.

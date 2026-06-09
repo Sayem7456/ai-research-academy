@@ -1,0 +1,69 @@
+---
+title: "Jacobian"
+date: 2025-01-15
+tags:
+  - math
+  - calculus
+  - jacobian
+---
+
+<Callout type="info">The Jacobian matrix generalizes the gradient to vector-valued functions — it captures how each output changes with respect to each input.</Callout>
+
+## What Problem Does It Solve?
+
+When a function maps $\mathbb{R}^n \to \mathbb{R}^m$ (multiple inputs, multiple outputs), a single gradient isn't enough. The Jacobian matrix captures all input-output relationships in one structure.
+
+## Definition
+
+For $\mathbf{f}: \mathbb{R}^n \to \mathbb{R}^m$ with $\mathbf{f} = (f_1, f_2, \ldots, f_m)$:
+
+$$
+J = \begin{bmatrix} \frac{\partial f_1}{\partial x_1} & \frac{\partial f_1}{\partial x_2} & \cdots & \frac{\partial f_1}{\partial x_n} \\ \frac{\partial f_2}{\partial x_1} & \frac{\partial f_2}{\partial x_2} & \cdots & \frac{\partial f_2}{\partial x_n} \\ \vdots & \vdots & \ddots & \vdots \\ \frac{\partial f_m}{\partial x_1} & \frac{\partial f_m}{\partial x_2} & \cdots & \frac{\partial f_m}{\partial x_n} \end{bmatrix} \in \mathbb{R}^{m \times n}
+$$
+
+Row $i$ is the gradient of $f_i$: $J_{i,:} = (\nabla f_i)^T$.
+
+## Jacobian Determinant
+
+The determinant $|\det(J)|$ measures how the transformation locally scales volume. Used in change-of-variables formulas:
+
+$$
+\int_{f(U)} g(\mathbf{y}) \, d\mathbf{y} = \int_U g(f(\mathbf{x})) |\det(J_f(\mathbf{x}))| \, d\mathbf{x}
+$$
+
+## Applications
+
+1. **Backpropagation** — the chain rule for vector functions uses Jacobians
+2. **Normalizing flows** — compute likelihood via Jacobian determinants
+3. **Change of variables** — probability density transformation
+4. **Newton's method** — solving nonlinear systems
+
+<Callout type="tip">In practice, we rarely compute full Jacobians explicitly. Automatic differentiation frameworks compute Jacobian-vector products efficiently without materializing the entire matrix.</Callout>
+
+```python
+import numpy as np
+
+# f(x, y) = (x²y, x + y)
+def f(x, y):
+    return np.array([x**2 * y, x + y])
+
+def jacobian(x, y):
+    return np.array([
+        [2*x*y, x**2],  # ∂f₁/∂x, ∂f₁/∂y
+        [1,     1    ]   # ∂f₂/∂x, ∂f₂/∂y
+    ])
+
+# At point (1, 2)
+x, y = 1.0, 2.0
+J = jacobian(x, y)
+print(f"Jacobian at ({x},{y}):\n{J}")
+# [[4, 1], [1, 1]]
+
+# Jacobian determinant
+det_J = np.linalg.det(J)
+print(f"|det(J)| = {det_J}")  # 3.0
+```
+
+## Key Takeaway
+
+The Jacobian is the multi-output generalization of the gradient. It appears everywhere in ML: backpropagation through vector operations, change of variables in normalizing flows, and analysis of transformations. Understanding Jacobians bridges single-variable and multivariable calculus.

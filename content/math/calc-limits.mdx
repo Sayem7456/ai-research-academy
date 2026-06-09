@@ -1,0 +1,77 @@
+---
+title: "Limits"
+date: 2025-01-10
+tags:
+  - math
+  - calculus
+  - limits
+---
+
+<Callout type="info">Limits describe the behavior of functions as inputs approach a value — the foundational concept upon which all of calculus is built.</Callout>
+
+## What Problem Does It Solve?
+
+What happens to a function as its input gets closer and closer to some value? Limits give us a rigorous way to talk about "approaching" without actually reaching a point — essential for defining derivatives, continuity, and convergence.
+
+## Intuition
+
+Consider $\frac{\sin(x)}{x}$. At $x = 0$ this is undefined ($0/0$). But as $x$ gets closer to $0$, the ratio gets closer to $1$:
+
+$$
+\lim_{x \to 0} \frac{\sin(x)}{x} = 1
+$$
+
+## Formal Definition
+
+$$
+\lim_{x \to a} f(x) = L
+$$
+
+means: for every $\epsilon > 0$, there exists $\delta > 0$ such that $0 < |x - a| < \delta \implies |f(x) - L| < \epsilon$.
+
+## Limit Laws
+
+If $\lim_{x \to a} f(x) = L$ and $\lim_{x \to a} g(x) = M$:
+
+| Law | Formula |
+|-----|---------|
+| Sum | $\lim [f(x) + g(x)] = L + M$ |
+| Product | $\lim [f(x) \cdot g(x)] = L \cdot M$ |
+| Quotient | $\lim \frac{f(x)}{g(x)} = \frac{L}{M}$ (if $M \neq 0$) |
+| Power | $\lim [f(x)]^n = L^n$ |
+
+## Squeeze Theorem
+
+If $g(x) \leq f(x) \leq h(x)$ near $a$, and $\lim_{x \to a} g(x) = \lim_{x \to a} h(x) = L$, then:
+
+$$
+\lim_{x \to a} f(x) = L
+$$
+
+## Limits at Infinity
+
+$$
+\lim_{x \to \infty} \frac{1}{x} = 0, \quad \lim_{x \to \infty} \left(1 + \frac{1}{x}\right)^x = e
+$$
+
+These limits describe the long-term behavior of functions — crucial for understanding convergence of learning algorithms.
+
+<Callout type="tip">In machine learning, limits appear everywhere: the limit of gradient descent as iterations → ∞, the behavior of loss functions, and the definition of derivatives themselves.</Callout>
+
+```python
+import numpy as np
+
+# Numerical approximation of lim(x→0) sin(x)/x
+for x in [0.1, 0.01, 0.001, 0.0001]:
+    print(f"x = {x}: sin(x)/x = {np.sin(x)/x:.8f}")
+# All approach 1.0
+
+# lim(x→∞) (1 + 1/x)^x → e
+for x in [10, 100, 1000, 10000]:
+    print(f"x = {x}: (1+1/x)^x = {(1 + 1/x)**x:.6f}")
+# Approaches e ≈ 2.718282
+```
+
+## Key Takeaway
+
+Limits are the foundation of calculus. They rigorously define "approaching" a value and enable the formal definitions of derivatives and integrals. In AI, understanding limits helps reason about convergence of optimization algorithms and the behavior of functions near critical points.

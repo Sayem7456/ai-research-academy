@@ -1,0 +1,97 @@
+---
+title: "Confidence Intervals"
+date: 2025-01-25
+tags:
+  - math
+  - statistics
+  - confidence-intervals
+---
+
+<Callout type="info">Confidence intervals quantify the uncertainty around point estimates — instead of reporting a single accuracy number, we report a range that captures the true value with a specified probability.</Callout>
+
+## What Problem Does It Solve?
+
+A model achieves 87% accuracy on a test set. But what's the true accuracy? A confidence interval gives us a range like [84%, 90%] — much more informative than a single number.
+
+## Definition
+
+A $100(1-\alpha)\%$ confidence interval for parameter $\theta$ is an interval $[L, U]$ such that:
+
+$$
+P(L \leq \theta \leq U) \geq 1 - \alpha
+$$
+
+over repeated sampling. The interval is random; the parameter is fixed.
+
+## Construction
+
+### For a Mean (known $\sigma$)
+
+$$
+\bar{x} \pm z_{\alpha/2} \frac{\sigma}{\sqrt{n}}
+$$
+
+### For a Mean (unknown $\sigma$)
+
+$$
+\bar{x} \pm t_{\alpha/2, n-1} \frac{s}{\sqrt{n}}
+$$
+
+### For a Proportion
+
+$$
+\hat{p} \pm z_{\alpha/2} \sqrt{\frac{\hat{p}(1-\hat{p})}{n}}
+$$
+
+## Interpretation
+
+<Callout type="warning">Correct: "If we repeated this experiment many times, 95% of the computed intervals would contain the true parameter." Incorrect: "There is a 95% probability that the true parameter is in this specific interval."</Callout>
+
+## Bootstrap Confidence Intervals
+
+When analytical formulas are unavailable, use **bootstrap**:
+
+1. Draw $B$ samples with replacement from the data
+2. Compute the statistic for each bootstrap sample
+3. Use the 2.5th and 97.5th percentiles as the 95% CI
+
+## Relation to Hypothesis Tests
+
+A $100(1-\alpha)\%$ confidence interval contains all values of $\theta_0$ that would NOT be rejected by a hypothesis test at level $\alpha$.
+
+$$
+\theta_0 \in CI_{1-\alpha} \iff \text{p-value} > \alpha
+$$
+
+```python
+import numpy as np
+from scipy import stats
+
+# Model accuracy confidence interval
+np.random.seed(42)
+n = 200  # test samples
+correct = 174  # correct predictions
+p_hat = correct / n  # 0.87
+
+# Normal approximation CI
+z = stats.norm.ppf(0.975)  # 1.96 for 95% CI
+se = np.sqrt(p_hat * (1 - p_hat) / n)
+ci_low = p_hat - z * se
+ci_high = p_hat + z * se
+print(f"Accuracy: {p_hat:.3f}")
+print(f"95% CI: [{ci_low:.3f}, {ci_high:.3f}]")
+
+# Bootstrap CI
+accuracies = []
+predictions = np.array([1]*correct + [0]*(n - correct))
+for _ in range(10000):
+    sample = np.random.choice(predictions, size=n, replace=True)
+    accuracies.append(np.mean(sample))
+
+ci_boot = np.percentile(accuracies, [2.5, 97.5])
+print(f"Bootstrap 95% CI: [{ci_boot[0]:.3f}, {ci_boot[1]:.3f}]")
+```
+
+## Key Takeaway
+
+Confidence intervals are essential for honest reporting of experimental results. Always report intervals alongside point estimates. Bootstrap methods make it easy to compute CIs even for complex metrics where analytical formulas don't exist.

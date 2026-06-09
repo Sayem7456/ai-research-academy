@@ -1,0 +1,112 @@
+---
+title: "Distributions"
+date: 2025-01-19
+tags:
+  - math
+  - probability
+  - distributions
+---
+
+<Callout type="info">Probability distributions describe how likely different outcomes are. From the ubiquitous Gaussian to the versatile Beta, distributions are the vocabulary of probabilistic modeling.</Callout>
+
+## What Problem Does It Solve?
+
+When we model real-world data, we need to specify what kind of randomness we expect. Different distributions capture different patterns: coin flips, counts, continuous measurements, proportions.
+
+## Key Discrete Distributions
+
+### Bernoulli
+
+Single binary trial: $X \in \{0, 1\}$ with parameter $p$:
+
+$$
+P(X = 1) = p, \quad P(X = 0) = 1 - p, \quad E[X] = p, \quad \text{Var}(X) = p(1-p)
+$$
+
+### Binomial
+
+Number of successes in $n$ independent Bernoulli trials:
+
+$$
+P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}, \quad E[X] = np
+$$
+
+### Poisson
+
+Number of events in a fixed interval with rate $\lambda$:
+
+$$
+P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}, \quad E[X] = \text{Var}(X) = \lambda
+$$
+
+## Key Continuous Distributions
+
+### Uniform
+
+All values in $[a, b]$ equally likely:
+
+$$
+f(x) = \frac{1}{b - a}, \quad E[X] = \frac{a+b}{2}
+$$
+
+### Gaussian (Normal)
+
+The most important distribution in statistics and ML:
+
+$$
+f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)
+$$
+
+$$
+E[X] = \mu, \quad \text{Var}(X) = \sigma^2
+$$
+
+<Callout type="tip">The Gaussian appears everywhere because of the Central Limit Theorem: the sum of many independent random variables tends toward a Gaussian, regardless of their individual distributions.</Callout>
+
+### Exponential
+
+Time between events in a Poisson process:
+
+$$
+f(x) = \lambda e^{-\lambda x}, \quad x \geq 0, \quad E[X] = \frac{1}{\lambda}
+$$
+
+### Beta
+
+Distribution over probabilities $p \in [0, 1]$ with parameters $\alpha, \beta > 0$:
+
+$$
+f(p) = \frac{p^{\alpha-1}(1-p)^{\beta-1}}{B(\alpha, \beta)}, \quad E[p] = \frac{\alpha}{\alpha + \beta}
+$$
+
+## Multivariate Gaussian
+
+For $\mathbf{x} \in \mathbb{R}^d$ with mean $\boldsymbol{\mu}$ and covariance $\Sigma$:
+
+$$
+f(\mathbf{x}) = \frac{1}{(2\pi)^{d/2} |\Sigma|^{1/2}} \exp\left(-\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu})^T \Sigma^{-1} (\mathbf{x}-\boldsymbol{\mu})\right)
+$$
+
+```python
+import numpy as np
+from scipy import stats
+
+# Gaussian
+x = np.linspace(-4, 4, 100)
+pdf = stats.norm.pdf(x, loc=0, scale=1)
+print(f"P(-1 ≤ X ≤ 1) = {stats.norm.cdf(1) - stats.norm.cdf(-1):.4f}")  # ≈ 0.6827
+
+# Beta distribution
+alpha, beta = 2, 5
+print(f"Beta({alpha},{beta}) mean = {alpha/(alpha+beta):.4f}")
+
+# Multivariate Gaussian
+mean = np.array([0, 0])
+cov = np.array([[1, 0.5], [0.5, 1]])
+samples = np.random.multivariate_normal(mean, cov, size=10000)
+print(f"Sample covariance:\n{np.cov(samples.T).round(2)}")
+```
+
+## Key Takeaway
+
+Distributions are the building blocks of probabilistic models. Every assumption about data generation, every prior belief, every noise model uses a distribution. Mastering the key distributions — Gaussian, Bernoulli, Beta, Poisson — is essential for Bayesian inference, generative models, and understanding uncertainty in AI.

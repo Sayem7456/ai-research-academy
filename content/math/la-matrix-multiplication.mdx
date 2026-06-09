@@ -1,0 +1,95 @@
+---
+title: "Matrix Multiplication"
+date: 2025-01-05
+tags:
+  - math
+  - linear-algebra
+  - matrix-multiplication
+---
+
+<Callout type="info">Matrix multiplication is composition of linear transformations — the core operation that drives every forward pass in a neural network.</Callout>
+
+## What Problem Does It Solve?
+
+How do we transform data from one representation to another? Matrix multiplication applies a linear transformation to vectors, composing multiple transformations into a single operation. This is exactly what neural network layers do.
+
+## The Dot Product View
+
+The most common definition: element $(i, j)$ of the product $C = AB$ is the dot product of row $i$ of $A$ with column $j$ of $B$:
+
+$$
+c_{ij} = \sum_{k=1}^{n} a_{ik} b_{kj} = \mathbf{a}_{i,:} \cdot \mathbf{b}_{:,j}
+$$
+
+For $A \in \mathbb{R}^{m \times n}$ and $B \in \mathbb{R}^{n \times p}$, the result $C \in \mathbb{R}^{m \times p}$.
+
+<Callout type="warning">Matrix multiplication is only defined when the inner dimensions match: $(m \times n) \cdot (n \times p) \to (m \times p)$. The number of columns in $A$ must equal the number of rows in $B$.</Callout>
+
+## The Column-Row View
+
+An equally important perspective: $AB$ is a sum of outer products:
+
+$$
+AB = \sum_{k=1}^{n} \mathbf{a}_{:,k} \mathbf{b}_{k,:}^T
+$$
+
+Each term is a rank-1 matrix. This view is crucial for understanding low-rank approximations and SVD.
+
+## Properties
+
+| Property | Formula |
+|----------|---------|
+| **Associative** | $(AB)C = A(BC)$ |
+| **Distributive** | $A(B + C) = AB + AC$ |
+| **NOT Commutative** | $AB \neq BA$ in general |
+| **Transpose** | $(AB)^T = B^T A^T$ |
+
+## Computational Complexity
+
+Standard matrix multiplication of $n \times n$ matrices: $O(n^3)$
+
+**Strassen's algorithm** reduces this to $O(n^{2.807})$ by reducing the number of multiplications in the recursive step from 8 to 7.
+
+In practice, highly optimized BLAS libraries (cuBLAS on GPUs) achieve near-peak hardware performance.
+
+## Neural Network Connection
+
+A fully connected layer in a neural network is a matrix multiplication:
+
+$$
+\mathbf{y} = W\mathbf{x} + \mathbf{b}
+$$
+
+where $W \in \mathbb{R}^{m \times n}$ is the weight matrix, $\mathbf{x} \in \mathbb{R}^n$ is the input, and $\mathbf{b} \in \mathbb{R}^m$ is the bias.
+
+A deep network composes multiple such transformations:
+
+$$
+\mathbf{y} = f_L(W_L f_{L-1}(W_{L-1} \cdots f_1(W_1 \mathbf{x} + \mathbf{b}_1) \cdots + \mathbf{b}_{L-1}) + \mathbf{b}_L)
+$$
+
+```python
+import numpy as np
+
+A = np.array([[1, 2], [3, 4]])  # 2x2
+B = np.array([[5, 6], [7, 8]])  # 2x2
+
+# Matrix multiplication
+C = A @ B  # or np.matmul(A, B)
+print(C)  # [[19, 22], [43, 50]]
+
+# Not commutative
+print(B @ A)  # [[23, 34], [31, 46]]  ← different!
+
+# Batch matrix multiplication (common in transformers)
+# Queries: (batch, heads, seq_len, d_k)
+Q = np.random.randn(8, 12, 64, 64)
+K = np.random.randn(8, 12, 64, 64)
+# Attention scores: Q @ K^T
+scores = Q @ K.transpose(0, 1, 3, 2)
+print(scores.shape)  # (8, 12, 64, 64)
+```
+
+## Key Takeaway
+
+Matrix multiplication is the engine of deep learning. Every forward pass, every attention score, every convolution (via im2col) ultimately relies on matrix multiplication. Understanding its properties — especially non-commutativity and associativity — is essential for reasoning about neural network architectures.

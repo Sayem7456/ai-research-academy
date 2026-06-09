@@ -1,0 +1,82 @@
+---
+title: "Hessian"
+date: 2025-01-16
+tags:
+  - math
+  - calculus
+  - hessian
+  - optimization
+---
+
+<Callout type="info">The Hessian matrix of second derivatives captures curvature — it tells us whether a critical point is a minimum, maximum, or saddle point.</Callout>
+
+## What Problem Does It Solve?
+
+The gradient tells us the direction of steepest change, but the Hessian tells us how fast the gradient itself is changing. This curvature information helps us determine the nature of critical points and enables second-order optimization methods.
+
+## Definition
+
+For $f: \mathbb{R}^n \to \mathbb{R}$, the Hessian is:
+
+$$
+H = \begin{bmatrix} \frac{\partial^2 f}{\partial x_1^2} & \frac{\partial^2 f}{\partial x_1 \partial x_2} & \cdots & \frac{\partial^2 f}{\partial x_1 \partial x_n} \\ \frac{\partial^2 f}{\partial x_2 \partial x_1} & \frac{\partial^2 f}{\partial x_2^2} & \cdots & \frac{\partial^2 f}{\partial x_2 \partial x_n} \\ \vdots & \vdots & \ddots & \vdots \\ \frac{\partial^2 f}{\partial x_n \partial x_1} & \frac{\partial^2 f}{\partial x_n \partial x_2} & \cdots & \frac{\partial^2 f}{\partial x_n^2} \end{bmatrix}
+$$
+
+By Clairaut's theorem, $H$ is always **symmetric**: $H = H^T$.
+
+## Classifying Critical Points
+
+At a point where $\nabla f = 0$:
+
+| Hessian Property | Classification |
+|-----------------|----------------|
+| Positive definite (all $\lambda_i > 0$) | Local minimum |
+| Negative definite (all $\lambda_i < 0$) | Local maximum |
+| Mixed signs | Saddle point |
+| Some $\lambda_i = 0$ | Inconclusive |
+
+<Callout type="warning">In high-dimensional spaces (like neural network loss landscapes), saddle points are far more common than local minima. The Hessian often has mixed positive and negative eigenvalues.</Callout>
+
+## Newton's Method
+
+Second-order optimization using the Hessian:
+
+$$
+\mathbf{x}_{t+1} = \mathbf{x}_t - H^{-1} \nabla f(\mathbf{x}_t)
+$$
+
+Converges quadratically near minima but requires computing and inverting the $n \times n$ Hessian — impractical for large $n$.
+
+## Saddle Points in Deep Learning
+
+For a loss function with $n$ parameters, the probability of a critical point being a local minimum decreases exponentially with $n$. Most critical points are saddle points.
+
+```python
+import numpy as np
+
+# f(x,y) = x² + 2y² (convex — has a global minimum)
+def f(x, y):
+    return x**2 + 2*y**2
+
+def hessian(x, y):
+    return np.array([[2, 0], [0, 4]])  # Constant Hessian
+
+H = hessian(0, 0)
+eigenvalues = np.linalg.eigvalsh(H)
+print(f"Hessian:\n{H}")
+print(f"Eigenvalues: {eigenvalues}")  # [2, 4] — all positive
+print("Classification: Local (and global) minimum")
+
+# g(x,y) = x² - y² (saddle point at origin)
+def hessian_g():
+    return np.array([[2, 0], [0, -2]])
+
+H_g = hessian_g()
+eigenvalues_g = np.linalg.eigvalsh(H_g)
+print(f"\nSaddle Hessian eigenvalues: {eigenvalues_g}")  # [-2, 2] — mixed
+print("Classification: Saddle point")
+```
+
+## Key Takeaway
+
+The Hessian captures second-order information (curvature) of loss functions. It classifies critical points and enables powerful second-order optimization methods. In deep learning, understanding the Hessian helps explain why training dynamics are complex — most critical points in high dimensions are saddle points, not local minima.

@@ -1,0 +1,89 @@
+---
+title: "Correlation"
+date: 2025-01-26
+tags:
+  - math
+  - statistics
+  - correlation
+---
+
+<Callout type="info">Correlation measures the strength and direction of linear relationships between variables — a key tool in feature analysis and understanding data structure.</Callout>
+
+## What Problem Does It Solve?
+
+When building models, we need to understand relationships between features. Are two features redundant? Does a feature correlate with the target? Correlation analysis answers these questions.
+
+## Pearson Correlation
+
+Measures **linear** relationship between two variables:
+
+$$
+r = \frac{\sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i=1}^{n}(x_i - \bar{x})^2 \sum_{i=1}^{n}(y_i - \bar{y})^2}} = \frac{\text{Cov}(X,Y)}{\sigma_X \sigma_Y}
+$$
+
+Properties:
+- $r \in [-1, 1]$
+- $r = 1$: perfect positive linear relationship
+- $r = -1$: perfect negative linear relationship
+- $r = 0$: no linear relationship (but may have nonlinear!)
+
+## Spearman Correlation
+
+Measures **monotonic** relationship based on ranks:
+
+$$
+\rho = \frac{\text{Cov}(\text{rank}(X), \text{rank}(Y))}{\sigma_{\text{rank}(X)} \sigma_{\text{rank}(Y)}}
+$$
+
+Use Spearman when the relationship is monotonic but not necessarily linear.
+
+## Correlation Matrix
+
+For $d$ features, the correlation matrix $R \in \mathbb{R}^{d \times d}$ has entries:
+
+$$
+R_{ij} = \text{corr}(X_i, X_j)
+$$
+
+Properties: symmetric, diagonal is 1, eigenvalues in $[0, d]$.
+
+<Callout type="warning">**Correlation does not imply causation.** Two variables can be highly correlated without one causing the other. Spurious correlations are common, especially with many features.</Callout>
+
+## Applications in AI
+
+1. **Feature Selection** — remove highly correlated features to reduce redundancy
+2. **Feature Analysis** — understand which features relate to the target
+3. **Multicollinearity Detection** — high correlation between features makes regression unstable
+4. **Embedding Analysis** — cosine similarity between learned representations
+
+```python
+import numpy as np
+
+np.random.seed(42)
+n = 500
+
+# Generate correlated features
+x1 = np.random.randn(n)
+x2 = 0.8 * x1 + 0.6 * np.random.randn(n)  # correlated with x1
+x3 = np.random.randn(n)  # independent
+
+# Pearson correlation
+r_12 = np.corrcoef(x1, x2)[0, 1]
+r_13 = np.corrcoef(x1, x3)[0, 1]
+print(f"Pearson(x1, x2) = {r_12:.4f}")  # ≈ 0.8
+print(f"Pearson(x1, x3) = {r_13:.4f}")  # ≈ 0
+
+# Correlation matrix
+data = np.column_stack([x1, x2, x3])
+corr_matrix = np.corrcoef(data, rowvar=False)
+print(f"\nCorrelation matrix:\n{corr_matrix.round(3)}")
+
+# Spearman rank correlation
+from scipy import stats
+rho, p_val = stats.spearmanr(x1, x2)
+print(f"\nSpearman(x1, x2) = {rho:.4f}, p = {p_val:.6f}")
+```
+
+## Key Takeaway
+
+Correlation is a fundamental tool for understanding data. It guides feature engineering, reveals redundancy, and helps detect problems like multicollinearity. But remember: correlation only captures linear (or monotonic for Spearman) relationships, and it never implies causation.

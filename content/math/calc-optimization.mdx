@@ -1,0 +1,130 @@
+---
+title: "Optimization"
+date: 2025-01-17
+tags:
+  - math
+  - calculus
+  - optimization
+  - gradient-descent
+---
+
+<Callout type="info">Optimization finds parameters that minimize an objective function — the heart of training machine learning models. From gradient descent to Adam, optimization algorithms determine how effectively models learn.</Callout>
+
+## What Problem Does It Solve?
+
+Training a neural network means finding weights $W$ that minimize a loss function $\mathcal{L}(W)$. Optimization algorithms navigate the loss landscape to find good (ideally global) minima.
+
+## Local vs Global Minima
+
+A point $\mathbf{x}^*$ is a **local minimum** if $f(\mathbf{x}^*) \leq f(\mathbf{x})$ for all $\mathbf{x}$ in some neighborhood. A **global minimum** satisfies this for all $\mathbf{x}$ in the domain.
+
+For **convex** functions, every local minimum is a global minimum.
+
+## Convexity
+
+A function $f$ is **convex** if:
+
+$$
+f(\alpha \mathbf{x} + (1-\alpha)\mathbf{y}) \leq \alpha f(\mathbf{x}) + (1-\alpha)f(\mathbf{y}) \quad \forall \alpha \in [0,1]
+$$
+
+For convex functions: $\nabla f = 0$ implies global minimum, and $H$ is positive semi-definite everywhere.
+
+<Callout type="warning">Most neural network loss functions are NOT convex. This means optimization is fundamentally harder — we can't guarantee finding the global minimum.</Callout>
+
+## Gradient Descent Variants
+
+### Vanilla Gradient Descent
+
+$$
+\theta_{t+1} = \theta_t - \alpha \nabla \mathcal{L}(\theta_t)
+$$
+
+### SGD with Momentum
+
+Accumulate a velocity vector to smooth updates:
+
+$$
+v_{t+1} = \beta v_t + \nabla \mathcal{L}(\theta_t)
+$$
+$$
+\theta_{t+1} = \theta_t - \alpha v_{t+1}
+$$
+
+### Adam (Adaptive Moment Estimation)
+
+Combines momentum with per-parameter learning rates:
+
+$$
+m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t \quad \text{(first moment)}
+$$
+$$
+v_t = \beta_2 v_{t-1} + (1-\beta_2) g_t^2 \quad \text{(second moment)}
+$$
+$$
+\hat{m}_t = \frac{m_t}{1-\beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1-\beta_2^t}
+$$
+$$
+\theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t
+$$
+
+## Constrained Optimization
+
+When the objective has constraints ($g(\mathbf{x}) \leq 0$), use **Lagrange multipliers**:
+
+$$
+\mathcal{L}(\mathbf{x}, \lambda) = f(\mathbf{x}) + \lambda g(\mathbf{x})
+$$
+
+At the optimum: $\nabla_{\mathbf{x}} \mathcal{L} = 0$ and $\lambda \geq 0$.
+
+```python
+import numpy as np
+
+# Adam optimizer implementation
+class Adam:
+    def __init__(self, lr=0.001, beta1=0.9, beta2=0.999, eps=1e-8):
+        self.lr = lr
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.eps = eps
+        self.m = None
+        self.v = None
+        self.t = 0
+
+    def step(self, params, grads):
+        if self.m is None:
+            self.m = np.zeros_like(params)
+            self.v = np.zeros_like(params)
+
+        self.t += 1
+        self.m = self.beta1 * self.m + (1 - self.beta1) * grads
+        self.v = self.beta2 * self.v + (1 - self.beta2) * grads**2
+
+        m_hat = self.m / (1 - self.beta1**self.t)
+        v_hat = self.v / (1 - self.beta2**self.t)
+
+        return params - self.lr * m_hat / (np.sqrt(v_hat) + self.eps)
+
+# Optimize Rosenbrock function: f(x,y) = (1-x)² + 100(y-x²)²
+def rosenbrock(x, y):
+    return (1-x)**2 + 100*(y - x**2)**2
+
+def grad_rosenbrock(x, y):
+    dx = -2*(1-x) - 400*x*(y - x**2)
+    dy = 200*(y - x**2)
+    return np.array([dx, dy])
+
+opt = Adam(lr=0.01)
+params = np.array([-1.0, -1.0])
+for i in range(5000):
+    g = grad_rosenbrock(*params)
+    params = opt.step(params, g)
+
+print(f"Optimum: ({params[0]:.4f}, {params[1]:.4f})")  # ≈ (1, 1)
+print(f"f at optimum: {rosenbrock(*params):.6f}")  # ≈ 0
+```
+
+## Key Takeaway
+
+Optimization is how models learn. Understanding the landscape (convexity, saddle points), algorithms (SGD, momentum, Adam), and tradeoffs (learning rate, batch size) is essential for training effective AI models. Adam is the default choice for most deep learning tasks.

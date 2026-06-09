@@ -12,6 +12,7 @@
   "dependencies": {
     "@mdx-js/react": "^2.3.0",
     "esbuild": "^0.14.54",
+    "framer-motion": "^12.40.0",
     "fuse.js": "^6.6.2",
     "gray-matter": "^4.0.3",
     "katex": "^0.16.8",

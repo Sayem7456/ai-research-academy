@@ -1,0 +1,82 @@
+---
+title: "Scalars"
+date: 2025-01-01
+tags:
+  - math
+  - linear-algebra
+  - fundamentals
+---
+
+<Callout type="info">Scalars are the simplest data type in linear algebra — single numerical values that form the foundation of all mathematical operations in AI.</Callout>
+
+## What Problem Does It Solve?
+
+In AI, we need a way to represent individual quantities: a learning rate, a loss value, a probability score. Scalars are these single numerical values — the atomic building blocks from which all more complex structures (vectors, matrices, tensors) are built.
+
+## Definition
+
+A **scalar** is a single real (or complex) number. Unlike vectors and matrices, a scalar has no direction or shape — it's just a magnitude.
+
+$$
+s \in \mathbb{R}
+$$
+
+Examples of scalars in AI:
+- Learning rate: $\alpha = 0.001$
+- Loss value: $\mathcal{L} = 0.453$
+- Temperature: $T = 0.7$
+
+## Types of Numbers
+
+Scalars can be drawn from different number sets:
+
+| Set | Symbol | Examples |
+|-----|--------|----------|
+| Natural numbers | $\mathbb{N}$ | 0, 1, 2, 3, ... |
+| Integers | $\mathbb{Z}$ | ..., -2, -1, 0, 1, 2, ... |
+| Rational numbers | $\mathbb{Q}$ | 1/2, -3/4, 7 |
+| Real numbers | $\mathbb{R}$ | $\pi$, $e$, $\sqrt{2}$ |
+| Complex numbers | $\mathbb{C}$ | $3 + 4i$ |
+
+In most AI applications, we work with real-valued scalars $s \in \mathbb{R}$.
+
+## Operations
+
+Scalars support standard arithmetic:
+
+$$
+a + b, \quad a - b, \quad a \times b, \quad \frac{a}{b} \text{ (where } b \neq 0)
+$$
+
+**Scalar multiplication** of a vector scales every component:
+
+$$
+c \cdot \mathbf{v} = c \cdot \begin{bmatrix} v_1 \\ v_2 \\ v_3 \end{bmatrix} = \begin{bmatrix} c \cdot v_1 \\ c \cdot v_2 \\ c \cdot v_3 \end{bmatrix}
+$$
+
+## Role in AI
+
+<Callout type="tip">Almost every hyperparameter in machine learning is a scalar: learning rate, batch size, number of epochs, regularization strength, dropout probability.</Callout>
+
+Key uses of scalars in AI:
+1. **Hyperparameters** — learning rate $\alpha$, regularization $\lambda$
+2. **Loss values** — mean squared error, cross-entropy
+3. **Probabilities** — softmax outputs, confidence scores
+4. **Metrics** — accuracy, precision, recall, F1 score
+
+```python
+import numpy as np
+
+# Scalar operations in NumPy
+learning_rate = 0.01
+loss = 0.5
+updated_weight = weight - learning_rate * gradient
+
+# Scalar multiplication of a vector
+v = np.array([1, 2, 3])
+scaled = 2.5 * v  # [2.5, 5.0, 7.5]
+```
+
+## Key Takeaway
+
+Scalars are single numbers — the simplest possible data structure. Yet they are everywhere in AI: every loss value, every learning rate, every probability is a scalar. Understanding scalar operations is the first step toward mastering the linear algebra that powers machine learning.

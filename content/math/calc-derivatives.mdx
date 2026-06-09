@@ -1,0 +1,102 @@
+---
+title: "Derivatives"
+date: 2025-01-11
+tags:
+  - math
+  - calculus
+  - derivatives
+---
+
+<Callout type="info">The derivative measures the instantaneous rate of change of a function — the slope of the tangent line. It's the fundamental tool for understanding how outputs change as inputs change.</Callout>
+
+## What Problem Does It Solve?
+
+How does a loss function change when we tweak a model parameter? Derivatives tell us the direction and magnitude of change — enabling us to find optimal parameters through gradient descent.
+
+## Definition
+
+$$
+f'(x) = \lim_{h \to 0} \frac{f(x + h) - f(x)}{h}
+$$
+
+This is the slope of the tangent line at the point $(x, f(x))$.
+
+## Derivative Rules
+
+### Power Rule
+
+$$
+\frac{d}{dx} x^n = n x^{n-1}
+$$
+
+### Sum Rule
+
+$$
+(f + g)' = f' + g'
+$$
+
+### Product Rule
+
+$$
+(fg)' = f'g + fg'
+$$
+
+### Quotient Rule
+
+$$
+\left(\frac{f}{g}\right)' = \frac{f'g - fg'}{g^2}
+$$
+
+## Common Derivatives
+
+| Function | Derivative |
+|----------|-----------|
+| $c$ (constant) | $0$ |
+| $x^n$ | $nx^{n-1}$ |
+| $e^x$ | $e^x$ |
+| $\ln(x)$ | $1/x$ |
+| $\sin(x)$ | $\cos(x)$ |
+| $\cos(x)$ | $-\sin(x)$ |
+| $\sigma(x) = \frac{1}{1+e^{-x}}$ | $\sigma(x)(1-\sigma(x))$ |
+
+<Callout type="tip">The sigmoid derivative $\sigma'(x) = \sigma(x)(1-\sigma(x))$ is why sigmoid activations were popular — the derivative is easy to compute from the output itself!</Callout>
+
+## Higher-Order Derivatives
+
+The second derivative $f''(x)$ measures the rate of change of the first derivative — i.e., the **curvature** of the function:
+
+$$
+f''(x) = \frac{d^2 f}{dx^2} = \frac{d}{dx} f'(x)
+$$
+
+- $f'' > 0$: concave up (local minimum possible)
+- $f'' < 0$: concave down (local maximum possible)
+
+```python
+import numpy as np
+
+def f(x):
+    return x**3 - 3*x**2 + 2*x
+
+def f_prime(x):
+    return 3*x**2 - 6*x + 2
+
+def f_double_prime(x):
+    return 6*x - 6
+
+# Verify numerically
+x = 2.0
+h = 1e-7
+numerical_deriv = (f(x + h) - f(x - h)) / (2 * h)
+print(f"Analytical f'(2) = {f_prime(2)}")     # 2
+print(f"Numerical f'(2) ≈ {numerical_deriv:.6f}")  # ≈ 2.0
+
+# Find critical points: f'(x) = 0
+# 3x² - 6x + 2 = 0 → x = (6 ± √12) / 6
+x_crit = [(6 + np.sqrt(12))/6, (6 - np.sqrt(12))/6]
+print(f"Critical points: {[f'{x:.3f}' for x in x_crit]}")
+```
+
+## Key Takeaway
+
+Derivatives are the language of optimization. Every loss function, every activation function, every regularizer has a derivative that tells us how to adjust parameters. Mastering derivative rules — especially the chain rule (next lesson) — is essential for understanding backpropagation.

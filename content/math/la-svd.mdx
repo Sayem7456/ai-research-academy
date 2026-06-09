@@ -1,0 +1,96 @@
+---
+title: "Singular Value Decomposition"
+date: 2025-01-08
+tags:
+  - math
+  - linear-algebra
+  - svd
+---
+
+<Callout type="info">SVD decomposes any matrix into three fundamental components — one of the most powerful and widely used factorizations in all of mathematics and machine learning.</Callout>
+
+## What Problem Does It Solve?
+
+Not all matrices are square, and not all square matrices are diagonalizable. SVD works for **any** matrix and provides the best possible low-rank approximation. It's the Swiss Army knife of linear algebra.
+
+## The Decomposition
+
+For any matrix $A \in \mathbb{R}^{m \times n}$:
+
+$$
+A = U \Sigma V^T
+$$
+
+where:
+- $U \in \mathbb{R}^{m \times m}$ — orthogonal (left singular vectors)
+- $\Sigma \in \mathbb{R}^{m \times n}$ — diagonal with non-negative entries (singular values $\sigma_1 \geq \sigma_2 \geq \cdots \geq 0$)
+- $V \in \mathbb{R}^{n \times n}$ — orthogonal (right singular vectors)
+
+## Geometric Interpretation
+
+Any linear transformation can be decomposed into three steps:
+1. **$V^T$**: Rotate the input space
+2. **$\Sigma$**: Scale along each axis
+3. **$U$**: Rotate into the output space
+
+$$
+\mathbf{x} \xrightarrow{V^T} \text{rotate} \xrightarrow{\Sigma} \text{scale} \xrightarrow{U} \text{rotate} \to A\mathbf{x}
+$$
+
+## Computing SVD
+
+The singular values of $A$ are the square roots of the eigenvalues of $A^T A$ (or $AA^T$):
+
+$$
+\sigma_i = \sqrt{\lambda_i(A^T A)}
+$$
+
+The columns of $V$ are eigenvectors of $A^T A$. The columns of $U$ are eigenvectors of $AA^T$.
+
+## Low-Rank Approximation (Eckart-Young Theorem)
+
+The best rank-$k$ approximation of $A$ (in Frobenius norm) is:
+
+$$
+A_k = \sum_{i=1}^{k} \sigma_i \mathbf{u}_i \mathbf{v}_i^T = U_k \Sigma_k V_k^T
+$$
+
+<Callout type="tip">This is the foundation of image compression, recommendation systems, and dimensionality reduction. Keep only the top $k$ singular values and their vectors.</Callout>
+
+## Applications in AI
+
+1. **Dimensionality Reduction** — truncate to top $k$ components
+2. **Image Compression** — store $U_k, \Sigma_k, V_k$ instead of full image
+3. **Recommendation Systems** — low-rank matrix factorization
+4. **Noise Reduction** — small singular values often correspond to noise
+5. **Pseudoinverse** — $A^+ = V \Sigma^+ U^T$ for solving least squares
+
+```python
+import numpy as np
+
+A = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
+
+# Full SVD
+U, S, Vt = np.linalg.svd(A, full_matrices=True)
+print(f"U shape: {U.shape}")    # (4, 4)
+print(f"S: {S}")                  # singular values
+print(f"Vt shape: {Vt.shape}")   # (3, 3)
+
+# Reduced SVD (economy)
+U_r, S_r, Vt_r = np.linalg.svd(A, full_matrices=False)
+print(f"Reduced U: {U_r.shape}")  # (4, 3)
+
+# Low-rank approximation (rank 2)
+k = 2
+A_k = U_r[:, :k] @ np.diag(S_r[:k]) @ Vt_r[:k, :]
+print(f"Original:\n{A}")
+print(f"Rank-2 approx:\n{A_k.round(1)}")
+
+# Energy captured by top-k components
+energy = np.cumsum(S_r**2) / np.sum(S_r**2)
+print(f"Energy captured: {energy}")  # [0.988..., 1.0, 1.0]
+```
+
+## Key Takeaway
+
+SVD is arguably the most important matrix factorization. It works for any matrix, provides optimal low-rank approximations, and underpins techniques from image compression to recommendation systems. In AI, SVD connects directly to PCA, matrix completion, and efficient model representations.

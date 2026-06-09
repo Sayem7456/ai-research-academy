@@ -1,0 +1,94 @@
+---
+title: "Likelihood"
+date: 2025-01-21
+tags:
+  - math
+  - probability
+  - likelihood
+---
+
+<Callout type="info">The likelihood function measures how well model parameters explain observed data — it's the bridge between data and parameter estimation.</Callout>
+
+## What Problem Does It Solve?
+
+Given observed data, which parameters of our model make this data most probable? The likelihood function answers this by treating the data as fixed and the parameters as variable.
+
+## Definition
+
+Given data $\mathcal{D} = \{x_1, x_2, \ldots, x_n\}$ and a parametric model with parameter $\theta$:
+
+$$
+L(\theta | \mathcal{D}) = P(\mathcal{D} | \theta) = \prod_{i=1}^{n} p(x_i | \theta)
+$$
+
+(assuming independent observations)
+
+## Likelihood vs Probability
+
+<Callout type="warning">This distinction is crucial: **Probability** treats parameters as fixed and asks about data. **Likelihood** treats data as fixed and asks about parameters.</Callout>
+
+| | Probability $P(X\|\theta)$ | Likelihood $L(\theta\|X)$ |
+|---|---|---|
+| Fixed | Parameters $\theta$ | Data $X$ |
+| Variable | Data $X$ | Parameters $\theta$ |
+| Sums to 1? | Yes (over $X$) | No (over $\theta$) |
+
+## Log-Likelihood
+
+Products of many small probabilities lead to numerical underflow. Taking the log converts products to sums:
+
+$$
+\ell(\theta) = \log L(\theta | \mathcal{D}) = \sum_{i=1}^{n} \log p(x_i | \theta)
+$$
+
+Since log is monotonically increasing, maximizing $\ell(\theta)$ is equivalent to maximizing $L(\theta)$.
+
+## Score Function
+
+The derivative of the log-likelihood:
+
+$$
+S(\theta) = \frac{\partial \ell(\theta)}{\partial \theta}
+$$
+
+Setting $S(\theta) = 0$ finds the MLE.
+
+## Fisher Information
+
+Measures how much information the data carries about $\theta$:
+
+$$
+I(\theta) = -E\left[\frac{\partial^2 \ell(\theta)}{\partial \theta^2}\right] = \text{Var}(S(\theta))
+$$
+
+High Fisher information → data is very informative about $\theta$ → more precise estimates.
+
+```python
+import numpy as np
+
+# Likelihood for Bernoulli data
+data = np.array([1, 1, 0, 1, 0, 1, 1, 1, 0, 1])  # 7 ones, 3 zeros
+n = len(data)
+k = sum(data)
+
+# Likelihood function
+def likelihood(p):
+    return p**k * (1-p)**(n-k)
+
+# Log-likelihood
+def log_likelihood(p):
+    return k * np.log(p) + (n-k) * np.log(1-p)
+
+# Evaluate at different p values
+for p in [0.3, 0.5, 0.7, 0.9]:
+    print(f"L(p={p}) = {likelihood(p):.8f}, log L = {log_likelihood(p):.4f}")
+
+# MLE: p_hat = k/n
+p_mle = k / n
+print(f"\nMLE: p = {p_mle} (maximizes likelihood)")
+print(f"Max log-likelihood = {log_likelihood(p_mle):.4f}")
+```
+
+## Key Takeaway
+
+The likelihood function is the central tool for parameter estimation. By treating observed data as fixed and varying parameters, it tells us which parameters best explain our observations. Log-likelihood avoids numerical issues and connects directly to loss functions in machine learning.

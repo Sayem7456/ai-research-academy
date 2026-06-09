@@ -1,0 +1,106 @@
+---
+title: "Bayes Theorem"
+date: 2025-01-20
+tags:
+  - math
+  - probability
+  - bayes-theorem
+  - bayesian
+---
+
+<Callout type="info">Bayes theorem updates beliefs with evidence — the foundation of Bayesian machine learning and probabilistic reasoning. It tells us how to revise our beliefs when we observe new data.</Callout>
+
+## What Problem Does It Solve?
+
+We have a prior belief about a hypothesis, then we observe data. How should we update our belief? Bayes theorem provides the mathematically optimal answer.
+
+## Statement
+
+$$
+P(H|D) = \frac{P(D|H) \cdot P(H)}{P(D)}
+$$
+
+| Term | Name | Meaning |
+|------|------|---------|
+| $P(H\|D)$ | **Posterior** | Updated belief after seeing data |
+| $P(D\|H)$ | **Likelihood** | How probable is data given hypothesis |
+| $P(H)$ | **Prior** | Initial belief before seeing data |
+| $P(D)$ | **Evidence** | Total probability of observing the data |
+
+## Derivation
+
+From the definition of conditional probability:
+
+$$
+P(H|D) = \frac{P(H \cap D)}{P(D)} \quad \text{and} \quad P(D|H) = \frac{P(H \cap D)}{P(H)}
+$$
+
+Therefore: $P(H \cap D) = P(D|H) P(H)$, and substituting:
+
+$$
+P(H|D) = \frac{P(D|H) P(H)}{P(D)}
+$$
+
+The evidence $P(D)$ is computed by marginalizing over all hypotheses:
+
+$$
+P(D) = \sum_i P(D|H_i) P(H_i) \quad \text{or} \quad \int P(D|\theta) P(\theta) d\theta
+$$
+
+## Naive Bayes Classifier
+
+Assume features are conditionally independent given the class:
+
+$$
+P(C_k | \mathbf{x}) \propto P(C_k) \prod_{i=1}^{n} P(x_i | C_k)
+$$
+
+Despite the "naive" independence assumption, this classifier works remarkably well for text classification.
+
+<Callout type="tip">In practice, we often work with log-probabilities to avoid numerical underflow: $\log P(C_k|\mathbf{x}) \propto \log P(C_k) + \sum_i \log P(x_i|C_k)$.</Callout>
+
+## Bayesian Update Animation
+
+As we observe more data, the posterior becomes more concentrated:
+
+$$
+\text{Prior} \xrightarrow{\text{data}_1} \text{Posterior}_1 \xrightarrow{\text{data}_2} \text{Posterior}_2 \xrightarrow{\cdots} \text{Final Posterior}
+$$
+
+Each posterior becomes the prior for the next update.
+
+```python
+import numpy as np
+
+# Medical test example
+P_disease = 0.01       # 1% prevalence (prior)
+P_pos_given_disease = 0.99  # 99% sensitivity
+P_pos_given_healthy = 0.05  # 5% false positive rate
+
+# P(positive)
+P_positive = (P_pos_given_disease * P_disease +
+              P_pos_given_healthy * (1 - P_disease))
+
+# Bayes theorem
+P_disease_given_pos = (P_pos_given_disease * P_disease) / P_positive
+print(f"P(Disease | Positive test) = {P_disease_given_pos:.4f}")  # ≈ 0.1667
+
+# Bayesian update with Beta-Bernoulli
+# Prior: Beta(1, 1) = Uniform
+alpha, beta = 1, 1
+observations = [1, 1, 0, 1, 0, 1, 1, 1, 0, 1]  # 7 heads, 3 tails
+
+for i, obs in enumerate(observations):
+    if obs == 1:
+        alpha += 1
+    else:
+        beta += 1
+    mean = alpha / (alpha + beta)
+    print(f"After {i+1} obs: Beta({alpha},{beta}), mean = {mean:.4f}")
+
+print(f"\nFinal posterior mean: {alpha/(alpha+beta):.4f}")  # ≈ 0.667
+```
+
+## Key Takeaway
+
+Bayes theorem is the mathematical foundation for learning from data. It formalizes how prior knowledge combines with evidence to produce updated beliefs. In AI, Bayesian methods provide principled uncertainty quantification — knowing what the model doesn't know is as important as what it does know.

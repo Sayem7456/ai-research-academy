@@ -1,0 +1,132 @@
+---
+title: "PCA Mathematics"
+date: 2025-01-09
+tags:
+  - math
+  - linear-algebra
+  - pca
+  - dimensionality-reduction
+---
+
+<Callout type="info">Principal Component Analysis (PCA) uses eigenvalues and SVD to find the directions of maximum variance in high-dimensional data — the most widely used dimensionality reduction technique.</Callout>
+
+## What Problem Does It Solve?
+
+High-dimensional data is hard to visualize, expensive to process, and prone to overfitting. PCA finds a lower-dimensional representation that preserves as much information (variance) as possible.
+
+## Motivation
+
+Given data points in $\mathbb{R}^d$, we want to project them onto a $k$-dimensional subspace ($k < d$) such that the projected data retains maximum variance.
+
+## The Algorithm
+
+### Step 1: Center the Data
+
+Subtract the mean from each feature:
+
+$$
+\tilde{\mathbf{x}}_i = \mathbf{x}_i - \bar{\mathbf{x}}, \quad \bar{\mathbf{x}} = \frac{1}{n} \sum_{i=1}^{n} \mathbf{x}_i
+$$
+
+### Step 2: Compute the Covariance Matrix
+
+$$
+C = \frac{1}{n-1} \tilde{X}^T \tilde{X} \in \mathbb{R}^{d \times d}
+$$
+
+### Step 3: Eigenvalue Decomposition
+
+Find eigenvalues and eigenvectors of $C$:
+
+$$
+C \mathbf{v}_i = \lambda_i \mathbf{v}_i
+$$
+
+Sort by eigenvalue: $\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_d \geq 0$.
+
+### Step 4: Select Top-$k$ Components
+
+The first $k$ eigenvectors $\mathbf{v}_1, \ldots, \mathbf{v}_k$ are the **principal components**.
+
+### Step 5: Project the Data
+
+$$
+Z = \tilde{X} V_k \in \mathbb{R}^{n \times k}
+$$
+
+## Explained Variance
+
+Each eigenvalue $\lambda_i$ represents the variance along the $i$-th principal component:
+
+$$
+\text{Explained Variance Ratio}_i = \frac{\lambda_i}{\sum_{j=1}^{d} \lambda_j}
+$$
+
+The cumulative explained variance tells us how much information is preserved:
+
+$$
+\text{Cumulative}_k = \frac{\sum_{i=1}^{k} \lambda_i}{\sum_{j=1}^{d} \lambda_j}
+$$
+
+<Callout type="tip">A common heuristic: choose $k$ such that cumulative explained variance exceeds 95%. This preserves most of the information while reducing dimensionality.</Callout>
+
+## SVD Approach
+
+PCA can equivalently be computed via SVD, which is more numerically stable:
+
+$$
+\tilde{X} = U \Sigma V^T
+$$
+
+The principal components are the columns of $V$, and the projected data is $U_k \Sigma_k$.
+
+## Connection to Eigenvalues
+
+- The covariance matrix $C$ is always symmetric and positive semi-definite
+- By the spectral theorem: $C = V \Lambda V^T$ with real $\lambda_i \geq 0$
+- Principal components are the eigenvectors of $C$
+
+```python
+import numpy as np
+from numpy.linalg import svd
+
+# Generate sample data (100 points in 5D)
+np.random.seed(42)
+X = np.random.randn(100, 5)
+
+# Step 1: Center
+X_centered = X - X.mean(axis=0)
+
+# Step 2: Covariance matrix
+C = np.cov(X_centered, rowvar=False)
+
+# Step 3: Eigendecomposition
+eigenvalues, eigenvectors = np.linalg.eigh(C)
+# Sort descending
+idx = np.argsort(eigenvalues)[::-1]
+eigenvalues = eigenvalues[idx]
+eigenvectors = eigenvectors[:, idx]
+
+# Step 4: Select top 2 components
+k = 2
+V_k = eigenvectors[:, :k]
+
+# Step 5: Project
+Z = X_centered @ V_k
+print(f"Projected shape: {Z.shape}")  # (100, 2)
+
+# Explained variance
+explained = eigenvalues / eigenvalues.sum()
+cumulative = np.cumsum(explained)
+print(f"Explained variance: {explained.round(3)}")
+print(f"Cumulative: {cumulative.round(3)}")
+
+# SVD approach (equivalent, more stable)
+U, S, Vt = svd(X_centered, full_matrices=False)
+Z_svd = U[:, :k] * S[:k]
+print(f"SVD and eig match: {np.allclose(np.abs(Z), np.abs(Z_svd))}")
+```
+
+## Key Takeaway
+
+PCA is the bridge between linear algebra and practical data science. By projecting data onto the directions of maximum variance, it enables visualization, compression, and noise reduction. Understanding PCA's mathematical foundations — covariance matrices, eigendecomposition, and SVD — is essential for any AI researcher.

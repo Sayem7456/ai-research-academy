@@ -1,0 +1,84 @@
+---
+title: "Random Variables"
+date: 2025-01-18
+tags:
+  - math
+  - probability
+  - random-variables
+---
+
+<Callout type="info">Random variables map outcomes of random processes to numerical values — the bridge between real-world uncertainty and mathematical analysis.</Callout>
+
+## What Problem Does It Solve?
+
+The real world is uncertain. Stock prices fluctuate, sensor readings have noise, and model predictions aren't always correct. Random variables let us quantify and reason about this uncertainty mathematically.
+
+## Discrete vs Continuous
+
+| Type | Values | Example | Distribution Function |
+|------|--------|---------|-----------------------|
+| **Discrete** | Countable | Dice roll, word tokens | PMF: $P(X = x)$ |
+| **Continuous** | Uncountable | Height, temperature | PDF: $f(x)$ |
+
+## Probability Mass Function (PMF)
+
+For discrete random variables:
+
+$$
+P(X = x) = p(x), \quad \sum_x p(x) = 1, \quad p(x) \geq 0
+$$
+
+## Probability Density Function (PDF)
+
+For continuous random variables, $P(X = x) = 0$ for any single point. Instead:
+
+$$
+P(a \leq X \leq b) = \int_a^b f(x) \, dx, \quad \int_{-\infty}^{\infty} f(x) \, dx = 1
+$$
+
+## Cumulative Distribution Function (CDF)
+
+$$
+F(x) = P(X \leq x)
+$$
+
+Properties: monotonically non-decreasing, $F(-\infty) = 0$, $F(\infty) = 1$.
+
+## Expected Value (Mean)
+
+$$
+E[X] = \sum_x x \cdot p(x) \quad \text{(discrete)}, \quad E[X] = \int_{-\infty}^{\infty} x f(x) \, dx \quad \text{(continuous)}
+$$
+
+## Variance
+
+$$
+\text{Var}(X) = E[(X - \mu)^2] = E[X^2] - (E[X])^2
+$$
+
+Standard deviation: $\sigma = \sqrt{\text{Var}(X)}$.
+
+<Callout type="tip">In machine learning, we often work with expectations: the expected loss, the expected gradient, the expected reward. Understanding expectations is key to understanding what training algorithms actually optimize.</Callout>
+
+```python
+import numpy as np
+
+# Discrete: fair die
+outcomes = np.array([1, 2, 3, 4, 5, 6])
+pmf = np.ones(6) / 6
+
+expected_value = np.sum(outcomes * pmf)
+print(f"E[X] = {expected_value}")  # 3.5
+
+variance = np.sum(((outcomes - expected_value)**2) * pmf)
+print(f"Var(X) = {variance:.4f}")  # 2.9167
+
+# Continuous: approximate with samples
+samples = np.random.normal(loc=0, scale=1, size=100000)
+print(f"Sample mean ≈ {np.mean(samples):.4f}")  # ≈ 0
+print(f"Sample std ≈ {np.std(samples):.4f}")    # ≈ 1
+```
+
+## Key Takeaway
+
+Random variables are the fundamental objects of probability theory. Every uncertain quantity in AI — model predictions, data noise, gradient estimates — is modeled as a random variable. Understanding PMFs, PDFs, expectations, and variance is essential for probabilistic machine learning.

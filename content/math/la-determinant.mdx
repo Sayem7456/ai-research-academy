@@ -1,0 +1,85 @@
+---
+title: "Determinant"
+date: 2025-01-06
+tags:
+  - math
+  - linear-algebra
+  - determinant
+---
+
+<Callout type="info">The determinant measures how a linear transformation scales area (2D) or volume (3D) — it tells us whether a matrix is invertible and by how much it stretches space.</Callout>
+
+## What Problem Does It Solve?
+
+Given a linear transformation, how much does it scale the space? Does it flip orientation? Is it invertible? The determinant answers all these questions with a single number.
+
+## Geometric Interpretation
+
+For a $2 \times 2$ matrix, $|\det(A)|$ is the area of the parallelogram formed by the column vectors. The sign tells us whether the transformation preserves or reverses orientation.
+
+$$
+\det \begin{bmatrix} a & b \\ c & d \end{bmatrix} = ad - bc
+$$
+
+For a $3 \times 3$ matrix, $|\det(A)|$ is the volume of the parallelepiped.
+
+## Properties
+
+| Property | Formula |
+|----------|---------|
+| Identity | $\det(I) = 1$ |
+| Product | $\det(AB) = \det(A)\det(B)$ |
+| Transpose | $\det(A^T) = \det(A)$ |
+| Inverse | $\det(A^{-1}) = 1/\det(A)$ |
+| Scalar mult | $\det(cA) = c^n \det(A)$ |
+| Zero determinant | $A$ is singular (not invertible) |
+
+<Callout type="warning">A matrix is invertible if and only if its determinant is non-zero. A zero determinant means the transformation collapses space into a lower dimension.</Callout>
+
+## Computation: Cofactor Expansion
+
+For an $n \times n$ matrix, expand along any row or column:
+
+$$
+\det(A) = \sum_{j=1}^{n} (-1)^{i+j} a_{ij} M_{ij}
+$$
+
+where $M_{ij}$ is the **minor** (determinant of the submatrix obtained by deleting row $i$ and column $j$).
+
+## Cramer's Rule
+
+For a system $A\mathbf{x} = \mathbf{b}$ where $\det(A) \neq 0$:
+
+$$
+x_i = \frac{\det(A_i)}{\det(A)}
+$$
+
+where $A_i$ is $A$ with column $i$ replaced by $\mathbf{b}$.
+
+<Callout type="tip">While Cramer's rule is elegant, it's computationally expensive $O(n!)$ for direct expansion. For large systems, use LU decomposition instead.</Callout>
+
+```python
+import numpy as np
+
+A = np.array([[3, 8], [4, 6]])
+
+# Determinant
+det_A = np.linalg.det(A)
+print(f"det(A) = {det_A:.1f}")  # det(A) = -14.0
+
+# Check invertibility
+print(f"Invertible: {abs(det_A) > 1e-10}")  # True
+
+# Product property
+B = np.array([[1, 2], [3, 4]])
+print(f"det(AB) = {np.linalg.det(A @ B):.1f}")
+print(f"det(A)*det(B) = {(det_A * np.linalg.det(B)):.1f}")
+
+# 3x3 example
+C = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+print(f"det(C) = {np.linalg.det(C):.6f}")  # ≈ 0 (singular!)
+```
+
+## Key Takeaway
+
+The determinant is a single number that captures essential information about a linear transformation: invertibility, volume scaling, and orientation. It's crucial for understanding when systems of equations have unique solutions and appears in probability (change of variables) and optimization (Hessian analysis).

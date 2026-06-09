@@ -1,0 +1,108 @@
+---
+title: "Eigenvalues & Eigenvectors"
+date: 2025-01-07
+tags:
+  - math
+  - linear-algebra
+  - eigenvalues
+  - eigenvectors
+---
+
+<Callout type="info">Eigenvalues and eigenvectors reveal the fundamental directions and scaling factors of linear transformations — the DNA of a matrix.</Callout>
+
+## What Problem Does It Solve?
+
+A linear transformation can rotate, scale, and shear space. But are there special directions that are only scaled (not rotated)? Eigenvalues and eigenvectors find these invariant directions — essential for understanding data structure and matrix behavior.
+
+## Definition
+
+For a square matrix $A$, a non-zero vector $\mathbf{v}$ is an **eigenvector** with **eigenvalue** $\lambda$ if:
+
+$$
+A\mathbf{v} = \lambda \mathbf{v}
+$$
+
+Geometrically: applying $A$ to $\mathbf{v}$ only stretches/shrinks it by factor $\lambda$ — no rotation.
+
+## The Characteristic Equation
+
+To find eigenvalues, solve:
+
+$$
+\det(A - \lambda I) = 0
+$$
+
+This is a polynomial of degree $n$ in $\lambda$, yielding up to $n$ eigenvalues (counting multiplicity).
+
+For a $2 \times 2$ matrix $A = \begin{bmatrix} a & b \\ c & d \end{bmatrix}$:
+
+$$
+\lambda^2 - (a+d)\lambda + (ad - bc) = 0
+$$
+
+## Geometric Meaning
+
+- **$\lambda > 0$**: Vector is stretched in the same direction
+- **$0 < \lambda < 1$**: Vector is compressed
+- **$\lambda < 0$**: Vector is flipped and scaled
+- **$\lambda = 0$**: Matrix is singular (collapses this direction)
+
+## Key Properties
+
+| Property | Formula |
+|----------|---------|
+| Sum of eigenvalues | $\sum \lambda_i = \text{tr}(A)$ (trace) |
+| Product of eigenvalues | $\prod \lambda_i = \det(A)$ |
+| $A^k$ eigenvalues | $\lambda_i^k$ |
+| $A^{-1}$ eigenvalues | $1/\lambda_i$ |
+| Similar matrices | Same eigenvalues |
+
+## Diagonalization
+
+If $A$ has $n$ linearly independent eigenvectors, we can write:
+
+$$
+A = P D P^{-1}
+$$
+
+where $D = \text{diag}(\lambda_1, \ldots, \lambda_n)$ and $P = [\mathbf{v}_1 | \cdots | \mathbf{v}_n]$.
+
+This makes computing $A^k$ trivial: $A^k = P D^k P^{-1}$.
+
+## Spectral Theorem
+
+For **symmetric** matrices ($A = A^T$):
+- All eigenvalues are real
+- Eigenvectors can be chosen orthonormal
+- $A = Q \Lambda Q^T$ where $Q$ is orthogonal
+
+<Callout type="tip">Covariance matrices are always symmetric, so the spectral theorem guarantees real eigenvalues and orthogonal eigenvectors — the foundation of PCA.</Callout>
+
+```python
+import numpy as np
+
+A = np.array([[4, -2], [1, 1]])
+
+# Eigenvalues and eigenvectors
+eigenvalues, eigenvectors = np.linalg.eig(A)
+print(f"Eigenvalues: {eigenvalues}")  # [3, 2]
+print(f"Eigenvectors:\n{eigenvectors}")
+
+# Verify: A @ v = λ * v
+for i in range(len(eigenvalues)):
+    v = eigenvectors[:, i]
+    lam = eigenvalues[i]
+    lhs = A @ v
+    rhs = lam * v
+    print(f"λ={lam:.1f}: A@v = {lhs}, λv = {rhs}, match: {np.allclose(lhs, rhs)}")
+
+# Trace = sum of eigenvalues
+print(f"tr(A) = {np.trace(A)}, sum(λ) = {sum(eigenvalues)}")
+
+# Det = product of eigenvalues
+print(f"det(A) = {np.linalg.det(A):.1f}, prod(λ) = {np.prod(eigenvalues):.1f}")
+```
+
+## Key Takeaway
+
+Eigenvalues and eigenvectors decompose a matrix into its essential components. They power PCA for dimensionality reduction, spectral clustering, Google's PageRank algorithm, and stability analysis. In AI, they reveal the principal directions of data variance and the convergence behavior of iterative algorithms.

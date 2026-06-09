@@ -1,0 +1,111 @@
+---
+title: "Vectors"
+date: 2025-01-02
+tags:
+  - math
+  - linear-algebra
+  - vectors
+---
+
+<Callout type="info">Vectors are ordered arrays of numbers — the fundamental data structure for representing features, embeddings, and directions in machine learning.</Callout>
+
+## What Problem Does It Solve?
+
+A single number (scalar) can't describe a data point with multiple features. A house listing has price, square footage, number of bedrooms, location coordinates — all at once. Vectors bundle these features into a single mathematical object.
+
+## Definition
+
+A **vector** is an ordered list of $n$ real numbers:
+
+$$
+\mathbf{v} = \begin{bmatrix} v_1 \\ v_2 \\ \vdots \\ v_n \end{bmatrix} \in \mathbb{R}^n
+$$
+
+A vector in $\mathbb{R}^3$ might represent a 3D point: $\mathbf{p} = [x, y, z]^T$.
+
+## Vector Operations
+
+### Addition
+
+$$
+\mathbf{a} + \mathbf{b} = \begin{bmatrix} a_1 + b_1 \\ a_2 + b_2 \\ \vdots \\ a_n + b_n \end{bmatrix}
+$$
+
+Geometrically, vector addition follows the **parallelogram rule**.
+
+### Scalar Multiplication
+
+$$
+c \cdot \mathbf{v} = \begin{bmatrix} c \cdot v_1 \\ c \cdot v_2 \\ \vdots \\ c \cdot v_n \end{bmatrix}
+$$
+
+## Dot Product
+
+The dot product (inner product) of two vectors produces a **scalar**:
+
+$$
+\mathbf{a} \cdot \mathbf{b} = \sum_{i=1}^{n} a_i b_i = a_1 b_1 + a_2 b_2 + \cdots + a_n b_n
+$$
+
+Geometrically:
+
+$$
+\mathbf{a} \cdot \mathbf{b} = \|\mathbf{a}\| \|\mathbf{b}\| \cos(\theta)
+$$
+
+where $\theta$ is the angle between the vectors. Two vectors are **orthogonal** when $\mathbf{a} \cdot \mathbf{b} = 0$.
+
+<Callout type="tip">The dot product is the most used operation in neural networks. Every neuron computes a dot product of inputs and weights, then adds a bias.</Callout>
+
+## Norm
+
+The **norm** (length) of a vector:
+
+$$
+\|\mathbf{v}\|_p = \left( \sum_{i=1}^{n} |v_i|^p \right)^{1/p}
+$$
+
+Common norms:
+- **L1 norm** (Manhattan): $\|\mathbf{v}\|_1 = \sum |v_i|$
+- **L2 norm** (Euclidean): $\|\mathbf{v}\|_2 = \sqrt{\sum v_i^2}$
+- **L∞ norm** (Max): $\|\mathbf{v}\|_\infty = \max_i |v_i|$
+
+## Unit Vectors and Basis Vectors
+
+A **unit vector** has norm 1: $\hat{\mathbf{v}} = \frac{\mathbf{v}}{\|\mathbf{v}\|}$
+
+The **standard basis vectors** in $\mathbb{R}^3$:
+
+$$
+\mathbf{e}_1 = \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}, \quad \mathbf{e}_2 = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix}, \quad \mathbf{e}_3 = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}
+$$
+
+Any vector can be expressed as a linear combination of basis vectors:
+
+$$
+\mathbf{v} = v_1 \mathbf{e}_1 + v_2 \mathbf{e}_2 + v_3 \mathbf{e}_3
+$$
+
+```python
+import numpy as np
+
+a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+
+# Vector addition
+print(a + b)  # [5, 7, 9]
+
+# Dot product
+print(np.dot(a, b))  # 32
+
+# Norms
+print(np.linalg.norm(a, ord=2))  # Euclidean norm ≈ 3.742
+
+# Unit vector
+a_hat = a / np.linalg.norm(a)
+print(np.linalg.norm(a_hat))  # 1.0
+```
+
+## Key Takeaway
+
+Vectors are the workhorse of machine learning. Every data point is a vector, every layer in a neural network processes vectors, and every embedding is a vector. Mastering vector operations is essential for understanding AI.
