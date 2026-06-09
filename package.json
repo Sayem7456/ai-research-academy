@@ -6,28 +6,24 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build-search-index": "node scripts/generate-search-index.js"
   },
   "dependencies": {
     "@mdx-js/react": "^2.3.0",
     "esbuild": "^0.14.54",
+    "fuse.js": "^6.6.2",
     "gray-matter": "^4.0.3",
     "katex": "^0.16.8",
     "mdx-bundler": "^8.0.2",
     "next": "16.2.7",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "rehype-katex": "^5.0.0",
+    "recharts": "^3.8.1",
     "rehype-highlight": "^6.0.0",
-    "fuse.js": "^6.6.2",
-    "remark-math": "^5.1.1"
-  },
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "build-search-index": "node scripts/generate-search-index.js"
+    "rehype-katex": "^5.0.0",
+    "remark-math": "^5.1.1",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

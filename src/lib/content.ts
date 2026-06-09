@@ -30,13 +30,13 @@ export async function getContentBySlug(section: string, slug: string) {
     console.log("bundleMDX: source contains $$?", source.includes("$$"));
     const result = await bundleMDX({
       source,
-      mdxOptions(options) {
-        options.remarkPlugins = [...(options.remarkPlugins || []), remarkMath];
+      xdmOptions(options) {
+        options.remarkPlugins = [...(options.remarkPlugins || []), remarkMath as any];
 
         options.rehypePlugins = [
           ...(options.rehypePlugins || []),
-          rehypeHighlight,
-          rehypeKatex,
+          rehypeHighlight as any,
+          rehypeKatex as any,
         ];
         return options;
       },

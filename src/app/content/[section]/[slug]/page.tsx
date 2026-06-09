@@ -1,6 +1,6 @@
 import React from "react";
-import { getContentBySlug, renderHTMLWithKaTeX } from "../../../lib/content";
-import { mdxComponents } from "../../../components/mdx";
+import { getContentBySlug, renderHTMLWithKaTeX } from "@/lib/content";
+import { mdxComponents } from "@/components/mdx";
 
 type Props = { params: { section: string; slug: string } };
 
