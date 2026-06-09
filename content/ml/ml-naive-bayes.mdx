@@ -1,0 +1,277 @@
+---
+title: "Naive Bayes"
+date: 2025-01-20
+tags:
+  - machine-learning
+  - supervised-learning
+  - classification
+  - probabilistic
+---
+
+<Callout type="info">Naive Bayes is a probabilistic classifier based on Bayes' theorem that assumes feature independence, making it surprisingly effective despite its simplifying assumption.</Callout>
+
+## What Problem Does It Solve?
+
+Naive Bayes solves **classification problems** using probability theory. It's especially effective for text classification (spam detection, sentiment analysis) and works well with high-dimensional sparse data.
+
+**Real-world applications:**
+- Email spam filtering (classic use case)
+- Text categorization and sentiment analysis
+- Medical diagnosis from symptoms
+- Real-time prediction (extremely fast)
+
+## Mathematical Intuition
+
+### Bayes' Theorem
+
+$$
+P(y | \mathbf{x}) = \frac{P(\mathbf{x} | y) \cdot P(y)}{P(\mathbf{x})}
+$$
+
+Where:
+- $P(y | \mathbf{x})$ = **Posterior**: Probability of class $y$ given features $\mathbf{x}$
+- $P(\mathbf{x} | y)$ = **Likelihood**: Probability of features given class
+- $P(y)$ = **Prior**: Probability of class
+- $P(\mathbf{x})$ = **Evidence**: Probability of features (constant for all classes)
+
+### The Naive Assumption
+
+**Independence assumption**: Features are conditionally independent given the class.
+
+$$
+P(\mathbf{x} | y) = P(x_1, x_2, ..., x_n | y) = \prod_{i=1}^{n} P(x_i | y)
+$$
+
+This "naive" assumption rarely holds in reality, yet the algorithm works surprisingly well.
+
+### Classification Rule
+
+Choose class with highest posterior probability:
+
+$$
+\hat{y} = \arg\max_{y} P(y) \prod_{i=1}^{n} P(x_i | y)
+$$
+
+In log space (numerically stable):
+
+$$
+\hat{y} = \arg\max_{y} \left[ \log P(y) + \sum_{i=1}^{n} \log P(x_i | y) \right]
+$$
+
+## Variants
+
+### Gaussian Naive Bayes
+
+For continuous features, assume normal distribution:
+
+$$
+P(x_i | y) = \frac{1}{\sqrt{2\pi\sigma_y^2}} \exp\left(-\frac{(x_i - \mu_y)^2}{2\sigma_y^2}\right)
+$$
+
+Calculate $\mu_y$ and $\sigma_y$ from training data for each class.
+
+### Multinomial Naive Bayes
+
+For discrete counts (e.g., word frequencies in documents):
+
+$$
+P(x_i | y) = \frac{N_{yi} + \alpha}{N_y + \alpha n}
+$$
+
+Where $N_{yi}$ is count of feature $i$ in class $y$, and $\alpha$ is smoothing parameter.
+
+### Bernoulli Naive Bayes
+
+For binary features (presence/absence):
+
+$$
+P(x_i | y) = P(i | y) x_i + (1 - P(i | y))(1 - x_i)
+$$
+
+## Implementation
+
+### From Scratch (NumPy)
+
+```python
+import numpy as np
+
+class GaussianNaiveBayes:
+    def fit(self, X, y):
+        self.classes = np.unique(y)
+        self.mean = {}
+        self.var = {}
+        self.priors = {}
+        
+        for c in self.classes:
+            X_c = X[y == c]
+            self.mean[c] = X_c.mean(axis=0)
+            self.var[c] = X_c.var(axis=0)
+            self.priors[c] = len(X_c) / len(X)
+    
+    def _gaussian_pdf(self, x, mean, var):
+        eps = 1e-6
+        return np.exp(-((x - mean) ** 2) / (2 * var + eps)) / np.sqrt(2 * np.pi * var + eps)
+    
+    def _predict_single(self, x):
+        posteriors = {}
+        
+        for c in self.classes:
+            prior = np.log(self.priors[c])
+            likelihood = np.sum(np.log(self._gaussian_pdf(x, self.mean[c], self.var[c])))
+            posteriors[c] = prior + likelihood
+        
+        return max(posteriors, key=posteriors.get)
+    
+    def predict(self, X):
+        return np.array([self._predict_single(x) for x in X])
+    
+    def score(self, X, y):
+        return np.mean(self.predict(X) == y)
+
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+
+X, y = make_classification(n_samples=1000, n_features=10, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+nb = GaussianNaiveBayes()
+nb.fit(X_train, y_train)
+
+print(f"Train Accuracy: {nb.score(X_train, y_train):.4f}")
+print(f"Test Accuracy: {nb.score(X_test, y_test):.4f}")
+```
+
+### Using Scikit-Learn
+
+```python
+from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+
+texts = ["cheap viagra", "meeting tomorrow", "buy now", "project update"]
+labels = [1, 0, 1, 0]
+
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(texts)
+X_train, X_test, y_train, y_test = train_test_split(X.toarray(), labels, test_size=0.25)
+
+nb = MultinomialNB(alpha=1.0)
+nb.fit(X_train, y_train)
+
+new_text = vectorizer.transform(["buy cheap"]).toarray()
+print(f"Prediction: {nb.predict(new_text)}")
+print(f"Probabilities: {nb.predict_proba(new_text)}")
+```
+
+## Laplace Smoothing
+
+Problem: If $P(x_i | y) = 0$ (feature never seen with class), entire product becomes 0.
+
+Solution: Add smoothing parameter $\alpha$:
+
+$$
+P(x_i | y) = \frac{\text{count}(x_i, y) + \alpha}{\text{count}(y) + \alpha n}
+$$
+
+Common choice: $\alpha = 1$ (Laplace smoothing)
+
+## Advantages
+
+### 1. Fast Training and Prediction
+Linear time complexity: $O(nd)$ for training, $O(cd)$ for prediction.
+
+### 2. Works with High-Dimensional Data
+Effective when features >> samples (common in text classification).
+
+### 3. Requires Small Training Data
+Probabilistic approach works well with limited data.
+
+### 4. Handles Missing Values
+Simply ignore missing features in probability calculation.
+
+### 5. Interpretable
+Feature probabilities are easy to understand.
+
+### 6. Multi-Class by Nature
+Naturally handles multiple classes without modification.
+
+## Limitations
+
+<Callout type="warning">The independence assumption is rarely true. Correlated features can degrade performance significantly.</Callout>
+
+### 1. Independence Assumption
+Features are rarely truly independent (e.g., words in text are correlated).
+
+### 2. Zero Frequency Problem
+Requires smoothing to handle unseen feature combinations.
+
+### 3. Poor Probability Estimates
+While classification accuracy may be good, probability values are often poorly calibrated.
+
+### 4. Sensitive to Feature Distribution
+Gaussian NB assumes normal distribution; fails if this doesn't hold.
+
+### 5. Cannot Learn Feature Interactions
+Treats each feature independently, missing important relationships.
+
+## When to Use Naive Bayes
+
+**Good for:**
+- Text classification (spam detection, sentiment analysis)
+- Real-time prediction (extremely fast)
+- High-dimensional sparse data
+- Baseline model (quick first attempt)
+- Multi-class problems
+
+**Avoid for:**
+- Features with strong dependencies
+- When probability calibration matters
+- Complex non-linear relationships
+- Small feature sets with interactions
+
+## Comparison with Logistic Regression
+
+| Aspect | Naive Bayes | Logistic Regression |
+|--------|-------------|---------------------|
+| Type | Generative | Discriminative |
+| Assumptions | Feature independence | None (more flexible) |
+| Training | Very fast | Slower |
+| Data requirement | Less data needed | More data needed |
+| Probabilities | Poorly calibrated | Well calibrated |
+
+**Ng & Jordan (2002)** showed:
+- NB reaches asymptotic error faster (better with small data)
+- LR reaches lower asymptotic error (better with large data)
+
+## Research Notes
+
+### Historical Context
+
+**1763** - Thomas Bayes developed Bayes' theorem (published posthumously)
+**1950s** - Applied to text classification and pattern recognition
+
+Despite being over 250 years old, still widely used in production systems.
+
+### Why "Naive" Works
+
+The independence assumption is wrong, yet Naive Bayes performs well because:
+1. **Decision boundary matters**: Only need correct ordering of probabilities, not exact values
+2. **High dimensions**: Independence assumption less harmful with many features
+3. **Robust to violations**: Classification accuracy surprisingly robust to assumption violations
+
+### Modern Applications
+
+**Spam Filtering**: Gmail and other email providers use NB-based systems
+**Document Classification**: News categorization, topic modeling
+**Real-Time Systems**: Fast inference makes it ideal for streaming data
+**Ensemble Component**: Often combined with other models
+
+<Callout type="tip">
+Use Naive Bayes as a fast baseline for text classification. If it performs well, you may not need more complex models. If it fails, try logistic regression or neural networks.
+</Callout>
+
+### Key Papers
+
+1. **Bayes (1763)** - "An Essay towards solving a Problem in the Doctrine of Chances"
+2. **Maron (1961)** - "Automatic Indexing: An Experimental Inquiry"
+3. **Ng & Jordan (2002)** - "On Discriminative vs. Generative Classifiers"

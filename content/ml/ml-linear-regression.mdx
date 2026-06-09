@@ -1,0 +1,280 @@
+---
+title: "Linear Regression"
+date: 2025-01-15
+tags:
+  - machine-learning
+  - supervised-learning
+  - regression
+  - fundamentals
+---
+
+<Callout type="info">Linear Regression is the simplest supervised learning algorithm that models the relationship between input features and a continuous target variable using a linear function.</Callout>
+
+## What Problem Does It Solve?
+
+Linear regression solves **prediction problems** where we need to estimate a continuous value based on input features. Given data points, it finds the best-fitting straight line (or hyperplane in higher dimensions) that minimizes the prediction error.
+
+**Real-world applications:**
+- Predicting house prices from size, location, and age
+- Forecasting sales based on advertising spend
+- Estimating crop yield from weather and soil data
+- Medical dosage prediction from patient characteristics
+
+## Mathematical Intuition
+
+### The Model
+
+For a single feature $x$, we model the relationship as:
+
+$$
+y = \beta_0 + \beta_1 x + \epsilon
+$$
+
+Where:
+- $y$ is the target variable (what we predict)
+- $x$ is the input feature
+- $\beta_0$ is the intercept (bias term)
+- $\beta_1$ is the slope (weight)
+- $\epsilon$ is the error term (noise)
+
+For multiple features $\mathbf{x} = [x_1, x_2, ..., x_n]$:
+
+$$
+y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \beta_n x_n + \epsilon
+$$
+
+In vector notation:
+
+$$
+y = \mathbf{w}^T \mathbf{x} + b
+$$
+
+Where $\mathbf{w}$ is the weight vector and $b$ is the bias.
+
+### Loss Function: Mean Squared Error (MSE)
+
+We measure prediction quality using MSE:
+
+$$
+\mathcal{L}(\mathbf{w}, b) = \frac{1}{m} \sum_{i=1}^{m} (y^{(i)} - \hat{y}^{(i)})^2
+$$
+
+Where:
+- $m$ is the number of training examples
+- $y^{(i)}$ is the true value
+- $\hat{y}^{(i)} = \mathbf{w}^T \mathbf{x}^{(i)} + b$ is the predicted value
+
+### Closed-Form Solution: Normal Equation
+
+For linear regression, we can solve for optimal weights analytically:
+
+$$
+\mathbf{w}^* = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}
+$$
+
+Where $\mathbf{X}$ is the design matrix (all training examples stacked) and $\mathbf{y}$ is the target vector.
+
+**Derivation:**
+1. Set gradient of loss to zero: $\nabla_\mathbf{w} \mathcal{L} = 0$
+2. Expand: $\nabla_\mathbf{w} (\mathbf{y} - \mathbf{X}\mathbf{w})^T(\mathbf{y} - \mathbf{X}\mathbf{w}) = 0$
+3. Solve: $-2\mathbf{X}^T(\mathbf{y} - \mathbf{X}\mathbf{w}) = 0$
+4. Result: $\mathbf{w} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$
+
+### Gradient Descent Alternative
+
+For large datasets, iterative optimization is more efficient:
+
+$$
+\mathbf{w} := \mathbf{w} - \alpha \frac{\partial \mathcal{L}}{\partial \mathbf{w}}
+$$
+
+The gradient is:
+
+$$
+\frac{\partial \mathcal{L}}{\partial \mathbf{w}} = -\frac{2}{m} \mathbf{X}^T (\mathbf{y} - \mathbf{X}\mathbf{w})
+$$
+
+## Implementation
+
+### From Scratch (NumPy)
+
+```python
+import numpy as np
+
+class LinearRegression:
+    def __init__(self, learning_rate=0.01, n_iterations=1000, method='gradient_descent'):
+        self.lr = learning_rate
+        self.n_iters = n_iterations
+        self.method = method
+        self.weights = None
+        self.bias = None
+        
+    def fit(self, X, y):
+        n_samples, n_features = X.shape
+        
+        if self.method == 'normal_equation':
+            X_b = np.c_[np.ones((n_samples, 1)), X]
+            theta = np.linalg.inv(X_b.T @ X_b) @ X_b.T @ y
+            self.bias = theta[0]
+            self.weights = theta[1:]
+        else:
+            self.weights = np.zeros(n_features)
+            self.bias = 0
+            
+            for _ in range(self.n_iters):
+                y_pred = X @ self.weights + self.bias
+                
+                dw = -(2 / n_samples) * (X.T @ (y - y_pred))
+                db = -(2 / n_samples) * np.sum(y - y_pred)
+                
+                self.weights -= self.lr * dw
+                self.bias -= self.lr * db
+    
+    def predict(self, X):
+        return X @ self.weights + self.bias
+    
+    def score(self, X, y):
+        y_pred = self.predict(X)
+        ss_total = np.sum((y - np.mean(y)) ** 2)
+        ss_residual = np.sum((y - y_pred) ** 2)
+        r2 = 1 - (ss_residual / ss_total)
+        return r2
+
+X_train = np.array([[1], [2], [3], [4], [5]])
+y_train = np.array([2, 4, 6, 8, 10])
+
+model = LinearRegression(learning_rate=0.01, n_iterations=1000)
+model.fit(X_train, y_train)
+
+X_test = np.array([[6], [7]])
+predictions = model.predict(X_test)
+print(f"Predictions: {predictions}")
+print(f"R² Score: {model.score(X_train, y_train):.4f}")
+```
+
+### Using Scikit-Learn
+
+```python
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+import numpy as np
+
+X = np.random.randn(100, 3)
+y = 2 * X[:, 0] + 3 * X[:, 1] - 1.5 * X[:, 2] + np.random.randn(100) * 0.1
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+print(f"Coefficients: {model.coef_}")
+print(f"Intercept: {model.intercept_:.4f}")
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+print(f"R²: {r2_score(y_test, y_pred):.4f}")
+```
+
+## Evaluation Metrics
+
+### R² Score (Coefficient of Determination)
+
+$$
+R^2 = 1 - \frac{\sum_{i=1}^{m}(y_i - \hat{y}_i)^2}{\sum_{i=1}^{m}(y_i - \bar{y})^2}
+$$
+
+- $R^2 = 1$: Perfect fit
+- $R^2 = 0$: Model no better than predicting the mean
+- $R^2 < 0$: Model worse than baseline
+
+### Mean Absolute Error (MAE)
+
+$$
+\text{MAE} = \frac{1}{m} \sum_{i=1}^{m} |y_i - \hat{y}_i|
+$$
+
+More robust to outliers than MSE.
+
+## Assumptions
+
+Linear regression makes several critical assumptions:
+
+1. **Linearity**: Relationship between features and target is linear
+2. **Independence**: Observations are independent
+3. **Homoscedasticity**: Constant variance of errors
+4. **Normality**: Errors are normally distributed
+5. **No multicollinearity**: Features are not highly correlated
+
+## Limitations
+
+<Callout type="warning">Linear regression has fundamental limitations that make it unsuitable for many real-world problems.</Callout>
+
+### 1. Linear Relationships Only
+Cannot model complex non-linear patterns without feature engineering.
+
+### 2. Sensitive to Outliers
+MSE heavily penalizes large errors, making the model vulnerable to extreme values.
+
+### 3. Assumes Feature Independence
+Multicollinearity can make coefficient estimates unstable.
+
+### 4. Extrapolation Risk
+Predictions outside the training data range are unreliable.
+
+### 5. Computational Cost of Normal Equation
+Computing $(\mathbf{X}^T \mathbf{X})^{-1}$ is $O(n^3)$ for $n$ features, prohibitive for large $n$.
+
+## Modern Improvements
+
+### Ridge Regression (L2 Regularization)
+
+Adds penalty term to prevent overfitting:
+
+$$
+\mathcal{L}(\mathbf{w}) = \frac{1}{m} \sum_{i=1}^{m} (y^{(i)} - \hat{y}^{(i)})^2 + \lambda \|\mathbf{w}\|^2
+$$
+
+### Lasso Regression (L1 Regularization)
+
+Performs feature selection by driving some weights to zero:
+
+$$
+\mathcal{L}(\mathbf{w}) = \frac{1}{m} \sum_{i=1}^{m} (y^{(i)} - \hat{y}^{(i)})^2 + \lambda \|\mathbf{w}\|_1
+$$
+
+### Elastic Net
+
+Combines L1 and L2 regularization for best of both worlds.
+
+## Research Notes
+
+### Foundational Papers
+
+1. **Legendre (1805)** - "Nouvelles méthodes pour la détermination des orbites des comètes"
+   - First publication of the method of least squares
+
+2. **Gauss (1809)** - "Theoria motus corporum coelestium"
+   - Independently derived least squares, proved optimality under Gaussian noise
+
+3. **Fisher (1922)** - "The Goodness of Fit of Regression Formulae"
+   - Modern statistical framework for regression
+
+### Modern Research Directions
+
+**Robust Regression**: Handling outliers with Huber loss, RANSAC
+**High-Dimensional Regression**: When $n > m$ (features > samples)
+**Online Learning**: Stochastic gradient descent for streaming data
+**Bayesian Linear Regression**: Uncertainty quantification via posterior distributions
+
+### Why It Still Matters
+
+Despite being 200+ years old, linear regression remains foundational because:
+- **Interpretability**: Coefficients have clear meaning
+- **Baseline**: First model to try, establishes performance floor
+- **Building Block**: Forms basis for logistic regression, GLMs, neural networks
+- **Theory**: Well-understood statistical properties and guarantees
+
+<Callout type="tip">
+When starting any supervised learning project, always try linear regression first. If it works, you have an interpretable solution. If it fails, you understand what complexity you need to add.
+</Callout>

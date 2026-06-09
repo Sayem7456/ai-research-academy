@@ -1,0 +1,287 @@
+---
+title: "Support Vector Machine (SVM)"
+date: 2025-01-21
+tags:
+  - machine-learning
+  - supervised-learning
+  - classification
+  - regression
+  - kernel-methods
+---
+
+<Callout type="info">Support Vector Machines find the optimal hyperplane that maximally separates classes by maximizing the margin between support vectors.</Callout>
+
+## What Problem Does It Solve?
+
+SVM solves **classification** and **regression** problems by finding decision boundaries with maximum margin. It handles non-linear patterns through the kernel trick, making it powerful for complex datasets.
+
+**Real-world applications:**
+- Image classification (face detection, object recognition)
+- Text categorization (topic classification)
+- Bioinformatics (protein classification, gene expression)
+- Handwriting recognition
+
+## Mathematical Intuition
+
+### Linear SVM: Maximum Margin Classifier
+
+Goal: Find hyperplane $\mathbf{w}^T \mathbf{x} + b = 0$ that separates classes with maximum margin.
+
+**Margin**: Distance from hyperplane to nearest data point.
+
+For linearly separable data, we want:
+$$
+y_i(\mathbf{w}^T \mathbf{x}_i + b) \geq 1 \quad \forall i
+$$
+
+Where $y_i \in \{-1, +1\}$ is the class label.
+
+**Margin width:**
+$$
+\text{Margin} = \frac{2}{\|\mathbf{w}\|}
+$$
+
+### Optimization Problem
+
+**Primal formulation:**
+$$
+\min_{\mathbf{w}, b} \frac{1}{2} \|\mathbf{w}\|^2
+$$
+$$
+\text{subject to: } y_i(\mathbf{w}^T \mathbf{x}_i + b) \geq 1
+$$
+
+Maximize margin = Minimize $\|\mathbf{w}\|^2$.
+
+### Soft Margin SVM
+
+Real data is rarely perfectly separable. Introduce slack variables $\xi_i$:
+
+$$
+\min_{\mathbf{w}, b, \xi} \frac{1}{2} \|\mathbf{w}\|^2 + C \sum_{i=1}^{m} \xi_i
+$$
+$$
+\text{subject to: } y_i(\mathbf{w}^T \mathbf{x}_i + b) \geq 1 - \xi_i, \quad \xi_i \geq 0
+$$
+
+$C$ controls tradeoff between margin maximization and misclassification penalty:
+- Large $C$: Hard margin (less tolerance for errors)
+- Small $C$: Soft margin (more tolerance for errors)
+
+### Support Vectors
+
+Only data points on the margin (or violating it) matter. These are **support vectors**.
+
+Decision function:
+$$
+f(\mathbf{x}) = \text{sign}\left(\sum_{i \in SV} \alpha_i y_i \mathbf{x}_i^T \mathbf{x} + b\right)
+$$
+
+Most $\alpha_i = 0$ (only support vectors have $\alpha_i > 0$).
+
+### Kernel Trick
+
+For non-linear patterns, map data to higher dimension:
+
+$$
+\mathbf{x} \to \phi(\mathbf{x})
+$$
+
+**Kernel function** computes inner product in transformed space without explicit mapping:
+$$
+K(\mathbf{x}_i, \mathbf{x}_j) = \phi(\mathbf{x}_i)^T \phi(\mathbf{x}_j)
+$$
+
+**Common kernels:**
+
+**Linear:** $K(\mathbf{x}_i, \mathbf{x}_j) = \mathbf{x}_i^T \mathbf{x}_j$
+
+**Polynomial:** $K(\mathbf{x}_i, \mathbf{x}_j) = (\mathbf{x}_i^T \mathbf{x}_j + c)^d$
+
+**RBF (Radial Basis Function):** $K(\mathbf{x}_i, \mathbf{x}_j) = \exp\left(-\gamma \|\mathbf{x}_i - \mathbf{x}_j\|^2\right)$
+
+**Sigmoid:** $K(\mathbf{x}_i, \mathbf{x}_j) = \tanh(\alpha \mathbf{x}_i^T \mathbf{x}_j + c)$
+
+## Implementation
+
+### Using Scikit-Learn
+
+```python
+from sklearn.svm import SVC, SVR
+from sklearn.datasets import make_classification, make_circles
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.preprocessing import StandardScaler
+import numpy as np
+
+X, y = make_classification(n_samples=500, n_features=10, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+svm = SVC(kernel='rbf', C=1.0, gamma='scale', random_state=42)
+svm.fit(X_train, y_train)
+
+print(f"Train Accuracy: {svm.score(X_train, y_train):.4f}")
+print(f"Test Accuracy: {svm.score(X_test, y_test):.4f}")
+print(f"Support Vectors: {len(svm.support_vectors_)}")
+
+X_circles, y_circles = make_circles(n_samples=300, noise=0.1, factor=0.5, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_circles, y_circles, test_size=0.2)
+
+svm_linear = SVC(kernel='linear').fit(X_train, y_train)
+svm_rbf = SVC(kernel='rbf', gamma='auto').fit(X_train, y_train)
+
+print(f"\nLinear kernel: {svm_linear.score(X_test, y_test):.4f}")
+print(f"RBF kernel: {svm_rbf.score(X_test, y_test):.4f}")
+```
+
+### Hyperparameter Tuning
+
+```python
+param_grid = {
+    'C': [0.1, 1, 10, 100],
+    'gamma': ['scale', 'auto', 0.001, 0.01, 0.1, 1],
+    'kernel': ['rbf', 'poly']
+}
+
+grid_search = GridSearchCV(SVC(), param_grid, cv=5, scoring='accuracy', n_jobs=-1)
+grid_search.fit(X_train, y_train)
+
+print(f"Best parameters: {grid_search.best_params_}")
+print(f"Best CV score: {grid_search.best_score_:.4f}")
+print(f"Test score: {grid_search.score(X_test, y_test):.4f}")
+```
+
+## Hyperparameters
+
+### C (Regularization)
+- Controls margin/error tradeoff
+- Large C: Strict (may overfit)
+- Small C: Flexible (may underfit)
+
+### gamma (RBF kernel)
+- Defines influence of single training example
+- Large gamma: Close influence (may overfit)
+- Small gamma: Far influence (may underfit)
+
+### kernel
+- Linear: Fast, interpretable, good for high-dimensional sparse data
+- RBF: Most flexible, good default choice
+- Poly: Rarely used, computationally expensive
+
+## Complexity Analysis
+
+### Training
+- Time: $O(n^2 \cdot d)$ to $O(n^3 \cdot d)$ (quadratic programming)
+- Space: $O(n^2)$ (kernel matrix)
+- Slow for large datasets (>10,000 samples)
+
+### Prediction
+- Time: $O(n_{sv} \cdot d)$ where $n_{sv}$ is number of support vectors
+- Fast if few support vectors
+
+## Advantages
+
+### 1. Effective in High Dimensions
+Works well when features >> samples.
+
+### 2. Memory Efficient
+Only stores support vectors (subset of training data).
+
+### 3. Versatile
+Different kernels for different data patterns.
+
+### 4. Robust to Overfitting
+Especially in high-dimensional spaces with proper regularization.
+
+### 5. Works with Small Datasets
+Effective with limited training data.
+
+## Limitations
+
+<Callout type="warning">SVM does not scale well to large datasets and requires careful kernel/hyperparameter selection.</Callout>
+
+### 1. Slow Training
+Quadratic/cubic complexity prohibitive for large datasets (>100k samples).
+
+### 2. Kernel and Hyperparameter Sensitivity
+Requires extensive cross-validation to find optimal C, gamma, kernel.
+
+### 3. No Probability Estimates
+Outputs class labels, not probabilities (though Platt scaling can approximate).
+
+### 4. Black Box with Non-Linear Kernels
+RBF kernel makes model interpretation difficult.
+
+### 5. Feature Scaling Required
+Extremely sensitive to feature scales.
+
+### 6. Memory Intensive
+$O(n^2)$ kernel matrix storage.
+
+## When to Use SVM
+
+**Good for:**
+- Small to medium datasets (<10k samples)
+- High-dimensional data (text, genomics)
+- Clear margin of separation
+- Non-linear patterns (with RBF kernel)
+
+**Avoid for:**
+- Large datasets (use logistic regression, neural networks)
+- Real-time prediction (slow with many support vectors)
+- When probability estimates are critical
+- Highly imbalanced data (without class weights)
+
+## Modern Alternatives
+
+### Linear SVM (Linearized)
+**LibLinear**, **SGDClassifier**: Linear SVM with stochastic gradient descent, scales to millions of samples.
+
+### Kernel Approximation
+**Nystroem**, **RBFSampler**: Approximate kernel methods for large-scale learning.
+
+### Deep Learning
+Neural networks replace SVM for most computer vision and NLP tasks.
+
+## Research Notes
+
+### Historical Context
+
+**1963** - Vapnik and Lerner developed the original linear SVM
+**1992** - Boser, Guyon, Vapnik introduced kernel trick
+**1995** - Cortes and Vapnik formalized soft-margin SVM
+
+SVM dominated machine learning in the 1990s-2000s before deep learning.
+
+### Theoretical Foundation
+
+**VC Dimension Theory**: SVM minimizes structural risk (bounds generalization error).
+
+**Representer Theorem**: Optimal solution lies in span of support vectors.
+
+### Why It Mattered
+
+Before deep learning, SVM achieved state-of-the-art results on:
+- Handwriting recognition (MNIST)
+- Face detection
+- Text classification
+
+### Current Relevance
+
+SVM still used for:
+- **Bioinformatics**: Small sample, high-dimensional data
+- **Text classification**: With linear kernel, fast and effective
+- **Anomaly detection**: One-class SVM for outlier detection
+
+<Callout type="tip">
+For tabular data, try Random Forest first. For text/high-dimensional sparse data, try linear SVM. For small datasets with complex patterns, try RBF SVM.
+</Callout>
+
+### Key Papers
+
+1. **Cortes & Vapnik (1995)** - "Support-Vector Networks"
+2. **Boser et al. (1992)** - "A Training Algorithm for Optimal Margin Classifiers"
+3. **Vapnik (1998)** - "Statistical Learning Theory" (book)

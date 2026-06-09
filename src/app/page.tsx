@@ -9,7 +9,20 @@ export default function Home() {
           Your journey from Mathematics to AI Research starts here
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+          <a
+            href="/ml"
+            className="p-6 border rounded-lg hover:shadow-lg transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+          >
+            <div className="text-3xl mb-2">🤖</div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              Machine Learning
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Interactive ML algorithm visualizations
+            </p>
+          </a>
+
           <a
             href="/dashboard"
             className="p-6 border rounded-lg hover:shadow-lg transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"

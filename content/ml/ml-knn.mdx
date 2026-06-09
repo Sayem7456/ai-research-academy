@@ -1,0 +1,362 @@
+---
+title: "K-Nearest Neighbors (KNN)"
+date: 2025-01-17
+tags:
+  - machine-learning
+  - supervised-learning
+  - classification
+  - regression
+  - instance-based
+---
+
+<Callout type="info">K-Nearest Neighbors is a simple, non-parametric algorithm that classifies data points based on the labels of their k closest neighbors in the feature space.</Callout>
+
+## What Problem Does It Solve?
+
+KNN solves both **classification** and **regression** problems using a simple idea: similar data points should have similar labels. It makes predictions by finding the k most similar training examples and using their labels.
+
+**Real-world applications:**
+- Recommendation systems (find similar users/products)
+- Image recognition (compare pixel patterns)
+- Anomaly detection (isolated points are outliers)
+- Medical diagnosis (compare patient symptoms)
+
+## Mathematical Intuition
+
+### The Algorithm
+
+Given a new data point $\mathbf{x}_{\text{new}}$:
+
+1. **Compute distances** to all training points using a distance metric
+2. **Select k nearest** neighbors based on distance
+3. **For classification**: Vote (majority class wins)
+4. **For regression**: Average the k neighbor values
+
+### Distance Metrics
+
+**Euclidean Distance** (most common):
+$$
+d(\mathbf{x}_i, \mathbf{x}_j) = \sqrt{\sum_{d=1}^{n} (x_{i,d} - x_{j,d})^2}
+$$
+
+**Manhattan Distance**:
+$$
+d(\mathbf{x}_i, \mathbf{x}_j) = \sum_{d=1}^{n} |x_{i,d} - x_{j,d}|
+$$
+
+**Minkowski Distance** (generalization):
+$$
+d(\mathbf{x}_i, \mathbf{x}_j) = \left( \sum_{d=1}^{n} |x_{i,d} - x_{j,d}|^p \right)^{1/p}
+$$
+
+Where $p=1$ gives Manhattan, $p=2$ gives Euclidean.
+
+### Classification Decision Rule
+
+For k neighbors $\mathcal{N}_k(\mathbf{x})$:
+
+$$
+\hat{y} = \arg\max_{c} \sum_{i \in \mathcal{N}_k(\mathbf{x})} \mathbb{1}[y_i = c]
+$$
+
+(Choose the class that appears most frequently)
+
+### Regression Prediction
+
+$$
+\hat{y} = \frac{1}{k} \sum_{i \in \mathcal{N}_k(\mathbf{x})} y_i
+$$
+
+(Average of k neighbor values)
+
+### Weighted KNN
+
+Closer neighbors have more influence:
+
+$$
+\hat{y} = \frac{\sum_{i \in \mathcal{N}_k(\mathbf{x})} w_i \cdot y_i}{\sum_{i \in \mathcal{N}_k(\mathbf{x})} w_i}
+$$
+
+Where $w_i = \frac{1}{d(\mathbf{x}, \mathbf{x}_i)^2}$ (inverse distance weighting)
+
+## Implementation
+
+### From Scratch (NumPy)
+
+```python
+import numpy as np
+from collections import Counter
+
+class KNN:
+    def __init__(self, k=3, distance_metric='euclidean', weighted=False):
+        self.k = k
+        self.metric = distance_metric
+        self.weighted = weighted
+        self.X_train = None
+        self.y_train = None
+    
+    def fit(self, X, y):
+        self.X_train = X
+        self.y_train = y
+    
+    def _compute_distance(self, x1, x2):
+        if self.metric == 'euclidean':
+            return np.sqrt(np.sum((x1 - x2) ** 2))
+        elif self.metric == 'manhattan':
+            return np.sum(np.abs(x1 - x2))
+        elif self.metric == 'cosine':
+            return 1 - np.dot(x1, x2) / (np.linalg.norm(x1) * np.linalg.norm(x2))
+        else:
+            raise ValueError(f"Unknown metric: {self.metric}")
+    
+    def _get_neighbors(self, x):
+        distances = []
+        for i, x_train in enumerate(self.X_train):
+            dist = self._compute_distance(x, x_train)
+            distances.append((dist, i))
+        
+        distances.sort(key=lambda x: x[0])
+        
+        k_nearest = distances[:self.k]
+        return k_nearest
+    
+    def predict(self, X):
+        predictions = []
+        for x in X:
+            neighbors = self._get_neighbors(x)
+            
+            if self.weighted:
+                weights = [1 / (dist + 1e-5) for dist, _ in neighbors]
+                neighbor_labels = [self.y_train[idx] for _, idx in neighbors]
+                
+                if isinstance(self.y_train[0], (int, np.integer)):
+                    weighted_votes = {}
+                    for label, weight in zip(neighbor_labels, weights):
+                        weighted_votes[label] = weighted_votes.get(label, 0) + weight
+                    prediction = max(weighted_votes, key=weighted_votes.get)
+                else:
+                    prediction = np.average(neighbor_labels, weights=weights)
+            else:
+                neighbor_labels = [self.y_train[idx] for _, idx in neighbors]
+                
+                if isinstance(self.y_train[0], (int, np.integer)):
+                    prediction = Counter(neighbor_labels).most_common(1)[0][0]
+                else:
+                    prediction = np.mean(neighbor_labels)
+            
+            predictions.append(prediction)
+        
+        return np.array(predictions)
+    
+    def score(self, X, y):
+        predictions = self.predict(X)
+        if isinstance(y[0], (int, np.integer)):
+            return np.mean(predictions == y)
+        else:
+            mse = np.mean((predictions - y) ** 2)
+            return 1 - (mse / np.var(y))
+
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+
+X, y = make_classification(n_samples=200, n_features=2, n_redundant=0, 
+                           n_informative=2, random_state=42, n_clusters_per_class=1)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+model = KNN(k=5, weighted=True)
+model.fit(X_train, y_train)
+
+print(f"Accuracy: {model.score(X_test, y_test):.4f}")
+```
+
+### Using Scikit-Learn
+
+```python
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split, cross_val_score
+
+X, y = make_classification(n_samples=500, n_features=10, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model = KNeighborsClassifier(n_neighbors=5, weights='distance', metric='euclidean')
+model.fit(X_train_scaled, y_train)
+
+print(f"Train Accuracy: {model.score(X_train_scaled, y_train):.4f}")
+print(f"Test Accuracy: {model.score(X_test_scaled, y_test):.4f}")
+
+cv_scores = cross_val_score(model, X_train_scaled, y_train, cv=5)
+print(f"CV Accuracy: {cv_scores.mean():.4f} (+/- {cv_scores.std():.4f})")
+```
+
+## Choosing k
+
+The hyperparameter k controls the bias-variance tradeoff:
+
+### Small k (e.g., k=1)
+- **Low bias**: Flexible decision boundaries
+- **High variance**: Sensitive to noise
+- **Overfitting risk**: Memorizes training data
+
+### Large k (e.g., k=50)
+- **High bias**: Smooth decision boundaries
+- **Low variance**: More stable predictions
+- **Underfitting risk**: May miss local patterns
+
+### Finding Optimal k
+
+Use cross-validation:
+
+```python
+from sklearn.model_selection import cross_val_score
+
+k_values = range(1, 31)
+cv_scores = []
+
+for k in k_values:
+    knn = KNeighborsClassifier(n_neighbors=k)
+    scores = cross_val_score(knn, X_train_scaled, y_train, cv=5)
+    cv_scores.append(scores.mean())
+
+optimal_k = k_values[np.argmax(cv_scores)]
+print(f"Optimal k: {optimal_k}")
+```
+
+**Rule of thumb**: Start with $k = \sqrt{n}$ where $n$ is the number of training samples.
+
+## Feature Scaling
+
+<Callout type="warning">KNN is extremely sensitive to feature scales. Always normalize/standardize features!</Callout>
+
+Without scaling, features with large ranges dominate the distance calculation.
+
+**Example**: Age (0-100) vs Income ($0-$1,000,000)
+- Distance dominated by income
+- Age has negligible effect
+
+**Solutions**:
+- **Min-Max Scaling**: $x' = \frac{x - \min(x)}{\max(x) - \min(x)}$
+- **Standardization**: $x' = \frac{x - \mu}{\sigma}$
+
+## Complexity Analysis
+
+### Training
+- **Time**: $O(1)$ (just store data)
+- **Space**: $O(nm)$ where n = samples, m = features
+
+### Prediction (naive)
+- **Time**: $O(nm)$ per query (compute all distances)
+- **Space**: $O(nm)$
+
+### With KD-Tree (optimized)
+- **Time**: $O(m \log n)$ per query (average case)
+- **Space**: $O(nm)$
+- **Limitation**: Degrades to $O(nm)$ in high dimensions (curse of dimensionality)
+
+## Limitations
+
+### 1. Curse of Dimensionality
+
+In high dimensions, all points become equidistant:
+
+$$
+\lim_{d \to \infty} \frac{\text{dist}_{\max} - \text{dist}_{\min}}{\text{dist}_{\min}} \to 0
+$$
+
+KNN performance degrades rapidly beyond ~10-20 dimensions.
+
+### 2. Computational Cost
+
+Prediction is slow: must compute distance to all training points for every prediction.
+
+### 3. Memory Requirements
+
+Must store entire training dataset in memory.
+
+### 4. Sensitive to Irrelevant Features
+
+Irrelevant features add noise to distance calculations.
+
+### 5. Imbalanced Data
+
+Majority class dominates in neighborhoods. Solutions: weighted voting, class-balanced sampling.
+
+### 6. No Model Interpretation
+
+Cannot extract feature importance or understand decision process.
+
+## Modern Improvements
+
+### Approximate Nearest Neighbors
+
+**Locality-Sensitive Hashing (LSH)**: Hash similar items to same buckets
+**ANNOY** (Spotify): Tree-based approximate search
+**FAISS** (Facebook): GPU-accelerated similarity search
+
+Trade accuracy for massive speedup (1000x faster).
+
+### Distance Learning
+
+**Metric Learning**: Learn optimal distance function from data
+**Mahalanobis Distance**: Account for feature correlations
+
+### Ensemble Methods
+
+Combine KNN with other algorithms (e.g., KNN + Random Forest).
+
+## Research Notes
+
+### Historical Context
+
+**1951** - Evelyn Fix and Joseph Hodges introduced KNN in technical report
+**1967** - Cover & Hart proved error rate bounds
+
+KNN is one of the oldest machine learning algorithms, yet still widely used.
+
+### Theoretical Guarantees
+
+**Cover-Hart Theorem**: As $n \to \infty$, KNN error rate is bounded by:
+
+$$
+R^* \leq R_{KNN} \leq R^* \left( 2 - \frac{C}{C-1} R^* \right)
+$$
+
+Where $R^*$ is the Bayes error rate (theoretical minimum) and $C$ is number of classes.
+
+For binary classification, KNN error $\leq 2 \times$ Bayes error.
+
+### Modern Applications
+
+**Recommendation Systems**: Netflix, Spotify use KNN variants for collaborative filtering
+**Image Search**: Find visually similar images
+**Anomaly Detection**: Outliers have few nearby neighbors
+**Imputation**: Fill missing values using neighbor averages
+
+### When to Use KNN
+
+**Good for:**
+- Small to medium datasets (< 100k samples)
+- Low-dimensional data (< 20 features)
+- Non-linear decision boundaries
+- Quick baseline model
+
+**Avoid for:**
+- Large-scale problems (slow prediction)
+- High-dimensional data (curse of dimensionality)
+- Real-time applications (inference latency)
+- Noisy data (sensitive to outliers)
+
+<Callout type="tip">
+KNN works best as a baseline to understand data structure. If it performs well, you know similar examples have similar labels, which informs feature engineering for other models.
+</Callout>
+
+### Key Papers
+
+1. **Fix & Hodges (1951)** - "Discriminatory Analysis - Nonparametric Discrimination"
+2. **Cover & Hart (1967)** - "Nearest Neighbor Pattern Classification"
+3. **Friedman et al. (1977)** - "An Algorithm for Finding Best Matches in Logarithmic Expected Time"

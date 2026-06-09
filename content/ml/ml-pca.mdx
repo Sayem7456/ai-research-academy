@@ -1,0 +1,338 @@
+---
+title: "Principal Component Analysis (PCA)"
+date: 2025-01-22
+tags:
+  - machine-learning
+  - unsupervised-learning
+  - dimensionality-reduction
+  - linear-algebra
+---
+
+<Callout type="info">PCA reduces dimensionality by projecting data onto principal components—directions of maximum variance that capture the most important information.</Callout>
+
+## What Problem Does It Solve?
+
+PCA solves **dimensionality reduction** by finding a lower-dimensional representation that preserves maximum variance. It compresses data while retaining essential structure.
+
+**Real-world applications:**
+- Visualization (3D → 2D for plotting)
+- Noise reduction (remove low-variance components)
+- Feature extraction (compress high-dimensional data)
+- Data compression (image/signal processing)
+
+## Mathematical Intuition
+
+### The Goal
+
+Given data $\mathbf{X} \in \mathbb{R}^{n \times d}$, find projection to $k$ dimensions ($k < d$) that maximizes variance.
+
+### Variance Maximization
+
+**First principal component**: Direction $\mathbf{w}_1$ that maximizes projected variance:
+
+$$
+\mathbf{w}_1 = \arg\max_{\|\mathbf{w}\|=1} \text{Var}(\mathbf{X}\mathbf{w})
+$$
+
+Subject to: $\|\mathbf{w}_1\| = 1$ (unit vector)
+
+**Subsequent components**: Orthogonal to previous, maximize remaining variance.
+
+### Covariance Matrix
+
+Center data: $\mathbf{X}_c = \mathbf{X} - \bar{\mathbf{X}}$
+
+Covariance matrix:
+$$
+\mathbf{C} = \frac{1}{n-1} \mathbf{X}_c^T \mathbf{X}_c
+$$
+
+**Key insight**: Principal components are eigenvectors of $\mathbf{C}$.
+
+### Eigenvalue Decomposition
+
+$$
+\mathbf{C} \mathbf{w}_i = \lambda_i \mathbf{w}_i
+$$
+
+Where:
+- $\mathbf{w}_i$ = $i$-th principal component (eigenvector)
+- $\lambda_i$ = variance explained by $i$-th component (eigenvalue)
+
+Sort eigenvalues: $\lambda_1 \geq \lambda_2 \geq ... \geq \lambda_d$
+
+### Dimensionality Reduction
+
+Project data onto top $k$ components:
+
+$$
+\mathbf{Z} = \mathbf{X}_c \mathbf{W}_k
+$$
+
+Where $\mathbf{W}_k = [\mathbf{w}_1, \mathbf{w}_2, ..., \mathbf{w}_k]$ is the matrix of top $k$ eigenvectors.
+
+**Reconstruction**:
+$$
+\hat{\mathbf{X}} = \mathbf{Z} \mathbf{W}_k^T + \bar{\mathbf{X}}
+$$
+
+### Variance Explained
+
+Proportion of variance explained by first $k$ components:
+
+$$
+\frac{\sum_{i=1}^{k} \lambda_i}{\sum_{i=1}^{d} \lambda_i}
+$$
+
+## Implementation
+
+### From Scratch (NumPy)
+
+```python
+import numpy as np
+
+class PCA:
+    def __init__(self, n_components=2):
+        self.n_components = n_components
+        self.components = None
+        self.mean = None
+        self.explained_variance = None
+        
+    def fit(self, X):
+        self.mean = np.mean(X, axis=0)
+        X_centered = X - self.mean
+        
+        cov_matrix = np.cov(X_centered.T)
+        
+        eigenvalues, eigenvectors = np.linalg.eig(cov_matrix)
+        
+        idx = eigenvalues.argsort()[::-1]
+        eigenvalues = eigenvalues[idx]
+        eigenvectors = eigenvectors[:, idx]
+        
+        self.components = eigenvectors[:, :self.n_components]
+        self.explained_variance = eigenvalues[:self.n_components]
+        
+        return self
+    
+    def transform(self, X):
+        X_centered = X - self.mean
+        return X_centered @ self.components
+    
+    def fit_transform(self, X):
+        self.fit(X)
+        return self.transform(X)
+    
+    def inverse_transform(self, Z):
+        return Z @ self.components.T + self.mean
+    
+    def explained_variance_ratio(self):
+        return self.explained_variance / np.sum(self.explained_variance)
+
+X = np.random.randn(200, 5)
+pca = PCA(n_components=2)
+Z = pca.fit_transform(X)
+
+print(f"Original shape: {X.shape}")
+print(f"Reduced shape: {Z.shape}")
+print(f"Variance explained: {pca.explained_variance_ratio()}")
+```
+
+### Using Scikit-Learn
+
+```python
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from sklearn.datasets import load_digits
+import matplotlib.pyplot as plt
+
+digits = load_digits()
+X, y = digits.data, digits.target
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled)
+
+print(f"Original dimensions: {X.shape[1]}")
+print(f"Reduced dimensions: {X_pca.shape[1]}")
+print(f"Explained variance ratio: {pca.explained_variance_ratio_}")
+print(f"Cumulative variance: {pca.explained_variance_ratio_.sum():.4f}")
+
+plt.figure(figsize=(10, 6))
+scatter = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=y, cmap='tab10', alpha=0.6)
+plt.colorbar(scatter)
+plt.xlabel('First Principal Component')
+plt.ylabel('Second Principal Component')
+plt.title('PCA of Digits Dataset')
+plt.show()
+```
+
+### Choosing Number of Components
+
+```python
+pca_full = PCA()
+pca_full.fit(X_scaled)
+
+cumulative_variance = np.cumsum(pca_full.explained_variance_ratio_)
+
+plt.figure(figsize=(10, 6))
+plt.plot(cumulative_variance)
+plt.xlabel('Number of Components')
+plt.ylabel('Cumulative Explained Variance')
+plt.axhline(y=0.95, color='r', linestyle='--', label='95% Variance')
+plt.legend()
+plt.grid()
+plt.show()
+
+n_components_95 = np.argmax(cumulative_variance >= 0.95) + 1
+print(f"Components needed for 95% variance: {n_components_95}")
+```
+
+## SVD Alternative
+
+PCA via Singular Value Decomposition (more numerically stable):
+
+$$
+\mathbf{X}_c = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^T
+$$
+
+Principal components = columns of $\mathbf{V}$
+
+Scikit-learn uses SVD by default (faster, more stable).
+
+## Feature Scaling
+
+<Callout type="warning">Always standardize features before PCA! Features with larger scales will dominate principal components.</Callout>
+
+Without scaling, features with large ranges (e.g., income: $0-$1M) dominate over small ranges (e.g., age: 0-100).
+
+**Solution**: Standardize before PCA:
+$$
+x' = \frac{x - \mu}{\sigma}
+$$
+
+## Complexity Analysis
+
+### Training
+- Covariance matrix: $O(nd^2)$
+- Eigendecomposition: $O(d^3)$
+- Total: $O(nd^2 + d^3)$
+
+### Transformation
+- $O(ndk)$ where $k$ is number of components
+
+### SVD Alternative
+- $O(nd \min(n, d))$ - more efficient for tall matrices
+
+## Advantages
+
+### 1. Reduces Dimensionality
+Compress high-dimensional data while preserving variance.
+
+### 2. Removes Noise
+Low-variance components often represent noise.
+
+### 3. Visualization
+Project to 2D/3D for human interpretation.
+
+### 4. Speeds Up Learning
+Fewer features = faster training for downstream models.
+
+### 5. Handles Multicollinearity
+Decorrelates features (components are orthogonal).
+
+### 6. No Hyperparameters
+Only choice: number of components (can use variance threshold).
+
+## Limitations
+
+<Callout type="warning">PCA assumes linear relationships and may fail to capture non-linear structure in data.</Callout>
+
+### 1. Linear Assumption
+Only captures linear relationships between features.
+
+### 2. Interpretability Loss
+Principal components are linear combinations of original features (hard to interpret).
+
+### 3. Scale Sensitivity
+Requires standardization; results depend on scaling method.
+
+### 4. Variance ≠ Information
+High variance doesn't always mean important information (outliers inflate variance).
+
+### 5. Global Method
+Uses entire dataset; sensitive to outliers.
+
+### 6. Cannot Handle Categorical Data
+Requires numerical features.
+
+## When to Use PCA
+
+**Good for:**
+- High-dimensional numerical data (>50 features)
+- Visualization (reduce to 2D/3D)
+- Preprocessing for ML models
+- Correlated features (removes redundancy)
+- When variance captures relevant structure
+
+**Avoid for:**
+- Categorical data (use other encoding methods)
+- Non-linear patterns (use t-SNE, UMAP, autoencoders)
+- When feature interpretability is critical
+- Sparse data (PCA makes it dense)
+
+## Modern Alternatives
+
+### Kernel PCA
+Non-linear PCA using kernel trick (like SVM kernels).
+
+### t-SNE
+Better for visualization, preserves local structure (but slow, non-deterministic).
+
+### UMAP
+Faster than t-SNE, preserves global + local structure.
+
+### Autoencoders
+Neural network-based non-linear dimensionality reduction.
+
+## Research Notes
+
+### Historical Context
+
+**1901** - Karl Pearson introduced PCA in "On Lines and Planes of Closest Fit"
+**1933** - Harold Hotelling developed modern formulation
+
+One of the oldest machine learning techniques, still widely used.
+
+### Theoretical Properties
+
+**Optimal Reconstruction**: PCA minimizes reconstruction error under L2 norm.
+
+**Maximum Variance**: Equivalent to finding directions of maximum variance.
+
+**Decorrelation**: Principal components are uncorrelated (orthogonal).
+
+### Modern Applications
+
+**Computer Vision**: Face recognition (Eigenfaces), image compression
+**Genomics**: Gene expression analysis, SNP data reduction
+**Finance**: Risk factor analysis, portfolio optimization
+**NLP**: Document embeddings, topic modeling (LSA)
+
+### Relationship to Other Methods
+
+**SVD**: PCA is a special case of SVD
+**Factor Analysis**: Probabilistic interpretation of PCA
+**LDA**: Supervised variant that maximizes class separability
+
+<Callout type="tip">
+Use PCA for preprocessing when you have many correlated features. It often improves downstream model performance and training speed while reducing overfitting.
+</Callout>
+
+### Key Papers
+
+1. **Pearson (1901)** - "On Lines and Planes of Closest Fit to Systems of Points in Space"
+2. **Hotelling (1933)** - "Analysis of a Complex of Statistical Variables into Principal Components"
+3. **Jolliffe (2002)** - "Principal Component Analysis" (comprehensive book)

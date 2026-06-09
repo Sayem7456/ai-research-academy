@@ -1,0 +1,305 @@
+---
+title: "Logistic Regression"
+date: 2025-01-16
+tags:
+  - machine-learning
+  - supervised-learning
+  - classification
+  - fundamentals
+---
+
+<Callout type="info">Logistic Regression is a classification algorithm that models the probability of a binary outcome using the logistic (sigmoid) function.</Callout>
+
+## What Problem Does It Solve?
+
+Logistic regression solves **binary classification** problems where we need to predict one of two classes (0 or 1, yes/no, spam/not spam). Despite its name, it's a classification algorithm, not regression.
+
+**Real-world applications:**
+- Email spam detection (spam vs not spam)
+- Medical diagnosis (disease vs healthy)
+- Credit default prediction (default vs no default)
+- Customer churn prediction (stay vs leave)
+
+## Mathematical Intuition
+
+### From Linear to Logistic
+
+Linear regression outputs $\mathbb{R}$ (all real numbers), but we need probabilities in $[0, 1]$. The **sigmoid function** transforms any real number into this range:
+
+$$
+\sigma(z) = \frac{1}{1 + e^{-z}}
+$$
+
+**Key properties:**
+- $\sigma(0) = 0.5$
+- $\sigma(z) \to 1$ as $z \to \infty$
+- $\sigma(z) \to 0$ as $z \to -\infty$
+- Derivative: $\sigma'(z) = \sigma(z)(1 - \sigma(z))$
+
+### The Model
+
+$$
+P(y=1 | \mathbf{x}) = \sigma(\mathbf{w}^T \mathbf{x} + b) = \frac{1}{1 + e^{-(\mathbf{w}^T \mathbf{x} + b)}}
+$$
+
+Where:
+- $P(y=1 | \mathbf{x})$ is the probability that class is 1 given input $\mathbf{x}$
+- $\mathbf{w}$ is the weight vector
+- $b$ is the bias term
+
+**Decision boundary:** We classify as 1 if $P(y=1|\mathbf{x}) \geq 0.5$, which occurs when $\mathbf{w}^T \mathbf{x} + b \geq 0$.
+
+### Loss Function: Binary Cross-Entropy
+
+We can't use MSE because we're modeling probabilities. Instead, we use **log loss**:
+
+$$
+\mathcal{L}(\mathbf{w}, b) = -\frac{1}{m} \sum_{i=1}^{m} \left[ y^{(i)} \log(\hat{y}^{(i)}) + (1 - y^{(i)}) \log(1 - \hat{y}^{(i)}) \right]
+$$
+
+Where $\hat{y}^{(i)} = \sigma(\mathbf{w}^T \mathbf{x}^{(i)} + b)$ is the predicted probability.
+
+**Intuition:**
+- If $y = 1$, loss is $-\log(\hat{y})$ → penalizes low predicted probability
+- If $y = 0$, loss is $-\log(1 - \hat{y})$ → penalizes high predicted probability
+
+### Gradient Descent
+
+Unlike linear regression, there's no closed-form solution. We use gradient descent:
+
+$$
+\frac{\partial \mathcal{L}}{\partial \mathbf{w}} = \frac{1}{m} \mathbf{X}^T (\hat{\mathbf{y}} - \mathbf{y})
+$$
+
+$$
+\frac{\partial \mathcal{L}}{\partial b} = \frac{1}{m} \sum_{i=1}^{m} (\hat{y}^{(i)} - y^{(i)})
+$$
+
+Update rules:
+$$
+\mathbf{w} := \mathbf{w} - \alpha \frac{\partial \mathcal{L}}{\partial \mathbf{w}}
+$$
+
+$$
+b := b - \alpha \frac{\partial \mathcal{L}}{\partial b}
+$$
+
+## Implementation
+
+### From Scratch (NumPy)
+
+```python
+import numpy as np
+
+class LogisticRegression:
+    def __init__(self, learning_rate=0.01, n_iterations=1000):
+        self.lr = learning_rate
+        self.n_iters = n_iterations
+        self.weights = None
+        self.bias = None
+    
+    def sigmoid(self, z):
+        return 1 / (1 + np.exp(-np.clip(z, -500, 500)))
+    
+    def fit(self, X, y):
+        n_samples, n_features = X.shape
+        self.weights = np.zeros(n_features)
+        self.bias = 0
+        
+        for i in range(self.n_iters):
+            linear_pred = X @ self.weights + self.bias
+            predictions = self.sigmoid(linear_pred)
+            
+            dw = (1 / n_samples) * (X.T @ (predictions - y))
+            db = (1 / n_samples) * np.sum(predictions - y)
+            
+            self.weights -= self.lr * dw
+            self.bias -= self.lr * db
+            
+            if i % 100 == 0:
+                loss = self._compute_loss(y, predictions)
+                print(f"Iteration {i}, Loss: {loss:.4f}")
+    
+    def _compute_loss(self, y_true, y_pred):
+        epsilon = 1e-15
+        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+        return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
+    
+    def predict_proba(self, X):
+        linear_pred = X @ self.weights + self.bias
+        return self.sigmoid(linear_pred)
+    
+    def predict(self, X, threshold=0.5):
+        probabilities = self.predict_proba(X)
+        return (probabilities >= threshold).astype(int)
+    
+    def score(self, X, y):
+        predictions = self.predict(X)
+        return np.mean(predictions == y)
+
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+
+X, y = make_classification(n_samples=1000, n_features=4, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+model = LogisticRegression(learning_rate=0.1, n_iterations=1000)
+model.fit(X_train, y_train)
+
+print(f"Training Accuracy: {model.score(X_train, y_train):.4f}")
+print(f"Test Accuracy: {model.score(X_test, y_test):.4f}")
+```
+
+### Using Scikit-Learn
+
+```python
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+
+X, y = make_classification(n_samples=1000, n_features=10, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+y_pred_proba = model.predict_proba(X_test)[:, 1]
+
+print(f"Accuracy: {model.score(X_test, y_test):.4f}")
+print(f"ROC-AUC: {roc_auc_score(y_test, y_pred_proba):.4f}")
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+```
+
+## Evaluation Metrics
+
+### Confusion Matrix
+
+|                | Predicted 0 | Predicted 1 |
+|----------------|-------------|-------------|
+| **Actual 0**   | TN          | FP          |
+| **Actual 1**   | FN          | TP          |
+
+### Precision and Recall
+
+$$
+\text{Precision} = \frac{TP}{TP + FP}
+$$
+
+$$
+\text{Recall} = \frac{TP}{TP + FN}
+$$
+
+$$
+\text{F1 Score} = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}
+$$
+
+### ROC-AUC
+
+ROC (Receiver Operating Characteristic) curve plots True Positive Rate vs False Positive Rate at various thresholds. AUC (Area Under Curve) summarizes performance:
+- AUC = 1.0: Perfect classifier
+- AUC = 0.5: Random classifier
+- AUC < 0.5: Worse than random
+
+## Multi-Class Extension
+
+### One-vs-Rest (OvR)
+
+Train $K$ binary classifiers for $K$ classes. Each predicts "class $k$" vs "not class $k$". Choose class with highest probability.
+
+### Softmax Regression (Multinomial Logistic)
+
+Generalizes sigmoid to multiple classes:
+
+$$
+P(y=k | \mathbf{x}) = \frac{e^{\mathbf{w}_k^T \mathbf{x}}}{\sum_{j=1}^{K} e^{\mathbf{w}_j^T \mathbf{x}}}
+$$
+
+Loss function: **Categorical Cross-Entropy**
+
+$$
+\mathcal{L} = -\frac{1}{m} \sum_{i=1}^{m} \sum_{k=1}^{K} y_k^{(i)} \log(\hat{y}_k^{(i)})
+$$
+
+## Limitations
+
+<Callout type="warning">Logistic regression assumes a linear decision boundary, which limits its expressiveness.</Callout>
+
+### 1. Linear Decision Boundary
+Cannot model complex non-linear relationships (e.g., XOR problem).
+
+### 2. Feature Engineering Required
+Needs manual creation of interaction terms and polynomial features for non-linear patterns.
+
+### 3. Sensitive to Outliers
+Extreme values can skew the decision boundary.
+
+### 4. Assumes Feature Independence
+Works best when features are not highly correlated.
+
+### 5. Requires Proper Scaling
+Features with different scales can dominate the gradient.
+
+## Modern Improvements
+
+### Regularization
+
+**L2 (Ridge):**
+$$
+\mathcal{L} = -\frac{1}{m} \sum_{i=1}^{m} \left[ y^{(i)} \log(\hat{y}^{(i)}) + (1 - y^{(i)}) \log(1 - \hat{y}^{(i)}) \right] + \lambda \|\mathbf{w}\|^2
+$$
+
+**L1 (Lasso):**
+$$
+\mathcal{L} = -\frac{1}{m} \sum_{i=1}^{m} \left[ y^{(i)} \log(\hat{y}^{(i)}) + (1 - y^{(i)}) \log(1 - \hat{y}^{(i)}) \right] + \lambda \|\mathbf{w}\|_1
+$$
+
+### Class Imbalance Handling
+- **Class weights**: Penalize minority class errors more
+- **SMOTE**: Synthetic Minority Over-sampling
+- **Threshold adjustment**: Use threshold ≠ 0.5
+
+## Research Notes
+
+### Historical Context
+
+**1958** - David Cox formalized logistic regression in "The Regression Analysis of Binary Sequences"
+
+Logistic regression predates modern machine learning and comes from statistics, making it one of the most theoretically grounded ML algorithms.
+
+### Connection to Neural Networks
+
+A single-layer neural network with sigmoid activation is exactly logistic regression. This makes it the foundation for understanding deep learning.
+
+$$
+\text{Neural Network (1 layer)} = \text{Logistic Regression}
+$$
+
+### Modern Applications
+
+**Deep Learning Loss**: Binary cross-entropy is still used in neural networks
+**Interpretability**: Coefficients show feature importance (after standardization)
+**Online Learning**: Easy to update with new data (stochastic gradient descent)
+**Calibrated Probabilities**: Outputs are well-calibrated probabilities (unlike SVM)
+
+### Why It Still Matters
+
+1. **Interpretability**: Coefficients are easy to explain to non-technical stakeholders
+2. **Efficiency**: Fast training and prediction
+3. **Probabilistic Output**: Provides confidence scores, not just labels
+4. **Baseline Model**: First model to try for classification tasks
+5. **Foundation**: Understanding logistic regression is essential for neural networks
+
+<Callout type="tip">
+Use logistic regression when you need a fast, interpretable baseline for binary classification. If it performs well, you may not need more complex models.
+</Callout>
+
+### Key Papers
+
+1. **Cox (1958)** - "The Regression Analysis of Binary Sequences"
+2. **Hosmer & Lemeshow (1989)** - "Applied Logistic Regression" (textbook standard)
+3. **Ng & Jordan (2002)** - "On Discriminative vs. Generative Classifiers" (compares logistic regression to Naive Bayes)

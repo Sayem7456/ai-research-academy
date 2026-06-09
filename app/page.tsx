@@ -29,6 +29,14 @@ const NAV_CARDS = [
     borderColor: 'border-blue-200 dark:border-blue-800',
   },
   {
+    href: '/ml',
+    icon: '🤖',
+    title: 'Machine Learning',
+    description: 'Core ML algorithms with visual intuition: regression, trees, SVM, clustering, and PCA.',
+    color: 'from-cyan-500 to-blue-600',
+    borderColor: 'border-cyan-200 dark:border-cyan-800',
+  },
+  {
     href: '/notes',
     icon: '📝',
     title: 'Personal Notes',
@@ -48,7 +56,7 @@ const NAV_CARDS = [
 
 const LEARNING_PATH = [
   { step: 1, label: 'Mathematics', icon: '📐', href: '/math', color: 'bg-emerald-500' },
-  { step: 2, label: 'Machine Learning', icon: '🤖', href: '#', color: 'bg-blue-500', soon: true },
+  { step: 2, label: 'Machine Learning', icon: '🤖', href: '/ml', color: 'bg-blue-500' },
   { step: 3, label: 'Computer Vision', icon: '👁️', href: '#', color: 'bg-purple-500', soon: true },
   { step: 4, label: 'LLMs', icon: '💬', href: '#', color: 'bg-amber-500', soon: true },
   { step: 5, label: 'Research', icon: '📄', href: '#', color: 'bg-red-500', soon: true },
@@ -104,7 +112,7 @@ export default function HomePage() {
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Explore
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {NAV_CARDS.map((card) => (
               <Link
                 key={card.href}
