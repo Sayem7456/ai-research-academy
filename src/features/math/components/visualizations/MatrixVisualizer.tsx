@@ -8,7 +8,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const SIZE = 300;
 const SCALE = 40; // pixels per unit
@@ -40,7 +40,6 @@ export default function MatrixVisualizer() {
   const [matrix, setMatrix] = useState<Matrix>({ a: 1, b: 0, c: 0, d: 1 });
   const [showGrid, setShowGrid] = useState(true);
   const [testVector, setTestVector] = useState<[number, number]>([2, 1]);
-  const [animate, setAnimate] = useState(false);
   const [description, setDescription] = useState('The identity matrix — no transformation applied.');
 
   const det = matrix.a * matrix.d - matrix.b * matrix.c;
@@ -74,8 +73,6 @@ export default function MatrixVisualizer() {
   const handlePreset = (preset: typeof PRESETS[number]) => {
     setMatrix(preset.matrix);
     setDescription(preset.description);
-    setAnimate(true);
-    setTimeout(() => setAnimate(false), 600);
   };
 
   const updateEntry = (key: keyof Matrix, value: string) => {

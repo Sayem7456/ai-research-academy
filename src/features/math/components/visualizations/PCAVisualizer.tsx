@@ -17,8 +17,8 @@ function generateCluster(cx: number, cy: number, sx: number, sy: number, angle: 
   const sin = Math.sin(angle);
   const pts: [number, number][] = [];
   for (let i = 0; i < n; i++) {
-    // Box-Muller
-    const u1 = Math.random();
+    // Box-Muller (guard u1 against 0 to avoid log(0) = -Infinity)
+    const u1 = Math.random() || Number.EPSILON;
     const u2 = Math.random();
     const z0 = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
     const z1 = Math.sqrt(-2 * Math.log(u1)) * Math.sin(2 * Math.PI * u2);

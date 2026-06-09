@@ -8,7 +8,7 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const SIZE = 340;
 
@@ -84,18 +84,6 @@ export default function GradientDescentSimulator() {
 
   const result = useMemo(() => runGD(surface, startX, startY, lr, steps, momentum), [surface, startX, startY, lr, steps, momentum]);
 
-  // Contour data
-  const contourLevels = useMemo(() => {
-    const levels: number[] = [];
-    const vals = result.values;
-    const maxVal = Math.max(...vals.slice(0, 10));
-    const minVal = Math.min(...vals);
-    for (let i = 0; i < 12; i++) {
-      levels.push(minVal + (maxVal - minVal) * (i / 11));
-    }
-    return levels;
-  }, [result]);
-
   // Grid evaluation for heatmap
   const gridSize = 40;
   const gridRange = 4;
@@ -145,6 +133,9 @@ export default function GradientDescentSimulator() {
   const currentPos = result.path[Math.min(animStep, result.path.length - 1)];
   const currentValue = result.values[Math.min(animStep, result.values.length - 1)];
   const currentGrad = gradient(surface, currentPos[0], currentPos[1]);
+
+  // Detect divergence: on the saddle, loss goes negative = diverging along unstable direction
+  const isDiverging = surface === 'saddle' && currentValue < -0.1;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
@@ -229,7 +220,9 @@ export default function GradientDescentSimulator() {
           </svg>
           <div className="flex justify-between mt-1 text-xs text-gray-500">
             <span>Step: {Math.min(animStep, result.path.length - 1)} / {result.path.length - 1}</span>
-            <span>f = {currentValue.toFixed(4)}</span>
+            <span className={isDiverging ? 'text-red-500 font-semibold' : ''}>
+              f = {currentValue.toFixed(4)}{isDiverging ? ' ⚠ diverging' : ''}
+            </span>
           </div>
         </div>
 
@@ -300,13 +293,21 @@ export default function GradientDescentSimulator() {
                 const maxV = Math.max(...vals);
                 const minV = Math.min(...vals);
                 const range = maxV - minV || 1;
+                const strokeColor = isDiverging ? '#EF4444' : '#8B5CF6';
                 return (
-                  <polyline
-                    fill="none" stroke="#8B5CF6" strokeWidth="2"
-                    points={vals.map((v, i) =>
-                      `${(i / (vals.length - 1)) * 200},${60 - ((v - minV) / range) * 55}`
-                    ).join(' ')}
-                  />
+                  <>
+                    <polyline
+                      fill="none" stroke={strokeColor} strokeWidth="2"
+                      points={vals.map((v, i) =>
+                        `${(i / (vals.length - 1)) * 200},${60 - ((v - minV) / range) * 55}`
+                      ).join(' ')}
+                    />
+                    {isDiverging && (
+                      <text x="100" y="12" fill="#EF4444" fontSize="9" textAnchor="middle" fontWeight="bold">
+                        ⚠ Loss decreasing ≠ converging (saddle divergence)
+                      </text>
+                    )}
+                  </>
                 );
               })()}
             </svg>
@@ -318,7 +319,7 @@ export default function GradientDescentSimulator() {
             <ul className="text-xs text-blue-700 dark:text-blue-400 space-y-1 list-disc list-inside">
               <li>High learning rate on Rosenbrock causes divergence — try 0.002</li>
               <li>Momentum smooths zigzagging in the elongated valley</li>
-              <li>Saddle point: gradient is zero at center but it&apos;s NOT a minimum</li>
+              <li>Saddle point: gradient is zero at center but it&apos;s NOT a minimum — watch the loss go negative (diverging, not converging!)</li>
               <li>Yellow arrow shows the negative gradient direction (descent)</li>
             </ul>
           </div>

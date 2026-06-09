@@ -126,11 +126,44 @@ export default function VectorVisualizer() {
 
             {operation === 'dot' && (
               <>
-                {/* Angle arc */}
-                <motion.path
-                  d={`M ${toSvg(0.8 * vecA[0] / lenA, 0.8 * vecA[1] / lenA)[0]} ${toSvg(0.8 * vecA[0] / lenA, 0.8 * vecA[1] / lenA)[1]}`}
-                  stroke="#F59E0B" strokeWidth="1.5" fill="none" opacity={0.6}
-                />
+                {/* Angle arc between vectors */}
+                {(() => {
+                  if (lenA < 0.01 || lenB < 0.01) return null;
+                  const r = 1.2; // arc radius in math units
+                  // Unit directions of each vector
+                  const ax = vecA[0] / lenA, ay = vecA[1] / lenA;
+                  const bx = vecB[0] / lenB, by = vecB[1] / lenB;
+                  // Start and end points on the arc
+                  const [sx, sy] = toSvg(r * ax, r * ay);
+                  const [ex, ey] = toSvg(r * bx, r * by);
+                  const [cx, cy] = toSvg(0, 0);
+                  // SVG arc radius in pixels
+                  const rPx = r * SCALE;
+                  // Large arc flag: use large arc if angle > 180°
+                  const largeArc = angle > 180 ? 1 : 0;
+                  // Sweep direction: determine via cross product (a × b)
+                  // In SVG (y-down), positive cross = clockwise = sweep 1
+                  const cross = vecA[0] * vecB[1] - vecA[1] * vecB[0];
+                  const sweep = cross < 0 ? 1 : 0;
+                  return (
+                    <path
+                      d={`M ${sx} ${sy} A ${rPx} ${rPx} 0 ${largeArc} ${sweep} ${ex} ${ey}`}
+                      stroke="#F59E0B" strokeWidth="1.5" fill="none" opacity={0.7}
+                    />
+                  );
+                })()}
+                {/* Angle label */}
+                {(() => {
+                  if (lenA < 0.01 || lenB < 0.01) return null;
+                  const midAngleRad = (Math.atan2(vecA[1], vecA[0]) + Math.atan2(vecB[1], vecB[0])) / 2;
+                  const labelR = 1.6;
+                  const [lx, ly] = toSvg(labelR * Math.cos(midAngleRad), labelR * Math.sin(midAngleRad));
+                  return (
+                    <text x={lx} y={ly} fill="#F59E0B" fontSize="11" fontWeight="bold" textAnchor="middle" dominantBaseline="middle">
+                      {angle.toFixed(0)}°
+                    </text>
+                  );
+                })()}
                 {/* Projection line */}
                 <ArrowLine from={[0, 0]} to={proj} color="#F59E0B" label="proj" />
                 <line

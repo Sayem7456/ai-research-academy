@@ -47,6 +47,14 @@ function computeEigen(m: Matrix2x2): { values: [number, number]; vectors: [[numb
   } else if (Math.abs(c) > 1e-10) {
     v1 = [l1 - d, c];
     v2 = [l2 - d, c];
+  } else {
+    // Diagonal (or nearly diagonal) matrix: eigenvectors are [1,0] and [0,1]
+    // Assign so v1 corresponds to l1 (larger eigenvalue) and v2 to l2
+    if (Math.abs(a - l1) < Math.abs(d - l1)) {
+      v1 = [1, 0]; v2 = [0, 1]; // a is closer to l1
+    } else {
+      v1 = [0, 1]; v2 = [1, 0]; // d is closer to l1
+    }
   }
 
   // Normalize
@@ -222,14 +230,16 @@ export default function EigenvectorVisualizer() {
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm">
             <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-1">Key Insight</h4>
             <p className="text-blue-800 dark:text-blue-300">
-              The unit circle transforms into an ellipse. The <strong>semi-axes of the ellipse</strong> align
-              with the eigenvectors, and their lengths equal the absolute eigenvalues.
+              The unit circle transforms into an ellipse. <strong>Eigenvectors</strong> are the directions
+              that only stretch (by factor λ) without rotating. For <strong>symmetric</strong> matrices
+              (where A = Aᵀ), these align with the ellipse&apos;s semi-axes.
             </p>
             <ul className="mt-2 text-xs text-blue-700 dark:text-blue-400 space-y-1 list-disc list-inside">
               <li>|λ| &gt; 1: stretches in that direction</li>
               <li>|λ| &lt; 1: compresses in that direction</li>
               <li>λ &lt; 0: flips direction</li>
               <li>λ = 0: collapses to lower dimension</li>
+              <li>Complex λ: matrix involves rotation (no real eigenvectors)</li>
             </ul>
           </div>
         </div>

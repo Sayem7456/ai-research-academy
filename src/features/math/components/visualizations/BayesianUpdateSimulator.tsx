@@ -36,8 +36,11 @@ function betaPDF(x: number, alpha: number, beta: number): number {
 
 function computeBetaPDF(alpha: number, beta: number, n: number): { x: number; y: number }[] {
   const pts: { x: number; y: number }[] = [];
+  // Sample from epsilon to 1-epsilon to avoid singularities at boundaries
+  // (important for Jeffreys prior Beta(0.5,0.5) which diverges at 0 and 1)
+  const eps = 0.005;
   for (let i = 0; i <= n; i++) {
-    const x = i / n;
+    const x = eps + (1 - 2 * eps) * (i / n);
     pts.push({ x, y: betaPDF(x, alpha, beta) });
   }
   return pts;

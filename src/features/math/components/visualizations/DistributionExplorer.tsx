@@ -42,6 +42,7 @@ function gaussianPDF(x: number, mu: number, sigma: number): number {
 }
 
 function uniformPDF(x: number, a: number, b: number): number {
+  if (a >= b) return 0; // Guard against invalid parameters
   return x >= a && x <= b ? 1 / (b - a) : 0;
 }
 
@@ -121,13 +122,15 @@ export default function DistributionExplorer() {
         xMin = m - 4 * (params.sigma ?? 1);
         xMax = m + 4 * (params.sigma ?? 1);
         break;
-      case 'uniform':
-        fn = (x) => uniformPDF(x, params.a ?? -2, params.b ?? 2);
-        m = ((params.a ?? -2) + (params.b ?? 2)) / 2;
-        v = ((params.b ?? 2) - (params.a ?? -2)) ** 2 / 12;
-        xMin = (params.a ?? -2) - 1;
-        xMax = (params.b ?? 2) + 1;
+      case 'uniform': {
+        const ua = params.a ?? -2, ub = params.b ?? 2;
+        fn = (x) => uniformPDF(x, ua, ub);
+        m = ua < ub ? (ua + ub) / 2 : 0;
+        v = ua < ub ? (ub - ua) ** 2 / 12 : 0;
+        xMin = (ua < ub ? ua : Math.min(ua, ub)) - 1;
+        xMax = (ua < ub ? ub : Math.max(ua, ub)) + 1;
         break;
+      }
       case 'exponential':
         fn = (x) => exponentialPDF(x, params.lambda ?? 1);
         m = 1 / (params.lambda ?? 1);
@@ -135,12 +138,16 @@ export default function DistributionExplorer() {
         xMin = 0;
         xMax = 5 / (params.lambda ?? 1);
         break;
-      case 'beta':
-        fn = (x) => betaPDF(x, params.alpha ?? 2, params.beta ?? 5);
-        m = (params.alpha ?? 2) / ((params.alpha ?? 2) + (params.beta ?? 5));
-        v = ((params.alpha ?? 2) * (params.beta ?? 5)) / (((params.alpha ?? 2) + (params.beta ?? 5)) ** 2 * ((params.alpha ?? 2) + (params.beta ?? 5) + 1));
-        xMin = 0; xMax = 1;
+      case 'beta': {
+        const ba = params.alpha ?? 2, bb = params.beta ?? 5;
+        fn = (x) => betaPDF(x, ba, bb);
+        m = ba / (ba + bb);
+        v = (ba * bb) / ((ba + bb) ** 2 * (ba + bb + 1));
+        // Sample from epsilon to 1-epsilon to avoid boundary singularities
+        // when α<1 or β<1 (PDF diverges at 0 and/or 1)
+        xMin = 0.005; xMax = 0.995;
         break;
+      }
       default:
         fn = () => 0;
     }
