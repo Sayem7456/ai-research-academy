@@ -84,6 +84,23 @@ export default function KMeansAnimation() {
   const prevCentroidsRef = useRef<Point2D[]>([]);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const check = () => setIsDark(document.documentElement.classList.contains('dark'));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const gridStroke = isDark ? '#4b5563' : '#e5e7eb';
+  const axisFill = isDark ? '#6b7280' : '#9ca3af';
+  const hoverTextFill = isDark ? '#d1d5db' : '#374151';
+  const pointStroke = isDark ? '#1f2937' : 'white';
+  const centroidStroke = isDark ? '#d1d5db' : 'black';
+  const voronoiOpacity = isDark ? 0.2 : 0.1;
+  const chartAxisFill = isDark ? '#6b7280' : '#9ca3af';
+
   const wcss = useMemo(
     () => (centroids.length > 0 && assignments.length > 0 ? computeWCSS(points, centroids, assignments) : 0),
     [points, centroids, assignments]
@@ -263,11 +280,11 @@ export default function KMeansAnimation() {
     const els: React.ReactNode[] = [];
     for (let i = 0; i <= RANGE; i++) {
       const p = (i / RANGE) * WIDTH;
-      els.push(<line key={`gv${i}`} x1={p} y1={0} x2={p} y2={HEIGHT} stroke="#e5e7eb" strokeWidth={1} />);
-      els.push(<line key={`gh${i}`} x1={0} y1={p} x2={WIDTH} y2={p} stroke="#e5e7eb" strokeWidth={1} />);
+      els.push(<line key={`gv${i}`} x1={p} y1={0} x2={p} y2={HEIGHT} stroke={gridStroke} strokeWidth={1} />);
+      els.push(<line key={`gh${i}`} x1={0} y1={p} x2={WIDTH} y2={p} stroke={gridStroke} strokeWidth={1} />);
       if (i % 2 === 0) {
-        els.push(<text key={`lx${i}`} x={p} y={HEIGHT + 14} textAnchor="middle" fontSize={10} fill="#9ca3af">{i}</text>);
-        els.push(<text key={`ly${i}`} x={-10} y={p + 4} textAnchor="end" fontSize={10} fill="#9ca3af">{RANGE - i}</text>);
+        els.push(<text key={`lx${i}`} x={p} y={HEIGHT + 14} textAnchor="middle" fontSize={10} fill={axisFill}>{i}</text>);
+        els.push(<text key={`ly${i}`} x={-10} y={p + 4} textAnchor="end" fontSize={10} fill={axisFill}>{RANGE - i}</text>);
       }
     }
     return els;
@@ -289,7 +306,7 @@ export default function KMeansAnimation() {
           const d = Math.hypot(dx - centroids[ci].x, dy - centroids[ci].y);
           if (d < md) { md = d; ni = ci; }
         }
-        cells.push(<rect key={`v${gx}-${gy}`} x={gx * cw} y={gy * ch} width={cw} height={ch} fill={COLORS[ni % COLORS.length]} fillOpacity={0.1} />);
+        cells.push(<rect key={`v${gx}-${gy}`} x={gx * cw} y={gy * ch} width={cw} height={ch} fill={COLORS[ni % COLORS.length]} fillOpacity={voronoiOpacity} />);
       }
     }
     return cells;
@@ -372,12 +389,12 @@ export default function KMeansAnimation() {
         {elbowData.map((d, i) => {
           const x = padL + (i / (elbowData.length - 1)) * pw;
           return (
-            <text key={`lb-${d.k}`} x={x} y={chartH - 2} textAnchor="middle" fontSize={9} fill="#9ca3af">
+            <text key={`lb-${d.k}`} x={x} y={chartH - 2} textAnchor="middle" fontSize={9} fill={chartAxisFill}>
               {d.k}
             </text>
           );
         })}
-        <text x={padL} y={chartH - 2} textAnchor="start" fontSize={9} fill="#9ca3af">K=</text>
+        <text x={padL} y={chartH - 2} textAnchor="start" fontSize={9} fill={chartAxisFill}>K=</text>
         {elbowK && (
           <text x={padL + ((elbowK - 1) / (elbowData.length - 1)) * pw} y={8} textAnchor="middle" fontSize={9} fill="#f59e0b" fontWeight="bold">
             Elbow: K={elbowK}
@@ -412,9 +429,9 @@ export default function KMeansAnimation() {
           const y = padT + ph - ((w - minWCSS) / range) * ph;
           return <circle key="last" cx={x} cy={y} r={3} fill="#8b5cf6" />;
         })}
-        <text x={padL} y={chartH - 2} textAnchor="start" fontSize={9} fill="#9ca3af">Iteration</text>
-        <text x={chartW - padR} y={padT - 1} textAnchor="end" fontSize={9} fill="#9ca3af">{minWCSS.toFixed(0)}</text>
-        <text x={chartW - padR} y={padT + ph + 1} textAnchor="end" fontSize={9} fill="#9ca3af">{maxWCSS.toFixed(0)}</text>
+        <text x={padL} y={chartH - 2} textAnchor="start" fontSize={9} fill={chartAxisFill}>Iteration</text>
+        <text x={chartW - padR} y={padT - 1} textAnchor="end" fontSize={9} fill={chartAxisFill}>{minWCSS.toFixed(0)}</text>
+        <text x={chartW - padR} y={padT + ph + 1} textAnchor="end" fontSize={9} fill={chartAxisFill}>{maxWCSS.toFixed(0)}</text>
       </svg>
     );
   };
@@ -448,8 +465,8 @@ export default function KMeansAnimation() {
                         cy={toSVGY(p.y)}
                         r={hoveredPoint === i ? 7 : 4}
                         fill={COLORS[cluster % COLORS.length]}
-                        stroke="white"
-                        strokeWidth={hoveredPoint === i ? 2 : 1}
+                        stroke={pointStroke}
+                        strokeWidth={hoveredPoint === i ? 2 : 1.5}
                         style={{ cursor: 'pointer' }}
                         onClick={(e) => { e.stopPropagation(); handleRemovePoint(i); }}
                         onMouseEnter={() => setHoveredPoint(i)}
@@ -459,7 +476,7 @@ export default function KMeansAnimation() {
                         transition={{ duration: 0.3 }}
                       />
                       {hoveredPoint === i && (
-                        <text x={toSVGX(p.x) + 10} y={toSVGY(p.y) + 3} fontSize={10} fontFamily="monospace" fill="#374151">
+                        <text x={toSVGX(p.x) + 10} y={toSVGY(p.y) + 3} fontSize={10} fontFamily="monospace" fill={hoverTextFill}>
                           ({p.x.toFixed(1)}, {p.y.toFixed(1)})
                         </text>
                       )}
@@ -479,7 +496,7 @@ export default function KMeansAnimation() {
                       cy={toSVGY(c.y)}
                       r={10}
                       fill={COLORS[i % COLORS.length]}
-                      stroke="black"
+                      stroke={centroidStroke}
                       strokeWidth={3}
                     />
                     <text x={toSVGX(c.x)} y={toSVGY(c.y) + 4} textAnchor="middle" fill="white" fontSize={12} fontWeight="bold">

@@ -213,11 +213,15 @@ export default function ConvolutionExplorer() {
     let step = 0;
     intervalRef.current = setInterval(() => {
       step++;
-      if (step >= totalSteps) { stopPlaying(); return; }
+      if (step >= totalSteps) {
+        if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+        setIsPlaying(false);
+        return;
+      }
       setAnimRow(Math.floor(step / outW));
       setAnimCol(step % outW);
     }, animSpeed);
-  }, [outH, outW, totalSteps, animSpeed, stopPlaying]);
+  }, [outH, outW, totalSteps, animSpeed]);
 
   useEffect(() => { return () => stopPlaying(); }, [stopPlaying]);
 

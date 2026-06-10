@@ -60,6 +60,25 @@ export default function SVMBoundaryExplorer() {
   const [mode, setMode] = useState<'add' | 'test'>('add');
   const [testPoint, setTestPoint] = useState<{ x: number; y: number } | null>(null);
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const check = () => setIsDark(document.documentElement.classList.contains('dark'));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const gridStroke = isDark ? '#4b5563' : '#e5e7eb';
+  const axisFill = isDark ? '#6b7280' : '#9ca3af';
+  const axisFillDark = isDark ? '#6b7280' : '#9ca3af';
+  const tooltipBg = isDark ? '#1f2937' : 'white';
+  const tooltipBorder = isDark ? '#4b5563' : '#d1d5db';
+  const tooltipText = isDark ? '#d1d5db' : '#374151';
+  const chartStroke = isDark ? '#4b5563' : '#d1d5db';
+  const chartLabelFill = isDark ? '#6b7280' : '#9ca3af';
+  const gridSearchText = isDark ? '#d1d5db' : '#374151';
+  const kernelMatrixStroke = isDark ? '#374151' : '#e5e7eb';
 
   const [animStep, setAnimStep] = useState(-1);
   const [isTraining, setIsTraining] = useState(false);
@@ -286,11 +305,11 @@ export default function SVMBoundaryExplorer() {
     const els: React.ReactNode[] = [];
     for (let i = 0; i <= RANGE; i++) {
       const p = (i / RANGE) * WIDTH;
-      els.push(<line key={`gv${i}`} x1={p} y1={0} x2={p} y2={HEIGHT} stroke="#e5e7eb" strokeWidth={1} />);
-      els.push(<line key={`gh${i}`} x1={0} y1={p} x2={WIDTH} y2={p} stroke="#e5e7eb" strokeWidth={1} />);
+      els.push(<line key={`gv${i}`} x1={p} y1={0} x2={p} y2={HEIGHT} stroke={gridStroke} strokeWidth={1} />);
+      els.push(<line key={`gh${i}`} x1={0} y1={p} x2={WIDTH} y2={p} stroke={gridStroke} strokeWidth={1} />);
       if (i % 2 === 0) {
-        els.push(<text key={`lx${i}`} x={p} y={HEIGHT + 14} textAnchor="middle" fontSize={10} fill="#9ca3af">{i}</text>);
-        els.push(<text key={`ly${i}`} x={-10} y={p + 4} textAnchor="end" fontSize={10} fill="#9ca3af">{RANGE - i}</text>);
+        els.push(<text key={`lx${i}`} x={p} y={HEIGHT + 14} textAnchor="middle" fontSize={10} fill={axisFill}>{i}</text>);
+        els.push(<text key={`ly${i}`} x={-10} y={p + 4} textAnchor="end" fontSize={10} fill={axisFill}>{RANGE - i}</text>);
       }
     }
     return els;
@@ -462,25 +481,25 @@ export default function SVMBoundaryExplorer() {
               y={i * cellSize}
               width={cellSize} height={cellSize}
               fill={`rgb(${Math.round(255 - normalized[i][j] * 200)}, ${Math.round(255 - normalized[i][j] * 200)}, 255)`}
-              stroke="#e5e7eb" strokeWidth={0.5}
+              stroke={kernelMatrixStroke} strokeWidth={0.5}
             />
           ))
         )}
         {Array.from({ length: n }, (_, i) => (
           <text key={`kmy-${i}`}
             x={maxLabelWidth - 2} y={i * cellSize + cellSize / 2 + 1}
-            textAnchor="end" fontSize={7} fill="#6b7280" fontFamily="monospace">{i}</text>
+            textAnchor="end" fontSize={7} fill={axisFillDark} fontFamily="monospace">{i}</text>
         ))}
         {Array.from({ length: n }, (_, j) => (
           <text key={`kmx-${j}`}
             x={maxLabelWidth + j * cellSize + cellSize / 2}
             y={n * cellSize + 10}
-            textAnchor="middle" fontSize={7} fill="#6b7280" fontFamily="monospace">{j}</text>
+            textAnchor="middle" fontSize={7} fill={axisFillDark} fontFamily="monospace">{j}</text>
         ))}
-        <text x={0} y={n * cellSize / 2} textAnchor="middle" fontSize={8} fill="#9ca3af"
+        <text x={0} y={n * cellSize / 2} textAnchor="middle" fontSize={8} fill={chartLabelFill}
           transform={`rotate(-90, 8, ${n * cellSize / 2})`}>i</text>
         <text x={maxLabelWidth + vizWidth / 2} y={n * cellSize + 20}
-          textAnchor="middle" fontSize={8} fill="#9ca3af">j</text>
+          textAnchor="middle" fontSize={8} fill={chartLabelFill}>j</text>
       </svg>
     );
   };
@@ -496,8 +515,8 @@ export default function SVMBoundaryExplorer() {
     return (
       <div className="text-center">
         <svg width={histW + 20} height={histH + 30} className="mx-auto">
-          <line x1={10} y1={histH} x2={histW + 10} y2={histH} stroke="#d1d5db" strokeWidth={1} />
-          <line x1={10} y1={0} x2={10} y2={histH} stroke="#d1d5db" strokeWidth={1} />
+          <line x1={10} y1={histH} x2={histW + 10} y2={histH} stroke={chartStroke} strokeWidth={1} />
+          <line x1={10} y1={0} x2={10} y2={histH} stroke={chartStroke} strokeWidth={1} />
           {bins.map((count, i) => (
             <rect key={`hist-${i}`}
               x={10 + i * barW + barMargin}
@@ -514,10 +533,10 @@ export default function SVMBoundaryExplorer() {
             stroke="#ef4444" strokeWidth={1} strokeDasharray="3,2" opacity={0.5} />
           <text x={10 + ((0 - min) / (max - min || 1)) * histW} y={histH + 12}
             textAnchor="middle" fontSize={8} fill="#ef4444">f=0</text>
-          <text x={10} y={-2} textAnchor="start" fontSize={7} fill="#9ca3af">{min.toFixed(1)}</text>
-          <text x={histW + 10} y={-2} textAnchor="end" fontSize={7} fill="#9ca3af">{max.toFixed(1)}</text>
-          <text x={10 + histW / 2} y={histH + 26} textAnchor="middle" fontSize={8} fill="#9ca3af">f(x)</text>
-          <text x={2} y={histH / 2} textAnchor="middle" fontSize={8} fill="#9ca3af"
+          <text x={10} y={-2} textAnchor="start" fontSize={7} fill={chartLabelFill}>{min.toFixed(1)}</text>
+          <text x={histW + 10} y={-2} textAnchor="end" fontSize={7} fill={chartLabelFill}>{max.toFixed(1)}</text>
+          <text x={10 + histW / 2} y={histH + 26} textAnchor="middle" fontSize={8} fill={chartLabelFill}>f(x)</text>
+          <text x={2} y={histH / 2} textAnchor="middle" fontSize={8} fill={chartLabelFill}
             transform={`rotate(-90, 4, ${histH / 2})`}>count</text>
         </svg>
       </div>
@@ -543,14 +562,14 @@ export default function SVMBoundaryExplorer() {
                   <rect x={50 + gi * cellW} y={ci * cellH}
                     width={cellW} height={cellH} rx={2}
                     fill={`rgb(${r},${g},${b})`}
-                    stroke="#e5e7eb" strokeWidth={1}
+                    stroke={kernelMatrixStroke} strokeWidth={1}
                   />
                   <text x={50 + gi * cellW + cellW / 2} y={ci * cellH + cellH / 2 - 3}
-                    textAnchor="middle" fontSize={10} fontWeight="bold" fill={acc > 70 ? 'white' : '#374151'}>
+                    textAnchor="middle" fontSize={10} fontWeight="bold" fill={acc > 70 ? 'white' : gridSearchText}>
                     {acc.toFixed(0)}%
                   </text>
                   <text x={50 + gi * cellW + cellW / 2} y={ci * cellH + cellH / 2 + 10}
-                    textAnchor="middle" fontSize={7} fill={acc > 70 ? 'rgba(255,255,255,0.7)' : '#9ca3af'}>
+                    textAnchor="middle" fontSize={7} fill={acc > 70 ? 'rgba(255,255,255,0.7)' : chartLabelFill}>
                     C={cell.C.toFixed(1)}
                   </text>
                 </g>
@@ -559,15 +578,15 @@ export default function SVMBoundaryExplorer() {
           )}
           {['0.1', '0.5', '1', '2', '4'].map((label, gi) => (
             <text key={`gx-${gi}`} x={50 + gi * cellW + cellW / 2} y={-4}
-              textAnchor="middle" fontSize={8} fill="#6b7280">{label}</text>
+              textAnchor="middle" fontSize={8} fill={axisFillDark}>{label}</text>
           ))}
           {['0.1', '0.5', '1', '5', '10'].map((label, ci) => (
             <text key={`gy-${ci}`} x={44} y={ci * cellH + cellH / 2 + 3}
-              textAnchor="end" fontSize={8} fill="#6b7280">{label}</text>
+              textAnchor="end" fontSize={8} fill={axisFillDark}>{label}</text>
           ))}
           <text x={50 + (cols * cellW) / 2} y={rows * cellH + 16}
-            textAnchor="middle" fontSize={8} fill="#9ca3af">γ (gamma) →</text>
-          <text x={6} y={rows * cellH / 2} textAnchor="middle" fontSize={8} fill="#9ca3af"
+            textAnchor="middle" fontSize={8} fill={chartLabelFill}>γ (gamma) →</text>
+          <text x={6} y={rows * cellH / 2} textAnchor="middle" fontSize={8} fill={chartLabelFill}
             transform={`rotate(-90, 10, ${rows * cellH / 2})`}>C →</text>
         </svg>
       </div>
@@ -606,21 +625,21 @@ export default function SVMBoundaryExplorer() {
 
     return (
       <svg width={chartW} height={chartH} className="mx-auto">
-        <line x1={pad.l} y1={pad.t} x2={pad.l} y2={pad.t + innerH} stroke="#d1d5db" strokeWidth={1} />
-        <line x1={pad.l} y1={pad.t + innerH} x2={pad.l + innerW} y2={pad.t + innerH} stroke="#d1d5db" strokeWidth={1} />
+                <line x1={pad.l} y1={pad.t} x2={pad.l} y2={pad.t + innerH} stroke={chartStroke} strokeWidth={1} />
+        <line x1={pad.l} y1={pad.t + innerH} x2={pad.l + innerW} y2={pad.t + innerH} stroke={chartStroke} strokeWidth={1} />
         <path d={objPath} fill="none" stroke="#7c3aed" strokeWidth={1.5} opacity={0.7} />
         <path d={accPath} fill="none" stroke="#10b981" strokeWidth={1.5} opacity={0.7} />
         {animX !== null && (
           <line x1={animX} y1={pad.t} x2={animX} y2={pad.t + innerH}
             stroke="#f59e0b" strokeWidth={1} strokeDasharray="3,2" />
         )}
-        <text x={pad.l + innerW / 2} y={chartH - 2} textAnchor="middle" fontSize={8} fill="#9ca3af">Iteration</text>
-        <text x={4} y={pad.t + innerH / 2} textAnchor="middle" fontSize={7} fill="#9ca3af"
+        <text x={pad.l + innerW / 2} y={chartH - 2} textAnchor="middle" fontSize={8} fill={chartLabelFill}>Iteration</text>
+        <text x={4} y={pad.t + innerH / 2} textAnchor="middle" fontSize={7} fill={chartLabelFill}
           transform={`rotate(-90, 6, ${pad.t + innerH / 2})`}>value</text>
         <circle x={pad.l + innerW - 8} y={8} r={3} fill="#7c3aed" />
-        <text x={pad.l + innerW - 4} y={11} fontSize={7} fill="#6b7280">J<sub>D</sub> (obj)</text>
+        <text x={pad.l + innerW - 4} y={11} fontSize={7} fill={axisFillDark}>J<sub>D</sub> (obj)</text>
         <circle x={pad.l + innerW - 8} y={20} r={3} fill="#10b981" />
-        <text x={pad.l + innerW - 4} y={23} fontSize={7} fill="#6b7280">Acc.</text>
+        <text x={pad.l + innerW - 4} y={23} fontSize={7} fill={axisFillDark}>Acc.</text>
       </svg>
     );
   };
@@ -700,7 +719,7 @@ export default function SVMBoundaryExplorer() {
                         cx={toSVGX(p.x)} cy={toSVGY(p.y)}
                         r={hoveredPoint === i ? 8 : 6}
                         fill={p.label === 1 ? '#3b82f6' : '#ef4444'}
-                        stroke={isSV ? '#fbbf24' : 'white'}
+                        stroke={isSV ? '#fbbf24' : tooltipBorder}
                         strokeWidth={isSV ? 3 : 2}
                         style={{ cursor: mode === 'add' ? 'pointer' : 'default' }}
                         onClick={(e) => { e.stopPropagation(); if (mode === 'add') handleRemovePoint(i); }}
@@ -711,13 +730,13 @@ export default function SVMBoundaryExplorer() {
                         <g>
                           <rect x={toSVGX(p.x) + 14} y={toSVGY(p.y) - 18}
                             width={110} height={34} rx={4}
-                            fill="white" stroke="#d1d5db" strokeWidth={1} opacity={0.95} />
+                            fill={tooltipBg} stroke={tooltipBorder} strokeWidth={1} opacity={0.95} />
                           <text x={toSVGX(p.x) + 18} y={toSVGY(p.y) - 8}
-                            fontSize={9} fontFamily="monospace" fill="#374151">
+                            fontSize={9} fontFamily="monospace" fill={tooltipText}>
                             ({p.x.toFixed(1)},{p.y.toFixed(1)}) α={aVal.toFixed(3)}
                           </text>
                           <text x={toSVGX(p.x) + 18} y={toSVGY(p.y) + 6}
-                            fontSize={9} fontFamily="monospace" fill={isSV ? '#d97706' : '#9ca3af'}>
+                            fontSize={9} fontFamily="monospace" fill={isSV ? '#d97706' : (isDark ? '#6b7280' : '#9ca3af')}>
                             {isSV
                               ? `SV ξ=${slackValues[i].toFixed(3)}${aVal >= C - 1e-5 ? ' (bounded)' : ''}`
                               : `Not SV ξ=${slackValues[i].toFixed(3)}`}
@@ -736,7 +755,7 @@ export default function SVMBoundaryExplorer() {
                       fill="#10b981" />
                     <rect x={toSVGX(testPoint.x) + 14} y={toSVGY(testPoint.y) - 10}
                       width={120} height={20} rx={4}
-                      fill="white" stroke="#10b981" strokeWidth={1} opacity={0.95} />
+                      fill={tooltipBg} stroke="#10b981" strokeWidth={1} opacity={0.95} />
                     <text x={toSVGX(testPoint.x) + 18} y={toSVGY(testPoint.y) + 4}
                       fontSize={9} fontFamily="monospace" fill="#059669" fontWeight="bold">
                       Class {testPrediction.prediction} (d={testPrediction.distance.toFixed(2)})

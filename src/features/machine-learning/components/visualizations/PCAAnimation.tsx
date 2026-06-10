@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { computePCA, type Point2D } from '../../utils/ml-algorithms';
 
@@ -51,6 +51,21 @@ export default function PCAAnimation() {
   const [showReconstruction, setShowReconstruction] = useState(true);
   const [showEllipse, setShowEllipse] = useState(true);
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const check = () => setIsDark(document.documentElement.classList.contains('dark'));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const gridStroke = isDark ? '#4b5563' : '#e5e7eb';
+  const axisFill = isDark ? '#6b7280' : '#9ca3af';
+  const pointStroke = isDark ? '#1f2937' : 'white';
+  const hoverTextFill = isDark ? '#d1d5db' : '#374151';
+  const chartAxisStroke = isDark ? '#374151' : '#e5e7eb';
+  const covTextDark = isDark ? '#d1d5db' : '#374151';
 
   const points = useMemo(() => rotatePoints(basePoints, rotationDeg), [basePoints, rotationDeg]);
 
@@ -152,11 +167,11 @@ export default function PCAAnimation() {
     const els: React.ReactNode[] = [];
     for (let i = 0; i <= RANGE; i++) {
       const p = (i / RANGE) * WIDTH;
-      els.push(<line key={`gv${i}`} x1={p} y1={0} x2={p} y2={HEIGHT} stroke="#e5e7eb" strokeWidth={1} />);
-      els.push(<line key={`gh${i}`} x1={0} y1={p} x2={WIDTH} y2={p} stroke="#e5e7eb" strokeWidth={1} />);
+      els.push(<line key={`gv${i}`} x1={p} y1={0} x2={p} y2={HEIGHT} stroke={gridStroke} strokeWidth={1} />);
+      els.push(<line key={`gh${i}`} x1={0} y1={p} x2={WIDTH} y2={p} stroke={gridStroke} strokeWidth={1} />);
       if (i % 2 === 0) {
-        els.push(<text key={`lx${i}`} x={p} y={HEIGHT + 14} textAnchor="middle" fontSize={10} fill="#9ca3af">{i}</text>);
-        els.push(<text key={`ly${i}`} x={-10} y={p + 4} textAnchor="end" fontSize={10} fill="#9ca3af">{RANGE - i}</text>);
+        els.push(<text key={`lx${i}`} x={p} y={HEIGHT + 14} textAnchor="middle" fontSize={10} fill={axisFill}>{i}</text>);
+        els.push(<text key={`ly${i}`} x={-10} y={p + 4} textAnchor="end" fontSize={10} fill={axisFill}>{RANGE - i}</text>);
       }
     }
     return els;
@@ -246,10 +261,10 @@ export default function PCAAnimation() {
 
     return (
       <svg width={cw} height={ch} className="w-full">
-        <line x1={pad} y1={pad + ph / 2} x2={pad + pw} y2={pad + ph / 2} stroke="#e5e7eb" strokeWidth={1} />
-        <line x1={pad + pw / 2} y1={pad} x2={pad + pw / 2} y2={pad + ph} stroke="#e5e7eb" strokeWidth={1} />
-        <text x={pad + pw / 2} y={pad - 4} textAnchor="middle" fontSize={8} fill="#9ca3af">PC2</text>
-        <text x={pad + pw + 4} y={pad + ph / 2 + 3} fontSize={8} fill="#9ca3af">PC1</text>
+        <line x1={pad} y1={pad + ph / 2} x2={pad + pw} y2={pad + ph / 2} stroke={chartAxisStroke} strokeWidth={1} />
+        <line x1={pad + pw / 2} y1={pad} x2={pad + pw / 2} y2={pad + ph} stroke={chartAxisStroke} strokeWidth={1} />
+        <text x={pad + pw / 2} y={pad - 4} textAnchor="middle" fontSize={8} fill={axisFill}>PC2</text>
+        <text x={pad + pw + 4} y={pad + ph / 2 + 3} fontSize={8} fill={axisFill}>PC1</text>
         {projections.map((proj, i) => (
           <motion.circle
             key={i}
@@ -286,13 +301,13 @@ export default function PCAAnimation() {
 
     return (
       <svg width={cellW * 2 + 4} height={cellH * 2 + 4 + 16}>
-        <text x={cellW} y={12} textAnchor="middle" fontSize={9} fill="#6b7280">X</text>
-        <text x={cellW * 2 + 2} y={12} textAnchor="middle" fontSize={9} fill="#6b7280">Y</text>
-        <text x={2} y={12 + cellH} fontSize={9} fill="#6b7280">X</text>
-        <text x={2} y={12 + cellH * 2} fontSize={9} fill="#6b7280">Y</text>
+        <text x={cellW} y={12} textAnchor="middle" fontSize={9} fill={axisFill}>X</text>
+        <text x={cellW * 2 + 2} y={12} textAnchor="middle" fontSize={9} fill={axisFill}>Y</text>
+        <text x={2} y={12 + cellH} fontSize={9} fill={axisFill}>X</text>
+        <text x={2} y={12 + cellH * 2} fontSize={9} fill={axisFill}>Y</text>
         {cells.map(({ r, c, value }) => {
           const fill = value >= 0 ? blue(value) : red(value);
-          const txtColor = intensity(value) > 0.5 ? 'white' : '#374151';
+          const txtColor = intensity(value) > 0.5 ? 'white' : covTextDark;
           return (
             <g key={`${r}-${c}`}>
               <rect x={2 + c * (cellW + 2)} y={14 + r * (cellH + 2)} width={cellW} height={cellH} rx={3} fill={fill} />
@@ -342,7 +357,7 @@ export default function PCAAnimation() {
                 <g>
                   <polygon
                     points={`${toSVGX(mean.x)},${toSVGY(mean.y) - 6} ${toSVGX(mean.x) + 5},${toSVGY(mean.y) + 4} ${toSVGX(mean.x) - 5},${toSVGY(mean.y) + 4}`}
-                    fill="#8b5cf6" stroke="white" strokeWidth="1.5"
+                    fill="#8b5cf6" stroke={pointStroke} strokeWidth="1.5"
                   />
                 </g>
 
@@ -366,7 +381,7 @@ export default function PCAAnimation() {
                     <motion.circle
                       cx={toSVGX(p.x)} cy={toSVGY(p.y)}
                       r={hoveredPoint === i ? 7 : 5}
-                      fill={COLORS[i % COLORS.length]} stroke="white" strokeWidth={2}
+                      fill={COLORS[i % COLORS.length]} stroke={pointStroke} strokeWidth={2}
                       style={{ cursor: 'pointer' }}
                       onClick={(e) => { e.stopPropagation(); handleRemovePoint(i); }}
                       onMouseEnter={() => setHoveredPoint(i)}
@@ -374,7 +389,7 @@ export default function PCAAnimation() {
                       initial={{ scale: 0 }} animate={{ scale: 1 }}
                     />
                     {hoveredPoint === i && (
-                      <text x={toSVGX(p.x) + 12} y={toSVGY(p.y) + 4} fontSize={10} fontFamily="monospace" fill="#374151">
+                      <text x={toSVGX(p.x) + 12} y={toSVGY(p.y) + 4} fontSize={10} fontFamily="monospace" fill={hoverTextFill}>
                         ({p.x.toFixed(1)}, {p.y.toFixed(1)})
                       </text>
                     )}
@@ -465,7 +480,7 @@ export default function PCAAnimation() {
                         return (
                           <g key={b.l}>
                             <rect x={x} y={50 - bh} width={bw} height={Math.max(bh, 2)} fill={b.c} rx={2} opacity={0.8} />
-                            <text x={x + bw / 2} y={58} textAnchor="middle" fontSize={7} fill="#6b7280">{b.l}</text>
+                            <text x={x + bw / 2} y={58} textAnchor="middle" fontSize={7} fill={axisFill}>{b.l}</text>
                             <text x={x + bw / 2} y={50 - bh - 2} textAnchor="middle" fontSize={7} fill={b.c}>{b.v.toFixed(0)}%</text>
                           </g>
                         );
