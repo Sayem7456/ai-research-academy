@@ -99,26 +99,26 @@ export default function ResNetVisualizer() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-2">ResNet (Residual Networks)</h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           ResNets enable training of very deep networks using skip connections that add the input
           directly to the output of a block, allowing gradients to flow through residual pathways.
         </p>
 
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
           <h3 className="font-semibold mb-3">Key Innovation</h3>
           <div className="flex gap-4 items-start">
             <div className="flex-1">
               <h4 className="font-semibold text-sm mb-2 text-blue-700">Skip Connection</h4>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
                 Instead of learning H(x), the block learns residual F(x) = H(x) - x, so H(x) = F(x) + x.
                 This allows the network to learn identity functions easily.
               </p>
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-sm mb-2 text-green-700">Bottleneck Block</h4>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
                 Reduces dimensions with 1×1 conv, applies 3×3 conv, then expands back with 1×1 conv.
                 This is computationally efficient for deep networks.
               </p>
@@ -136,14 +136,14 @@ export default function ResNetVisualizer() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-400"
+            className="p-4 bg-purple-50 dark:bg-purple-950/30 rounded-lg border-l-4 border-purple-400"
           >
             <h3 className="font-semibold mb-2 text-sm">Skip Connection Flow</h3>
-            <div className="text-xs space-y-2 text-gray-700">
+            <div className="text-xs space-y-2 text-gray-700 dark:text-gray-300">
               <div className="font-mono text-purple-700">x → [F(x) block] → output</div>
-              <div className="text-gray-500">and in parallel:</div>
+              <div className="text-gray-500 dark:text-gray-400">and in parallel:</div>
               <div className="font-mono text-green-700">x → + (added to output)</div>
-              <div className="text-gray-500 mt-2">Final: output + x</div>
+              <div className="text-gray-500 dark:text-gray-400 mt-2">Final: output + x</div>
             </div>
           </motion.div>
 
@@ -151,10 +151,10 @@ export default function ResNetVisualizer() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-400"
+            className="p-4 bg-orange-50 dark:bg-orange-950/30 rounded-lg border-l-4 border-orange-400"
           >
             <h3 className="font-semibold mb-2 text-sm">Depth Progression</h3>
-            <div className="text-xs space-y-1 text-gray-700 font-mono">
+            <div className="text-xs space-y-1 text-gray-700 dark:text-gray-300 font-mono">
               <div>ResNet-18: 18 layers (shallow)</div>
               <div>ResNet-34: 34 layers</div>
               <div className="text-blue-700 font-bold">ResNet-50: 50 layers ← shown</div>
@@ -164,9 +164,9 @@ export default function ResNetVisualizer() {
           </motion.div>
         </div>
 
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <h3 className="font-semibold mb-3 text-sm">Why Skip Connections Work</h3>
-          <ul className="space-y-2 text-sm text-gray-700">
+          <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
             <li className="flex gap-2">
               <span className="text-blue-600 font-bold">1.</span>
               <span><strong>Vanishing Gradient:</strong> Skip connections create direct paths for gradients to backpropagate, reducing vanishing gradient problems.</span>
@@ -182,9 +182,9 @@ export default function ResNetVisualizer() {
           </ul>
         </div>
 
-        <div className="mt-6 p-4 bg-green-50 rounded-lg">
+        <div className="mt-6 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
           <h3 className="font-semibold mb-3 text-sm">Applications</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
+          <div className="grid grid-cols-2 gap-2 text-sm text-gray-700 dark:text-gray-300">
             <div>✓ Image Classification</div>
             <div>✓ Object Detection</div>
             <div>✓ Semantic Segmentation</div>

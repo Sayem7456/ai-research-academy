@@ -63,14 +63,14 @@ export default function UNetExplorer() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-2">U-Net Explorer</h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           U-Net's symmetric encoder-decoder design with skip connections enables precise
           segmentation by combining high-level semantic features with low-level spatial details.
         </p>
 
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
           <h3 className="font-semibold mb-3">Controls</h3>
           <div className="flex flex-wrap gap-4 items-center">
             <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
@@ -84,14 +84,14 @@ export default function UNetExplorer() {
               {isAnimating ? 'Stop' : 'Animate Flow'}
             </button>
             <button onClick={stopAnim}
-              className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
+              className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300 transition-colors">
               Reset
             </button>
           </div>
         </div>
 
         <div className="flex flex-col items-center">
-          <div className="text-xs text-gray-500 mb-3">Encoder (Contracting)</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">Encoder (Contracting)</div>
 
           <div className="flex flex-col items-center gap-1 relative">
             {ENCODER.map((layer, i) => {
@@ -112,7 +112,7 @@ export default function UNetExplorer() {
                   {i < ENCODER.length - 1 && (
                     <motion.div
                       animate={isActive ? { opacity: 1 } : { opacity: 0.3 }}
-                      className="text-gray-400 text-xs"
+                      className="text-gray-400 dark:text-gray-500 text-xs"
                     >
                       ↓
                     </motion.div>
@@ -151,12 +151,12 @@ export default function UNetExplorer() {
               className="px-4 py-3 bg-red-50 border-2 border-red-400 rounded text-center"
             >
               <div className="text-[10px] font-semibold text-red-800">Bottleneck</div>
-              <div className="text-[9px] text-gray-600">Lowest resolution</div>
-              <div className="text-[9px] text-gray-600">Highest semantics</div>
+              <div className="text-[9px] text-gray-600 dark:text-gray-400">Lowest resolution</div>
+              <div className="text-[9px] text-gray-600 dark:text-gray-400">Highest semantics</div>
             </motion.div>
           </div>
 
-          <div className="text-xs text-gray-500 mb-3">Decoder (Expanding)</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">Decoder (Expanding)</div>
 
           <div className="flex flex-col items-center gap-1 relative">
             {DECODER.map((layer, i) => {
@@ -167,7 +167,7 @@ export default function UNetExplorer() {
                   {i < DECODER.length - 1 && (
                     <motion.div
                       animate={isActive ? { opacity: 1 } : { opacity: 0.3 }}
-                      className="text-gray-400 text-xs"
+                      className="text-gray-400 dark:text-gray-500 text-xs"
                     >
                       ↑
                     </motion.div>
@@ -195,7 +195,7 @@ export default function UNetExplorer() {
             className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-400"
           >
             <h3 className="font-semibold text-sm mb-2">Encoder Path</h3>
-            <p className="text-xs text-gray-700">
+            <p className="text-xs text-gray-700 dark:text-gray-300">
               Extracts features at multiple scales using convolutional blocks and max pooling.
               Reduces spatial resolution while increasing channel depth.
             </p>
@@ -208,7 +208,7 @@ export default function UNetExplorer() {
             className="p-4 bg-red-50 rounded-lg border-l-4 border-red-400"
           >
             <h3 className="font-semibold text-sm mb-2">Bottleneck</h3>
-            <p className="text-xs text-gray-700">
+            <p className="text-xs text-gray-700 dark:text-gray-300">
               The deepest layer where spatial resolution is lowest (136×136) but semantic
               understanding is richest. Contains 256 feature maps.
             </p>
@@ -221,16 +221,16 @@ export default function UNetExplorer() {
             className="p-4 bg-emerald-50 rounded-lg border-l-4 border-emerald-400"
           >
             <h3 className="font-semibold text-sm mb-2">Skip Connections</h3>
-            <p className="text-xs text-gray-700">
+            <p className="text-xs text-gray-700 dark:text-gray-300">
               Concatenate encoder features with upsampled decoder features, preserving spatial
               detail lost during downsampling for precise localization.
             </p>
           </motion.div>
         </div>
 
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <h3 className="font-semibold mb-3 text-sm">Key Design Features</h3>
-          <ul className="space-y-2 text-sm text-gray-700">
+          <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
             <li className="flex gap-2">
               <span className="text-blue-600 font-bold">1.</span>
               <span><strong>Symmetric U-Shape:</strong> The contracting and expanding paths form a symmetric "U", giving U-Net its name.</span>

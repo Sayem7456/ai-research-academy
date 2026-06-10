@@ -190,10 +190,10 @@ export default function CNNVisualizer() {
     return (
       <div className="flex flex-col items-center">
         <h4 className="text-sm font-semibold mb-2">{title}</h4>
-        <div className="text-xs text-gray-500 mb-1">
+        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
           {h} × {w}
         </div>
-        <div className="inline-block border-2 border-gray-300 rounded">
+        <div className="inline-block border-2 border-gray-300 dark:border-gray-600 rounded">
           {matrix.map((row, i) => (
             <div key={i} className="flex">
               {row.map((pixel, j) => {
@@ -209,7 +209,7 @@ export default function CNNVisualizer() {
                       height: cellSize,
                       backgroundColor: `rgb(${gray}, ${gray}, ${gray})`,
                     }}
-                    className="border border-gray-200"
+                    className="border border-gray-200 dark:border-gray-700"
                   />
                 );
               })}
@@ -224,8 +224,8 @@ export default function CNNVisualizer() {
     return (
       <div className="flex flex-col items-center">
         <h4 className="text-sm font-semibold mb-2">{title}</h4>
-        <div className="text-xs text-gray-500 mb-1">3 × 3</div>
-        <div className="inline-block border-2 border-purple-400 rounded bg-purple-50">
+        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">3 × 3</div>
+        <div className="inline-block border-2 border-purple-400 rounded bg-purple-50 dark:bg-purple-950/30">
           {k.map((row, i) => (
             <div key={i} className="flex">
               {row.map((val, j) => (
@@ -252,14 +252,14 @@ export default function CNNVisualizer() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-2">Convolutional Neural Network (CNN)</h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           Visualize how CNNs process images through convolution, activation, and pooling layers.
           Each layer transforms the input to extract features.
         </p>
 
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
           <h3 className="font-semibold mb-3">Controls</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -272,7 +272,7 @@ export default function CNNVisualizer() {
                     className={`px-3 py-2 text-sm rounded ${
                       selectedKernel === type
                         ? 'bg-purple-600 text-white'
-                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                        : 'bg-white text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                   >
                     {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -336,42 +336,42 @@ export default function CNNVisualizer() {
 
         <div className="flex flex-wrap gap-8 justify-center items-center mb-6">
           {renderMatrix(SAMPLE_IMAGE, 'Input Image', 1.2)}
-          <div className="text-2xl text-gray-400">⊗</div>
+          <div className="text-2xl text-gray-400 dark:text-gray-500">⊗</div>
           {renderKernel(kernel, 'Kernel')}
-          <div className="text-2xl text-gray-400">→</div>
+          <div className="text-2xl text-gray-400 dark:text-gray-500">→</div>
           {renderMatrix(convOutput, 'After Convolution')}
           {showReLU && (
             <>
-              <div className="text-2xl text-gray-400">→</div>
+              <div className="text-2xl text-gray-400 dark:text-gray-500">→</div>
               {renderMatrix(reluOutput, 'After ReLU')}
             </>
           )}
           {showPooling && (
             <>
-              <div className="text-2xl text-gray-400">→</div>
+              <div className="text-2xl text-gray-400 dark:text-gray-500">→</div>
               {renderMatrix(poolOutput, 'After Pooling', 1.5)}
             </>
           )}
         </div>
 
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <h3 className="font-semibold mb-3">CNN Pipeline Explanation</h3>
           <div className="space-y-3 text-sm">
             <div className="flex gap-3">
               <span className="font-semibold text-blue-600 min-w-[120px]">1. Convolution:</span>
-              <span className="text-gray-700">
+              <span className="text-gray-700 dark:text-gray-300">
                 Slide the kernel over the input, computing dot products. Detects features like edges, textures, patterns.
               </span>
             </div>
             <div className="flex gap-3">
               <span className="font-semibold text-yellow-600 min-w-[120px]">2. ReLU:</span>
-              <span className="text-gray-700">
+              <span className="text-gray-700 dark:text-gray-300">
                 Non-linear activation f(x) = max(0, x). Introduces non-linearity, allowing the network to learn complex patterns.
               </span>
             </div>
             <div className="flex gap-3">
               <span className="font-semibold text-green-600 min-w-[120px]">3. Pooling:</span>
-              <span className="text-gray-700">
+              <span className="text-gray-700 dark:text-gray-300">
                 Downsamples feature maps by taking max value in each window. Reduces spatial dimensions and computation.
               </span>
             </div>

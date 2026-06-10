@@ -282,13 +282,13 @@ export default function LogisticRegressionPlayground() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-4">Logistic Regression Playground</h2>
-        <p className="text-gray-600 mb-4">
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
           Click to add points. Right-click to remove. Select a class, then click to place points. Train a binary classifier with adjustable decision boundary.
         </p>
 
-        <div className="flex flex-wrap gap-2 mb-4 p-3 bg-gray-50 rounded-lg">
+        <div className="flex flex-wrap gap-2 mb-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <div className="flex gap-1">
             <button onClick={() => setActiveClass(1)} className={`px-3 py-1.5 text-sm rounded ${activeClass === 1 ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800 hover:bg-blue-200'}`}>Class 1 (Blue)</button>
             <button onClick={() => setActiveClass(0)} className={`px-3 py-1.5 text-sm rounded ${activeClass === 0 ? 'bg-red-600 text-white' : 'bg-red-100 text-red-800 hover:bg-red-200'}`}>Class 0 (Red)</button>
@@ -296,13 +296,13 @@ export default function LogisticRegressionPlayground() {
           <button onClick={handleReset} className="px-3 py-1.5 text-sm bg-gray-600 text-white rounded hover:bg-gray-700">Reset</button>
           <button onClick={handleRandomData} className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">Random Data</button>
           <button onClick={() => { if (isTraining) stopTraining(); else startTraining(); }} disabled={trainResult.history.length === 0 || points.length < 2} className="px-3 py-1.5 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed">{toggleButton}</button>
-          <button onClick={() => setShowLossChart(v => !v)} className={`px-3 py-1.5 text-sm rounded ${showLossChart ? 'bg-purple-700 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Loss History</button>
-          <button onClick={() => setShowConfusionMatrix(v => !v)} className={`px-3 py-1.5 text-sm rounded ${showConfusionMatrix ? 'bg-purple-700 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Confusion</button>
+          <button onClick={() => setShowLossChart(v => !v)} className={`px-3 py-1.5 text-sm rounded ${showLossChart ? 'bg-purple-700 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>Loss History</button>
+          <button onClick={() => setShowConfusionMatrix(v => !v)} className={`px-3 py-1.5 text-sm rounded ${showConfusionMatrix ? 'bg-purple-700 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>Confusion</button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-[1fr_380px] gap-6">
           <div className="space-y-4">
-            <div onClick={handleCanvasClick} className="relative w-full max-w-[520px] aspect-square bg-gray-50 border-2 border-gray-300 rounded cursor-crosshair select-none">
+            <div onClick={handleCanvasClick} className="relative w-full max-w-[520px] aspect-square bg-gray-50 dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-600 rounded cursor-crosshair select-none">
               <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} className="absolute inset-0 w-full h-full" />
               <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="xMidYMid meet">
                 <g stroke="#e5e7eb" strokeWidth="1">
@@ -368,53 +368,53 @@ export default function LogisticRegressionPlayground() {
           </div>
 
           <div className="space-y-4">
-            <div className={`rounded-lg p-3 ${isTraining || animStep >= 0 ? 'bg-indigo-50' : 'bg-blue-50'}`}>
+            <div className={`rounded-lg p-3 ${isTraining || animStep >= 0 ? 'bg-indigo-50 dark:bg-indigo-950/30' : 'bg-blue-50 dark:bg-blue-950/30'}`}>
               <h3 className="font-semibold text-sm mb-2">Model Performance</h3>
               <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between"><span className="text-gray-500">Accuracy:</span><span className="font-mono">{confMatrix.accuracy.toFixed(1)}%</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Precision:</span><span className="font-mono">{confMatrix.precision.toFixed(3)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Recall:</span><span className="font-mono">{confMatrix.recall.toFixed(3)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">F1 Score:</span><span className="font-mono">{confMatrix.f1.toFixed(3)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Log Loss:</span><span className="font-mono">{currentLoss.toFixed(4)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Data Points:</span><span className="font-mono">{points.length}</span></div>
-                {animStep >= 0 && (<div className="flex justify-between pt-1 border-t border-gray-300"><span className="text-gray-500">Step:</span><span className="font-mono">{animStep + 1} / {trainResult.history.length}</span></div>)}
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Accuracy:</span><span className="font-mono">{confMatrix.accuracy.toFixed(1)}%</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Precision:</span><span className="font-mono">{confMatrix.precision.toFixed(3)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Recall:</span><span className="font-mono">{confMatrix.recall.toFixed(3)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">F1 Score:</span><span className="font-mono">{confMatrix.f1.toFixed(3)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Log Loss:</span><span className="font-mono">{currentLoss.toFixed(4)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Data Points:</span><span className="font-mono">{points.length}</span></div>
+                {animStep >= 0 && (<div className="flex justify-between pt-1 border-t border-gray-300 dark:border-gray-600"><span className="text-gray-500 dark:text-gray-400">Step:</span><span className="font-mono">{animStep + 1} / {trainResult.history.length}</span></div>)}
               </div>
             </div>
 
             {showConfusionMatrix && (
-              <div className="rounded-lg p-3 bg-purple-50">
+              <div className="rounded-lg p-3 bg-purple-50 dark:bg-purple-950/30">
                 <h3 className="font-semibold text-sm mb-2">Confusion Matrix</h3>
                 <div className="grid grid-cols-2 gap-1 text-[10px] mb-2">
-                  <div className="bg-white p-2 rounded border text-center">
-                    <div className="text-gray-500">True Neg</div>
+                  <div className="bg-white dark:bg-gray-800 p-2 rounded border dark:border-gray-700 text-center">
+                    <div className="text-gray-500 dark:text-gray-400">True Neg</div>
                     <div className="font-mono text-lg">{confMatrix.tn}</div>
                   </div>
-                  <div className="bg-white p-2 rounded border text-center">
-                    <div className="text-gray-500">False Pos</div>
+                  <div className="bg-white dark:bg-gray-800 p-2 rounded border dark:border-gray-700 text-center">
+                    <div className="text-gray-500 dark:text-gray-400">False Pos</div>
                     <div className="font-mono text-lg">{confMatrix.fp}</div>
                   </div>
-                  <div className="bg-white p-2 rounded border text-center">
-                    <div className="text-gray-500">False Neg</div>
+                  <div className="bg-white dark:bg-gray-800 p-2 rounded border dark:border-gray-700 text-center">
+                    <div className="text-gray-500 dark:text-gray-400">False Neg</div>
                     <div className="font-mono text-lg">{confMatrix.fn}</div>
                   </div>
-                  <div className="bg-white p-2 rounded border text-center">
-                    <div className="text-gray-500">True Pos</div>
+                  <div className="bg-white dark:bg-gray-800 p-2 rounded border dark:border-gray-700 text-center">
+                    <div className="text-gray-500 dark:text-gray-400">True Pos</div>
                     <div className="font-mono text-lg">{confMatrix.tp}</div>
                   </div>
                 </div>
-                <p className="text-[10px] text-gray-500">Predicted: cols, Actual: rows</p>
+                <p className="text-[10px] text-gray-500 dark:text-gray-400">Predicted: cols, Actual: rows</p>
               </div>
             )}
 
-            <div className="rounded-lg p-3 bg-emerald-50">
+            <div className="rounded-lg p-3 bg-emerald-50 dark:bg-emerald-950/30">
               <h3 className="font-semibold text-sm mb-2">Decision Boundary</h3>
               <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between"><span className="text-gray-500">w₁:</span><span className="font-mono">{currentParams.w1.toFixed(4)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">w₂:</span><span className="font-mono">{currentParams.w2.toFixed(4)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">b (bias):</span><span className="font-mono">{currentParams.b.toFixed(4)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">w₁:</span><span className="font-mono">{currentParams.w1.toFixed(4)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">w₂:</span><span className="font-mono">{currentParams.w2.toFixed(4)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">b (bias):</span><span className="font-mono">{currentParams.b.toFixed(4)}</span></div>
               </div>
-              <p className="text-[10px] mt-2 text-gray-600 font-mono">P(y=1) = σ(w₁x + w₂y + b)</p>
-              <p className="text-[10px] text-gray-500">Green line: w₁x + w₂y + b = 0</p>
+              <p className="text-[10px] mt-2 text-gray-600 dark:text-gray-400 font-mono">P(y=1) = σ(w₁x + w₂y + b)</p>
+              <p className="text-[10px] text-gray-500 dark:text-gray-400">Green line: w₁x + w₂y + b = 0</p>
             </div>
 
             <div className="space-y-3">
@@ -429,11 +429,11 @@ export default function LogisticRegressionPlayground() {
               <div>
                 <label className="block text-xs font-medium mb-1">Regularization (λ): {regLambda.toFixed(2)}</label>
                 <input type="range" min="0" max="1" step="0.05" value={regLambda} onChange={e => setRegLambda(parseFloat(e.target.value))} className="w-full" />
-                <div className="text-[10px] text-gray-400 mt-0.5">L2 penalty prevents overfitting</div>
+                <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">L2 penalty prevents overfitting</div>
               </div>
             </div>
 
-            <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded space-y-1">
+            <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 p-3 rounded space-y-1">
               <p className="font-semibold text-xs">Probability Heatmap:</p>
               <div className="flex items-center gap-2 text-[10px]">
                 <div className="w-3 h-3 bg-[rgb(239,246,255)] border" />
@@ -449,8 +449,8 @@ export default function LogisticRegressionPlayground() {
           {showLossChart && trainResult.history.length > 0 && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mt-6 overflow-hidden">
               <h3 className="font-semibold mb-1 text-sm">Training Progress (Log Loss over Iterations)</h3>
-              <p className="text-xs text-gray-500 mb-2">Loss should decrease. If it rises, lower the learning rate.</p>
-              <div className="h-48 bg-gray-50 rounded p-4">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Loss should decrease. If it rises, lower the learning rate.</p>
+              <div className="h-48 bg-gray-50 dark:bg-gray-900 rounded p-4">
                 <svg viewBox="0 0 400 150" className="w-full h-full">
                   <line x1="30" y1="0" x2="30" y2="130" stroke="#ccc" strokeWidth="1" />
                   <line x1="30" y1="130" x2="400" y2="130" stroke="#ccc" strokeWidth="1" />
@@ -474,16 +474,16 @@ export default function LogisticRegressionPlayground() {
           )}
         </AnimatePresence>
 
-        <div className="mt-6 pt-4 border-t border-gray-200">
+        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
           <details className="group">
-            <summary className="text-sm font-semibold text-gray-700 cursor-pointer hover:text-gray-900">
+            <summary className="text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer hover:text-gray-900 dark:hover:text-gray-100">
               How Logistic Regression Works
             </summary>
-            <div className="mt-3 text-sm text-gray-600 space-y-2">
+            <div className="mt-3 text-sm text-gray-600 dark:text-gray-400 space-y-2">
               <p>
                 Logistic regression models the <strong>probability</strong> that a data point belongs to class 1 using the <strong>sigmoid function</strong>:
               </p>
-              <code className="block bg-white p-2 rounded text-xs font-mono">
+              <code className="block bg-white dark:bg-gray-800 p-2 rounded text-xs font-mono">
                 P(y=1 | x) = σ(w₁x + w₂y + b) = 1 / (1 + e^(-(w₁x + w₂y + b)))
               </code>
               <p>
@@ -493,16 +493,16 @@ export default function LogisticRegressionPlayground() {
               <p>
                 <strong>Gradient descent</strong> minimizes <strong>log loss</strong> (cross-entropy):
               </p>
-              <code className="block bg-white p-2 rounded text-xs font-mono">
+              <code className="block bg-white dark:bg-gray-800 p-2 rounded text-xs font-mono">
                 Loss = -(1/n) Σ [y·log(p) + (1-y)·log(1-p)]
               </code>
-              <ul className="text-xs list-disc pl-4 space-y-0.5 text-gray-500">
+              <ul className="text-xs list-disc pl-4 space-y-0.5 text-gray-500 dark:text-gray-400">
                 <li><strong>Precision</strong>: of predicted positives, how many are correct? TP/(TP+FP)</li>
                 <li><strong>Recall</strong>: of actual positives, how many did we find? TP/(TP+FN)</li>
                 <li><strong>F1 Score</strong>: harmonic mean of precision and recall</li>
                 <li><strong>Regularization (λ)</strong>: penalizes large weights to prevent overfitting</li>
               </ul>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-400 dark:text-gray-500">
                 Class balance: {points.filter(p => p.label === 0).length} red, {points.filter(p => p.label === 1).length} blue
               </p>
             </div>

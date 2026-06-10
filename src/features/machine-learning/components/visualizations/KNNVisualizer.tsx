@@ -233,9 +233,9 @@ export default function KNNVisualizer() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-4">K-Nearest Neighbors Visualizer</h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           Click the canvas to add training points. Move cursor to test predictions. Adjust K and settings below.
         </p>
 
@@ -244,7 +244,7 @@ export default function KNNVisualizer() {
           <div className="space-y-3">
             {/* Dataset presets */}
             <div className="flex gap-1.5 flex-wrap">
-              <span className="text-xs text-gray-400 mr-1 self-center">Data:</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500 mr-1 self-center">Data:</span>
               <button onClick={() => loadDataset(generateBlobs)} className="px-2.5 py-1 rounded text-xs bg-gray-600 text-white hover:bg-gray-700 transition-colors">Blobs</button>
               <button onClick={() => loadDataset(generateMoons)} className="px-2.5 py-1 rounded text-xs bg-gray-600 text-white hover:bg-gray-700 transition-colors">Moons</button>
               <button onClick={() => loadDataset(generateCircles)} className="px-2.5 py-1 rounded text-xs bg-gray-600 text-white hover:bg-gray-700 transition-colors">Circles</button>
@@ -254,7 +254,7 @@ export default function KNNVisualizer() {
 
             {/* Canvas */}
             <div
-              className="relative w-full max-w-[400px] aspect-square bg-gray-50 border-2 border-gray-300 rounded cursor-crosshair"
+              className="relative w-full max-w-[400px] aspect-square bg-gray-50 dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-600 rounded cursor-crosshair"
               onClick={handleCanvasClick}
               onMouseMove={handleTestPointMove}
               onMouseLeave={() => setTestPoint(null)}
@@ -340,11 +340,11 @@ export default function KNNVisualizer() {
 
             {/* Class selection */}
             <div className="flex gap-2">
-              <span className="text-xs text-gray-400 self-center">Add:</span>
-              <button onClick={() => setActiveClass(1)} className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${activeClass === 1 ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+              <span className="text-xs text-gray-400 dark:text-gray-500 self-center">Add:</span>
+              <button onClick={() => setActiveClass(1)} className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${activeClass === 1 ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
                 Class 1 (Blue)
               </button>
-              <button onClick={() => setActiveClass(0)} className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${activeClass === 0 ? 'bg-red-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+              <button onClick={() => setActiveClass(0)} className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${activeClass === 0 ? 'bg-red-600 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
                 Class 0 (Red)
               </button>
             </div>
@@ -353,39 +353,37 @@ export default function KNNVisualizer() {
           {/* ── Right Column: Panels ── */}
           <div className="space-y-4">
             {/* Model Settings — consolidated */}
-            <div className="bg-blue-50 rounded-lg p-4">
+            <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4">
               <h3 className="font-semibold text-sm mb-3">Model Settings</h3>
-
-              {/* K slider */}
               <div className="mb-3">
                 <div className="flex justify-between items-center text-sm mb-1">
-                  <span className="text-xs font-medium text-gray-600">K (Neighbors):</span>
+                  <span className="text-xs font-medium text-gray-600 dark:text-gray-400">K (Neighbors):</span>
                   <span className="font-mono font-bold text-blue-700">{k}</span>
                 </div>
                 <input type="range" min="1" max={maxK} step="1" value={k} onChange={e => setK(parseInt(e.target.value))} className="w-full" />
-                {bestK && <p className="text-xs text-gray-500 mt-0.5">Best K: <span className="font-semibold">{bestK.k}</span> ({bestK.accuracy.toFixed(1)}% acc)</p>}
+                {bestK && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Best K: <span className="font-semibold">{bestK.k}</span> ({bestK.accuracy.toFixed(1)}% acc)</p>}
               </div>
 
               {/* Controls grid */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Distance</label>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Distance</label>
                   <div className="flex gap-1">
-                    <button onClick={() => setMetric('euclidean')} className={`flex-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${metric === 'euclidean' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white border border-gray-200 text-gray-600 hover:border-blue-300'}`}>
+                    <button onClick={() => setMetric('euclidean')} className={`flex-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${metric === 'euclidean' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-blue-300'}`}>
                       Euclidean
                     </button>
-                    <button onClick={() => setMetric('manhattan')} className={`flex-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${metric === 'manhattan' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white border border-gray-200 text-gray-600 hover:border-blue-300'}`}>
+                    <button onClick={() => setMetric('manhattan')} className={`flex-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${metric === 'manhattan' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-blue-300'}`}>
                       Manhattan
                     </button>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Weighting</label>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Weighting</label>
                   <div className="flex gap-1">
-                    <button onClick={() => setWeighting('uniform')} className={`flex-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${weighting === 'uniform' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white border border-gray-200 text-gray-600 hover:border-blue-300'}`}>
+                    <button onClick={() => setWeighting('uniform')} className={`flex-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${weighting === 'uniform' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-blue-300'}`}>
                       Uniform
                     </button>
-                    <button onClick={() => setWeighting('distance')} className={`flex-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${weighting === 'distance' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white border border-gray-200 text-gray-600 hover:border-blue-300'}`}>
+                    <button onClick={() => setWeighting('distance')} className={`flex-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${weighting === 'distance' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-blue-300'}`}>
                       Weighted
                     </button>
                   </div>
@@ -393,13 +391,13 @@ export default function KNNVisualizer() {
               </div>
 
               {/* Stats row + confidence toggle */}
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-blue-200">
-                <div className="flex gap-3 text-xs text-gray-500">
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-blue-200 dark:border-blue-950">
+                <div className="flex gap-3 text-xs text-gray-500 dark:text-gray-400">
                   <span>{points.length} pts</span>
                   <span className="text-blue-600">{points.filter(p => p.label === 1).length} blue</span>
                   <span className="text-red-600">{points.filter(p => p.label === 0).length} red</span>
                 </div>
-                <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none">
+                <label className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none">
                   <input type="checkbox" checked={showConfidence} onChange={e => setShowConfidence(e.target.checked)} className="accent-blue-600" />
                   Confidence
                 </label>
@@ -407,17 +405,17 @@ export default function KNNVisualizer() {
             </div>
 
             {/* Current Prediction */}
-            <div className="bg-purple-50 rounded-lg p-4">
+            <div className="bg-purple-50 dark:bg-purple-950/30 rounded-lg p-4">
               <h3 className="font-semibold text-sm mb-2">Current Prediction</h3>
               {testPoint && prediction ? (
                 <div className="space-y-1.5 text-sm">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-gray-500">Class:</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Class:</span>
                     <span className={`font-mono font-bold text-base ${prediction.prediction === 1 ? 'text-blue-600' : 'text-red-600'}`}>
                       {prediction.prediction}
                     </span>
-                    <span className="text-xs text-gray-400">|</span>
-                    <span className="text-xs text-gray-500">Confidence:</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">|</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Confidence:</span>
                     <span className="font-mono text-sm">
                       {(() => {
                         const total = Object.values(prediction.votes).reduce((a, b) => a + b, 0);
@@ -432,17 +430,17 @@ export default function KNNVisualizer() {
                       </span>
                     ))}
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs text-gray-400 dark:text-gray-500">
                     pos: ({testPoint.x.toFixed(2)}, {testPoint.y.toFixed(2)}) &middot; {metric} &middot; {weighting}
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-gray-500">Move cursor over the canvas</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Move cursor over the canvas</p>
               )}
             </div>
 
             {/* Performance — combined LOOCV + Chart */}
-            <div className="bg-green-50 rounded-lg p-4">
+            <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-4">
               <h3 className="font-semibold text-sm mb-2">Performance (LOOCV)</h3>
               {accuracy && (
                 <div className="flex items-start gap-4">
@@ -450,35 +448,35 @@ export default function KNNVisualizer() {
                     <div className={`text-2xl font-bold font-mono ${accuracy.accuracy >= 80 ? 'text-green-600' : accuracy.accuracy >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
                       {accuracy.accuracy.toFixed(0)}<span className="text-sm">%</span>
                     </div>
-                    <div className="text-xs text-gray-500">{accuracy.correct}/{accuracy.total} correct</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{accuracy.correct}/{accuracy.total} correct</div>
                     <div className="grid grid-cols-3 gap-x-2 gap-y-0.5 text-xs mt-1.5">
                       <span />
-                      <span className="text-center text-gray-400">P0</span>
-                      <span className="text-center text-gray-400">P1</span>
-                      <span className="text-gray-500">A0</span>
-                      <span className="text-center font-mono bg-green-100 rounded text-green-700">{accuracy.confusion.tn}</span>
-                      <span className="text-center font-mono bg-red-100 rounded text-red-700">{accuracy.confusion.fp}</span>
-                      <span className="text-gray-500">A1</span>
-                      <span className="text-center font-mono bg-red-100 rounded text-red-700">{accuracy.confusion.fn}</span>
-                      <span className="text-center font-mono bg-green-100 rounded text-green-700">{accuracy.confusion.tp}</span>
+                      <span className="text-center text-gray-400 dark:text-gray-500">P0</span>
+                      <span className="text-center text-gray-400 dark:text-gray-500">P1</span>
+                      <span className="text-gray-500 dark:text-gray-400">A0</span>
+                      <span className="text-center font-mono bg-green-100 dark:bg-green-950/30 rounded text-green-700">{accuracy.confusion.tn}</span>
+                      <span className="text-center font-mono bg-red-100 dark:bg-red-950/30 rounded text-red-700">{accuracy.confusion.fp}</span>
+                      <span className="text-gray-500 dark:text-gray-400">A1</span>
+                      <span className="text-center font-mono bg-red-100 dark:bg-red-950/30 rounded text-red-700">{accuracy.confusion.fn}</span>
+                      <span className="text-center font-mono bg-green-100 dark:bg-green-950/30 rounded text-green-700">{accuracy.confusion.tp}</span>
                     </div>
                   </div>
                   {accuracyByK.length >= 2 && (
                     <div className="flex-1 min-w-0">
                       <AccuracyChart data={accuracyByK} currentK={k} />
-                      <p className="text-xs text-gray-400 mt-0.5">K vs Accuracy — hover dots</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">K vs Accuracy — hover dots</p>
                     </div>
                   )}
                 </div>
               )}
-              {!accuracy && <p className="text-xs text-gray-500">Add at least 2 points to evaluate</p>}
+              {!accuracy && <p className="text-xs text-gray-500 dark:text-gray-400">Add at least 2 points to evaluate</p>}
             </div>
 
             {/* Quick ref */}
-            <div className="text-xs text-gray-400 bg-gray-50 rounded-lg p-3 leading-relaxed">
-              <span className="font-medium text-gray-500">How it works:</span> Find <strong>K</strong> nearest points,
+            <div className="text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-900 rounded-lg p-3 leading-relaxed">
+              <span className="font-medium text-gray-500 dark:text-gray-400">How it works:</span> Find <strong>K</strong> nearest points,
               majority vote predicts the class. Purple lines connect test point to its K neighbors.
-              Distance values shown near each neighbor. <a href="/content/ml/ml-knn" className="text-indigo-500 hover:text-indigo-600 underline">Full lesson →</a>
+              Distance values shown near each neighbor. <a href="/content/ml/ml-knn" className="text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300 underline">Full lesson →</a>
             </div>
           </div>
         </div>

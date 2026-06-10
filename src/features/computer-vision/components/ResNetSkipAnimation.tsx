@@ -44,14 +44,14 @@ export default function ResNetSkipAnimation() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-2">ResNet Skip Connection Animation</h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           Skip connections (residual connections) allow gradients to flow directly through the network,
           enabling training of very deep architectures. Watch how the skip path bypasses the conv layers.
         </p>
 
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
           <h3 className="font-semibold mb-3">Controls</h3>
           <div className="flex flex-wrap gap-4 items-center">
             <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
@@ -69,7 +69,7 @@ export default function ResNetSkipAnimation() {
               <div className="flex gap-1">
                 {depths.map((d) => (
                   <button key={d} onClick={() => setDepth(d)}
-                    className={`px-2 py-1 text-xs rounded transition-colors ${depth === d ? 'text-white ring-2 ring-blue-400' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'} ${depthColors[depths.indexOf(d)]}`}>
+                    className={`px-2 py-1 text-xs rounded transition-colors ${depth === d ? 'text-white ring-2 ring-blue-400' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'} ${depthColors[depths.indexOf(d)]}`}>
                     {d}
                   </button>
                 ))}
@@ -105,7 +105,7 @@ export default function ResNetSkipAnimation() {
                 </motion.div>
               )}
 
-              <div className="flex flex-col gap-2 py-6 px-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 mx-4 relative">
+              <div className="flex flex-col gap-2 py-6 px-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 mx-4 relative">
                 <motion.div
                   animate={animPhase >= 1 ? { opacity: 1, y: 0 } : { opacity: 0.4, y: -5 }}
                   className="px-6 py-2 bg-purple-100 border-2 border-purple-400 rounded text-xs font-semibold text-center"
@@ -170,7 +170,7 @@ export default function ResNetSkipAnimation() {
         <AnimatePresence mode="wait">
           {isAnimating && (
             <motion.div key={animPhase} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              className="p-4 bg-indigo-50 rounded-lg border-l-4 border-indigo-400 mb-6">
+              className="p-4 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg border-l-4 border-indigo-400 mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold">
                   {animPhase + 1}
@@ -188,9 +188,9 @@ export default function ResNetSkipAnimation() {
             className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-400"
           >
             <h3 className="font-semibold text-sm mb-2">The Residual Formula</h3>
-            <div className="space-y-2 text-sm text-gray-700">
+            <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
               <div className="font-mono text-purple-700">H(x) = F(x) + x</div>
-              <div className="text-xs text-gray-600">
+              <div className="text-xs text-gray-600 dark:text-gray-400">
                 Instead of learning H(x) directly, the block learns the residual F(x) = H(x) - x.
                 If the identity is optimal, the block can simply set F(x) = 0.
               </div>
@@ -204,7 +204,7 @@ export default function ResNetSkipAnimation() {
             className="p-4 bg-emerald-50 rounded-lg border-l-4 border-emerald-400"
           >
             <h3 className="font-semibold text-sm mb-2">Why ResNet-{depth}?</h3>
-            <div className="text-xs text-gray-700 space-y-1">
+            <div className="text-xs text-gray-700 dark:text-gray-300 space-y-1">
               <div>ResNet-{depth} has {depth} weight layers.</div>
               {depth <= 34 && <div>Uses basic residual blocks (two 3×3 convs).</div>}
               {depth >= 50 && <div>Uses bottleneck blocks (1×1 → 3×3 → 1×1) for efficiency.</div>}
@@ -215,11 +215,11 @@ export default function ResNetSkipAnimation() {
           </motion.div>
         </div>
 
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <h3 className="font-semibold mb-3 text-sm">Key Insight</h3>
-          <div className="text-sm text-gray-700 space-y-2">
+          <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
             <p>Without skip connections, deeper networks suffer from the <strong>degradation problem</strong> — accuracy saturates then degrades rapidly as depth increases. Skip connections provide a direct gradient highway, allowing effective training of networks with 50+ layers.</p>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               <strong>Paper:</strong> "Deep Residual Learning for Image Recognition" (He et al., 2015)
             </p>
           </div>

@@ -65,7 +65,7 @@ export default function VisionTransformerExplorer() {
     const totalSize = cellSize * displaySize;
 
     return (
-      <svg width={totalSize} height={totalSize} className="border border-gray-300 rounded">
+      <svg width={totalSize} height={totalSize} className="border border-gray-300 dark:border-gray-600 rounded">
         {Array.from({ length: displaySize }).map((_, i) =>
           Array.from({ length: displaySize }).map((_, j) => {
             const hue = ((i * displaySize + j) * 360) / (displaySize * displaySize);
@@ -93,14 +93,14 @@ export default function VisionTransformerExplorer() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-2">Vision Transformer Explorer</h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           ViT treats an image as a sequence of patches and processes them with a standard Transformer
           encoder — no convolutions needed. Explore how images are transformed into patch embeddings.
         </p>
 
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
           <h3 className="font-semibold mb-3">Controls</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
@@ -108,7 +108,7 @@ export default function VisionTransformerExplorer() {
               <input type="range" min="8" max="32" step="8" value={patchSize}
                 onChange={(e) => setPatchSize(parseInt(e.target.value))}
                 className="w-full" />
-              <div className="text-xs text-gray-500 mt-1">{numPatches} patches</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{numPatches} patches</div>
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Attention Head</label>
@@ -130,7 +130,7 @@ export default function VisionTransformerExplorer() {
                 {isAnimating ? 'Stop' : 'Animate Pipeline'}
               </button>
               <button onClick={stopAnim}
-                className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
+                className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300 transition-colors">
                 Reset
               </button>
             </div>
@@ -174,26 +174,26 @@ export default function VisionTransformerExplorer() {
                     animate={{
                       backgroundColor: i < numPatches ? `hsl(${(i * 30 + patchSize * 10) % 360}, 70%, 70%)` : '#e5e7eb',
                     }}
-                    className="w-5 h-5 rounded-[2px] border border-gray-200"
+                    className="w-5 h-5 rounded-[2px] border border-gray-200 dark:border-gray-700"
                     style={{ opacity: i < numPatches ? 1 : 0.3 }}
                   />
                 ))}
               </div>
-              <div className="text-[10px] text-gray-500 mt-1 font-mono">196 × 768</div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-mono">196 × 768</div>
             </motion.div>
           </div>
 
           <div className="flex flex-col items-center">
             <h3 className="font-semibold text-sm mb-2">Self-Attention</h3>
             {showAttention && (
-              <div className="border border-gray-300 rounded overflow-hidden">
+              <div className="border border-gray-300 dark:border-gray-600 rounded overflow-hidden">
                 {attentionData.slice(0, 8).map((row, i) => (
                   <div key={i} className="flex">
                     {row.map((val, j) => (
                       <motion.div
                         key={j}
                         animate={{ opacity: animPhase >= 4 ? 1 : 0.3 }}
-                        className="w-5 h-5 border border-gray-200"
+                        className="w-5 h-5 border border-gray-200 dark:border-gray-700"
                         style={{ backgroundColor: `rgba(99,102,241,${val / 100})` }}
                       />
                     ))}
@@ -201,14 +201,14 @@ export default function VisionTransformerExplorer() {
                 ))}
               </div>
             )}
-            <div className="text-[10px] text-gray-500 mt-1">Attention scores (head {attentionHead + 1})</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">Attention scores (head {attentionHead + 1})</div>
           </div>
         </div>
 
         <AnimatePresence mode="wait">
           {isAnimating && (
             <motion.div key={animPhase} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-              className="p-4 bg-indigo-50 rounded-lg border-l-4 border-indigo-400 mb-6">
+              className="p-4 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg border-l-4 border-indigo-400 mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold">
                   {animPhase + 1}
@@ -226,7 +226,7 @@ export default function VisionTransformerExplorer() {
             className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-400"
           >
             <h3 className="font-semibold text-sm mb-2">Patch Embedding</h3>
-            <p className="text-xs text-gray-700">
+            <p className="text-xs text-gray-700 dark:text-gray-300">
               Each patch (16×16×3 = 768 pixels) is flattened and linearly projected to a
               768-dimensional embedding. This is equivalent to a 16×16 convolution with 768 output channels.
             </p>
@@ -239,16 +239,16 @@ export default function VisionTransformerExplorer() {
             className="p-4 bg-amber-50 rounded-lg border-l-4 border-amber-400"
           >
             <h3 className="font-semibold text-sm mb-2">Position Embeddings</h3>
-            <p className="text-xs text-gray-700">
+            <p className="text-xs text-gray-700 dark:text-gray-300">
               Since self-attention is permutation-invariant, ViT adds learnable 1D position embeddings
               to retain spatial information. A [CLS] token is prepended for classification.
             </p>
           </motion.div>
         </div>
 
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <h3 className="font-semibold mb-3 text-sm">ViT Pipeline</h3>
-          <div className="text-xs text-gray-700 font-mono bg-white p-3 rounded border space-y-1">
+            <div className="text-xs text-gray-700 dark:text-gray-300 font-mono bg-white dark:bg-gray-800 p-3 rounded border space-y-1">
             <div>Input (224×224×3)</div>
             <div className="text-purple-600">→ Patch embed (16×16) → 196 patches × 768d</div>
             <div className="text-amber-600">→ + Position embeddings → 197 × 768 (added [CLS])</div>

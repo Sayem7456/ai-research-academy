@@ -289,19 +289,19 @@ export default function ConvolutionExplorer() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-1">Convolution Explorer</h2>
-        <p className="text-gray-500 text-sm mb-6">
+        <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
           Edit the input grid, design your own kernel, adjust stride/padding/dilation — see
           exactly how convolution transforms one grid into another.
         </p>
 
         {/* Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 p-4 bg-blue-50 rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
           <div>
             <label className="block text-sm font-medium mb-1">Input Pattern</label>
             <select value={pattern} onChange={e => setInputPattern(e.target.value as PatternId)}
-              className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 bg-white">
+              className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1.5 bg-white dark:bg-gray-800">
               <option value="gradient">Gradient</option>
               <option value="step-edge">Step Edge</option>
               <option value="checkerboard">Checkerboard</option>
@@ -309,7 +309,7 @@ export default function ConvolutionExplorer() {
               <option value="constant">Constant</option>
               <option value="noise">Random Noise</option>
             </select>
-            <div className="text-[10px] text-gray-400 mt-0.5">Click cells to edit</div>
+            <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">Click cells to edit</div>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Kernel</label>
@@ -318,13 +318,13 @@ export default function ConvolutionExplorer() {
                 if (e.target.value === '__custom__') setKernelMode('custom');
                 else setPreset(e.target.value);
               }}
-              className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 bg-white">
+              className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1.5 bg-white dark:bg-gray-800">
               {Object.keys(PRESET_KERNELS).map(name => (
                 <option key={name} value={name}>{name}</option>
               ))}
               <option value="__custom__">✎ Custom...</option>
             </select>
-            <div className="text-[10px] text-gray-400 mt-0.5">
+            <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
               {kernelMode === 'custom' ? 'Click kernel cells to edit' : 'Or select Custom to edit'}
             </div>
           </div>
@@ -362,7 +362,7 @@ export default function ConvolutionExplorer() {
                 {isPlaying ? '■ Stop' : '▶ Animate'}
               </button>
               <button onClick={() => { stopPlaying(); setSelectedOutput(null); }}
-                className="px-3 py-1.5 text-sm rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
+                className="px-3 py-1.5 text-sm rounded bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300 transition-colors">
                 Reset
               </button>
             </div>
@@ -380,7 +380,7 @@ export default function ConvolutionExplorer() {
           {/* Input Grid */}
           <div className="flex flex-col items-center">
             <h3 className="font-semibold text-sm mb-1">Input ({inSize}×{inSize})</h3>
-            <div className="inline-block border-2 border-gray-300 rounded overflow-hidden">
+            <div className="inline-block border-2 border-gray-300 dark:border-gray-600 rounded overflow-hidden">
               {input.map((row, i) => (
                 <div key={i} className="flex">
                   {row.map((val, j) => {
@@ -397,7 +397,7 @@ export default function ConvolutionExplorer() {
                           const v = parseInt(e.target.value);
                           if (!isNaN(v)) editInputCell(i, j, v);
                         }}
-                        className="w-[30px] h-[30px] border border-gray-200 text-center text-[9px] font-mono outline-none focus:z-10 focus:ring-1 focus:ring-blue-400"
+                        className="w-[30px] h-[30px] border border-gray-200 dark:border-gray-700 text-center text-[9px] font-mono outline-none focus:z-10 focus:ring-1 focus:ring-blue-400"
                         style={{
                           backgroundColor: inWindow ? 'rgba(168, 85, 247, 0.25)' : toGrayscale(val),
                           color: inWindow ? '#6b21a8' : (val > 128 ? '#fff' : '#000'),
@@ -412,13 +412,13 @@ export default function ConvolutionExplorer() {
             </div>
           </div>
 
-          <div className="hidden lg:flex items-center self-center text-2xl text-gray-400">⊛</div>
+          <div className="hidden lg:flex items-center self-center text-2xl text-gray-400 dark:text-gray-500">⊛</div>
 
           {/* Kernel Grid */}
           <div className="flex flex-col items-center">
             <h3 className="font-semibold text-sm mb-1">
               Kernel ({kSize}×{kSize})
-              {dilation > 1 && <span className="text-gray-400 ml-1">(dil {dilation})</span>}
+              {dilation > 1 && <span className="text-gray-400 dark:text-gray-500 ml-1">(dil {dilation})</span>}
             </h3>
             <div className="inline-block border-2 border-purple-400 rounded bg-purple-50 overflow-hidden">
               {kernel.map((row, i) => (
@@ -445,12 +445,12 @@ export default function ConvolutionExplorer() {
                 </div>
               ))}
             </div>
-            <div className="mt-1 text-[10px] text-gray-400">
+            <div className="mt-1 text-[10px] text-gray-400 dark:text-gray-500">
               Sum = {kernel.flat().reduce((s, v) => s + v, 0).toFixed(2)}
             </div>
           </div>
 
-          <div className="hidden lg:flex items-center self-center text-2xl text-gray-400">=</div>
+          <div className="hidden lg:flex items-center self-center text-2xl text-gray-400 dark:text-gray-500">=</div>
 
           {/* Output Grid */}
           <div className="flex flex-col items-center">
@@ -501,13 +501,13 @@ export default function ConvolutionExplorer() {
                 Kernel too large
               </div>
             )}
-            <div className="mt-1 text-[10px] text-gray-400">
+            <div className="mt-1 text-[10px] text-gray-400 dark:text-gray-500">
               {inSize}×{inSize} → {outH}×{outW}
               {padding > 0 && `  pad=${padding}`}
               {dilation > 1 && `  dil=${dilation}`}
               {stride > 1 && `  stride=${stride}`}
             </div>
-            <div className="text-[10px] text-gray-400 font-mono">
+            <div className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">
               O = (I − K<sub>eff</sub> + 2P) / S + 1 = ({inSize} − {effK} + {2 * padding}) / {stride} + 1
             </div>
           </div>
@@ -528,31 +528,31 @@ export default function ConvolutionExplorer() {
               <button onClick={() => setSelectedOutput(null)}
                 className="text-xs text-amber-600 hover:text-amber-800">✕</button>
             </div>
-            <div className="text-xs text-gray-600 mb-2 font-mono">
+            <div className="text-xs text-gray-600 dark:text-gray-400 mb-2 font-mono">
               Receptive field on input: rows {selectedComputation.r * stride}–{selectedComputation.r * stride + kSize * dilation - 1},
               cols {selectedComputation.c * stride}–{selectedComputation.c * stride + kSize * dilation - 1}
             </div>
             <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-x-2 gap-y-0.5 items-center text-xs font-mono max-w-md">
-              <div className="text-gray-400 text-[10px] font-semibold">Input</div>
+              <div className="text-gray-400 dark:text-gray-500 text-[10px] font-semibold">Input</div>
               <div />
-              <div className="text-gray-400 text-[10px] font-semibold">Kernel</div>
+              <div className="text-gray-400 dark:text-gray-500 text-[10px] font-semibold">Kernel</div>
               <div />
-              <div className="text-gray-400 text-[10px] font-semibold">Product</div>
+              <div className="text-gray-400 dark:text-gray-500 text-[10px] font-semibold">Product</div>
               {selectedComputation.terms.map((term, idx) => (
                 <React.Fragment key={idx}>
-                  <div className="text-right text-gray-700">{term.iv}</div>
-                  <div className="text-gray-300">×</div>
+                  <div className="text-right text-gray-700 dark:text-gray-300">{term.iv}</div>
+                  <div className="text-gray-300 dark:text-gray-600">×</div>
                   <div className="text-center text-purple-700">{term.kv.toFixed(term.kv % 1 === 0 ? 0 : 2)}</div>
-                  <div className="text-gray-300">=</div>
+                  <div className="text-gray-300 dark:text-gray-600">=</div>
                   <div className="font-bold" style={{ color: (term.iv * term.kv) >= 0 ? '#059669' : '#dc2626' }}>
                     {(term.iv * term.kv).toFixed(1)}
                   </div>
                 </React.Fragment>
               ))}
               <div className="col-span-5 border-t border-amber-200 pt-0.5 mt-0.5" />
-              <div className="col-span-3 text-right font-bold text-gray-700">Sum =</div>
-              <div className="col-span-1 font-bold text-gray-700">{selectedComputation.sum.toFixed(1)}</div>
-              <div className="text-[10px] text-gray-500 col-span-5">
+              <div className="col-span-3 text-right font-bold text-gray-700 dark:text-gray-300">Sum =</div>
+              <div className="col-span-1 font-bold text-gray-700 dark:text-gray-300">{selectedComputation.sum.toFixed(1)}</div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 col-span-5">
                 {clamp ? 'Clamped' : 'Rounded'} → <strong className="text-amber-700">{selectedComputation.clamped}</strong>
               </div>
             </div>
@@ -561,23 +561,23 @@ export default function ConvolutionExplorer() {
 
         {/* Output Stats */}
         {outH > 0 && (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
             <h3 className="font-semibold text-sm mb-3">Output Analysis</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-              <div className="bg-white rounded p-2 text-center">
-                <div className="text-[10px] text-gray-500">Min</div>
+              <div className="bg-white dark:bg-gray-800 rounded p-2 text-center">
+                <div className="text-[10px] text-gray-500 dark:text-gray-400">Min</div>
                 <div className="text-sm font-bold font-mono">{stats.min}</div>
               </div>
-              <div className="bg-white rounded p-2 text-center">
-                <div className="text-[10px] text-gray-500">Max</div>
+              <div className="bg-white dark:bg-gray-800 rounded p-2 text-center">
+                <div className="text-[10px] text-gray-500 dark:text-gray-400">Max</div>
                 <div className="text-sm font-bold font-mono">{stats.max}</div>
               </div>
-              <div className="bg-white rounded p-2 text-center">
-                <div className="text-[10px] text-gray-500">Mean</div>
+              <div className="bg-white dark:bg-gray-800 rounded p-2 text-center">
+                <div className="text-[10px] text-gray-500 dark:text-gray-400">Mean</div>
                 <div className="text-sm font-bold font-mono">{stats.mean}</div>
               </div>
-              <div className="bg-white rounded p-2 text-center">
-                <div className="text-[10px] text-gray-500">Std Dev</div>
+              <div className="bg-white dark:bg-gray-800 rounded p-2 text-center">
+                <div className="text-[10px] text-gray-500 dark:text-gray-400">Std Dev</div>
                 <div className="text-sm font-bold font-mono">{stats.std}</div>
               </div>
             </div>
@@ -588,12 +588,12 @@ export default function ConvolutionExplorer() {
                 const pct = count / maxCount;
                 return (
                   <div key={idx} className="flex-1 flex flex-col items-center">
-                    <div className="text-[8px] text-gray-400 leading-tight">{count}</div>
+                    <div className="text-[8px] text-gray-400 dark:text-gray-500 leading-tight">{count}</div>
                     <div
                       className="w-full bg-blue-500 rounded-t"
                       style={{ height: `${pct * 100}%`, minHeight: count > 0 ? 4 : 0 }}
                     />
-                    <div className="text-[7px] text-gray-400 mt-0.5">
+                    <div className="text-[7px] text-gray-400 dark:text-gray-500 mt-0.5">
                       {Math.round(stats.min + (stats.max - stats.min) * idx / (stats.hist.length - 1))}
                     </div>
                   </div>
@@ -604,22 +604,22 @@ export default function ConvolutionExplorer() {
         )}
 
         {/* How Convolution Works */}
-        <div className="p-4 bg-gray-50 rounded-lg">
+        <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <h3 className="font-semibold mb-3 text-sm">How Convolution Works</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs text-gray-700">
-            <div className="p-2.5 bg-white rounded border border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs text-gray-700 dark:text-gray-300">
+            <div className="p-2.5 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
               <span className="font-semibold text-purple-700 block mb-0.5">1. Slide</span>
               The kernel slides across the input. Each position defines a local <strong>receptive field</strong>.
             </div>
-            <div className="p-2.5 bg-white rounded border border-gray-200">
+            <div className="p-2.5 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
               <span className="font-semibold text-purple-700 block mb-0.5">2. Multiply &amp; Sum</span>
               Element-wise multiply kernel × input values, then sum all products into a single number.
             </div>
-            <div className="p-2.5 bg-white rounded border border-gray-200">
+            <div className="p-2.5 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
               <span className="font-semibold text-purple-700 block mb-0.5">3. Stride</span>
               After each position, the kernel moves by <strong>stride</strong> cells. Larger stride = smaller output.
             </div>
-            <div className="p-2.5 bg-white rounded border border-gray-200">
+            <div className="p-2.5 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
               <span className="font-semibold text-purple-700 block mb-0.5">4. Dilation</span>
               Gaps between kernel elements (dilation &gt; 1) increase the receptive field without adding parameters.
             </div>

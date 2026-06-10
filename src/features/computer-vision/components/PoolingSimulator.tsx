@@ -76,14 +76,14 @@ export default function PoolingSimulator() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-2">Pooling Simulator</h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           Pooling reduces the spatial dimensions of feature maps while retaining the most important
           information. Watch how a pooling window slides across the input.
         </p>
 
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
           <h3 className="font-semibold mb-3">Controls</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
@@ -91,7 +91,7 @@ export default function PoolingSimulator() {
               <div className="flex gap-2">
                 {(['max', 'avg'] as const).map((type) => (
                   <button key={type} onClick={() => { setPoolType(type); stopPlaying(); }}
-                    className={`px-3 py-2 text-sm rounded transition-colors ${poolType === type ? 'bg-green-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'}`}>
+                    className={`px-3 py-2 text-sm rounded transition-colors ${poolType === type ? 'bg-green-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
                     {type.toUpperCase()}
                   </button>
                 ))}
@@ -113,7 +113,7 @@ export default function PoolingSimulator() {
                 {isPlaying ? 'Stop' : 'Animate Window'}
               </button>
               <button onClick={stopPlaying}
-                className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
+                className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300 transition-colors">
                 Reset
               </button>
             </div>
@@ -123,7 +123,7 @@ export default function PoolingSimulator() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           <div className="flex flex-col items-center">
             <h3 className="font-semibold mb-2 text-sm">Input Feature Map ({inputSize}×{inputSize})</h3>
-            <div className="inline-block border-2 border-gray-300 rounded overflow-hidden">
+            <div className="inline-block border-2 border-gray-300 dark:border-gray-600 rounded overflow-hidden">
               {SAMPLE_FEATURE_MAP.map((row, i) => (
                 <div key={i} className="flex">
                   {row.map((val, j) => {
@@ -132,7 +132,7 @@ export default function PoolingSimulator() {
                       <motion.div key={j}
                         animate={active ? { scale: 1.1, backgroundColor: '#fef3c7', borderColor: '#f59e0b' } : { scale: 1, backgroundColor: 'white', borderColor: '#e5e7eb' }}
                         transition={{ duration: 0.2 }}
-                        className="w-10 h-10 border flex items-center justify-center text-xs font-mono"
+                        className="w-10 h-10 border flex items-center justify-center text-xs font-mono text-gray-800"
                         style={{ borderColor: active ? '#f59e0b' : '#e5e7eb' }}
                       >
                         {val}
@@ -171,15 +171,15 @@ export default function PoolingSimulator() {
                 </div>
               ))}
             </div>
-            <div className="mt-3 text-xs text-gray-500">
+            <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
               {inputSize}×{inputSize} → {outSize}×{outSize} ({(outSize / inputSize * 100).toFixed(0)}% size)
             </div>
           </div>
         </div>
 
-        <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <h3 className="font-semibold mb-3 text-sm">Why Pooling?</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700 dark:text-gray-300">
             <div>
               <span className="font-semibold text-green-700">Reduces Dimensions:</span> Shrinks the spatial size, reducing the number of parameters and computation.
             </div>
@@ -193,10 +193,10 @@ export default function PoolingSimulator() {
         </div>
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-blue-50 rounded text-xs">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded text-xs">
             <strong>Max Pooling:</strong> Takes the maximum value in each pooling window. Best for edge detection and sharp features.
           </motion.div>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-indigo-50 rounded text-xs">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded text-xs">
             <strong>Average Pooling:</strong> Takes the mean of all values in the window. Best for smooth features and reducing noise.
           </motion.div>
         </div>

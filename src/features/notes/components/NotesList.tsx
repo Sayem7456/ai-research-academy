@@ -47,25 +47,25 @@ export function NotesList({
     <div className="space-y-6">
       {/* Stats Overview */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-4 border rounded-lg bg-white dark:bg-gray-800">
+        <div className="p-4 border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
           <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {stats.total}
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">Total Notes</div>
         </div>
-        <div className="p-4 border rounded-lg bg-white dark:bg-gray-800">
+        <div className="p-4 border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
           <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {stats.pinned}
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">Pinned</div>
         </div>
-        <div className="p-4 border rounded-lg bg-white dark:bg-gray-800">
+        <div className="p-4 border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
           <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {stats.recent}
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">Recent (24h)</div>
         </div>
-        <div className="p-4 border rounded-lg bg-white dark:bg-gray-800">
+        <div className="p-4 border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
           <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {stats.allTags.length}
           </div>
@@ -139,7 +139,7 @@ export function NotesList({
             <div className="flex items-end">
               <button
                 onClick={handleResetFilters}
-                className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="px-4 py-2 text-sm border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 Clear Filters
               </button>
@@ -161,7 +161,7 @@ export function NotesList({
 
         {/* Notes Grid */}
         {filteredNotes.length === 0 ? (
-          <div className="text-center py-12 border rounded-lg bg-gray-50 dark:bg-gray-900">
+          <div className="text-center py-12 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900">
             <p className="text-gray-500 dark:text-gray-400">
               {hasActiveFilters
                 ? 'No notes match your filters. Try adjusting your search criteria.'

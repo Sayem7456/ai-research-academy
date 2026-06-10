@@ -184,7 +184,7 @@ export default function MathLessonTemplate({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             <div className="text-left">
-              <div className="text-xs text-gray-500">Previous</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Previous</div>
               <div className="text-sm font-medium">{previousLesson.title}</div>
             </div>
           </button>
@@ -198,7 +198,7 @@ export default function MathLessonTemplate({
             className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
           >
             <div className="text-right">
-              <div className="text-xs text-gray-500">Next</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Next</div>
               <div className="text-sm font-medium">{nextLesson.title}</div>
             </div>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

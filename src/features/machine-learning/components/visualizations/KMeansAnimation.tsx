@@ -336,7 +336,7 @@ export default function KMeansAnimation() {
   };
 
   const statusText = isConverged ? 'Converged' : isAnimating ? 'Running' : centroids.length > 0 ? 'Paused' : 'Idle';
-  const statusColor = isConverged ? 'text-emerald-600' : isAnimating ? 'text-blue-600' : 'text-gray-500';
+  const statusColor = isConverged ? 'text-emerald-600' : isAnimating ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400';
   const canStep = centroids.length > 0 && !isAnimating && !isConverged;
   const canAnimate = centroids.length > 0 && !isConverged;
 
@@ -344,9 +344,9 @@ export default function KMeansAnimation() {
   const chartH = 100;
 
   const renderElbowChart = () => {
-    if (elbowData.length === 0) return <p className="text-xs text-gray-400">Add points to see the elbow method.</p>;
+    if (elbowData.length === 0) return <p className="text-xs text-gray-400 dark:text-gray-500">Add points to see the elbow method.</p>;
     const maxWCSS = Math.max(...elbowData.map(d => d.wcss));
-    if (maxWCSS === 0) return <p className="text-xs text-gray-400">Insufficient data.</p>;
+    if (maxWCSS === 0) return <p className="text-xs text-gray-400 dark:text-gray-500">Insufficient data.</p>;
     const padL = 20, padR = 10, padT = 8, padB = 18;
     const pw = chartW - padL - padR;
     const ph = chartH - padT - padB;
@@ -388,7 +388,7 @@ export default function KMeansAnimation() {
   };
 
   const renderConvergenceChart = () => {
-    if (wcssHistory.length < 2) return <p className="text-xs text-gray-400">Step at least twice to see the convergence trend.</p>;
+    if (wcssHistory.length < 2) return <p className="text-xs text-gray-400 dark:text-gray-500">Step at least twice to see the convergence trend.</p>;
     const maxWCSS = Math.max(...wcssHistory);
     const minWCSS = Math.min(...wcssHistory);
     const range = maxWCSS - minWCSS || 1;
@@ -421,11 +421,11 @@ export default function KMeansAnimation() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div
-              className="relative w-full max-w-[400px] aspect-square bg-white border-2 border-gray-300 rounded cursor-crosshair select-none"
+              className="relative w-full max-w-[400px] aspect-square bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded cursor-crosshair select-none"
               onClick={handleCanvasClick}
             >
               <svg
@@ -499,15 +499,15 @@ export default function KMeansAnimation() {
 
             <div className="flex gap-2 flex-wrap">
               <button onClick={initializeClusters} disabled={points.length === 0}
-                className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors">
                 Initialize
               </button>
               <button onClick={performStep} disabled={!canStep}
-                className="px-4 py-2 bg-green-600 text-white rounded text-sm font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                className="px-4 py-2 bg-green-600 text-white rounded text-sm font-medium hover:bg-green-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors">
                 Step
               </button>
               <button onClick={isAnimating ? stopAnimation : startAnimation} disabled={!canAnimate}
-                className="px-4 py-2 bg-purple-600 text-white rounded text-sm font-medium hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                className="px-4 py-2 bg-purple-600 text-white rounded text-sm font-medium hover:bg-purple-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors">
                 {isAnimating ? 'Stop' : 'Animate'}
               </button>
               <button onClick={handleRandomData}
@@ -522,34 +522,34 @@ export default function KMeansAnimation() {
           </div>
 
           <div className="space-y-4">
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-2 text-gray-700">Model Configuration</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">Model Configuration</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs text-gray-500">
-                    Clusters (K): <span className="font-mono font-medium text-gray-700">{k}</span>
+                  <label className="text-xs text-gray-500 dark:text-gray-400">
+                    Clusters (K): <span className="font-mono font-medium text-gray-700 dark:text-gray-300">{k}</span>
                   </label>
                   <input
                     type="range" min={1} max={5} step={1} value={k}
                     onChange={(e) => handleKChange(parseInt(e.target.value))}
                     className="w-full mt-0.5"
                   />
-                  <div className="flex justify-between text-[11px] text-gray-400 mt-0.5">
+                  <div className="flex justify-between text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
                     <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Initialization</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Initialization</p>
                   <div className="flex gap-2">
                     {(['random', 'kmeans++'] as const).map(m => (
                       <button key={m} onClick={() => setInitMethod(m)}
-                        className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-colors ${initMethod === m ? 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-300' : 'bg-white text-gray-600 hover:bg-gray-100 ring-1 ring-gray-200'}`}>
+                        className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-colors ${initMethod === m ? 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-300' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-700'}`}>
                         {m === 'random' ? 'Random' : 'K-Means++'}
                       </button>
                     ))}
                   </div>
                 </div>
-                <label className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+                <label className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 cursor-pointer">
                   <input type="checkbox" checked={showDistances} onChange={(e) => setShowDistances(e.target.checked)} className="rounded" />
                   Show point-to-centroid distances
                 </label>
@@ -557,44 +557,44 @@ export default function KMeansAnimation() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-blue-50 p-3 rounded-lg">
+              <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg">
                 <h3 className="font-semibold text-sm mb-1.5">Cluster Info</h3>
                 <div className="space-y-1 text-xs">
-                  <div className="flex justify-between"><span className="text-gray-500">Points:</span><span className="font-mono font-medium">{points.length}</span></div>
-                  <div className="flex justify-between"><span className="text-gray-500">K:</span><span className="font-mono font-medium">{k}</span></div>
-                  <div className="flex justify-between"><span className="text-gray-500">Iteration:</span><span className="font-mono font-medium">{step}</span></div>
-                  <div className="flex justify-between"><span className="text-gray-500">WCSS:</span><span className="font-mono font-medium">{wcss > 0 ? wcss.toFixed(1) : '—'}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Points:</span><span className="font-mono font-medium">{points.length}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">K:</span><span className="font-mono font-medium">{k}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Iteration:</span><span className="font-mono font-medium">{step}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">WCSS:</span><span className="font-mono font-medium">{wcss > 0 ? wcss.toFixed(1) : '—'}</span></div>
                   {centroids.length > 1 && (
-                    <div className="flex justify-between"><span className="text-gray-500">Silhouette:</span><span className="font-mono font-medium">{silhouetteScore.toFixed(3)}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Silhouette:</span><span className="font-mono font-medium">{silhouetteScore.toFixed(3)}</span></div>
                   )}
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-500">Status:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Status:</span>
                     <span className={`font-mono font-medium text-xs ${statusColor}`}>{statusText}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
                 <h3 className="font-semibold text-sm mb-1.5">Per-Cluster Sizes</h3>
                 <div className="space-y-1.5">
                   {clusterSizes.map((size, i) => (
                     <div key={i} className="flex items-center gap-1.5">
                       <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                      <span className="text-xs font-mono text-gray-500">C{i + 1}:</span>
-                      <div className="flex-1 h-2.5 bg-gray-200 rounded-full overflow-hidden">
+                      <span className="text-xs font-mono text-gray-500 dark:text-gray-400">C{i + 1}:</span>
+                      <div className="flex-1 h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                         <div className="h-full rounded-full transition-all"
                           style={{ width: `${points.length > 0 ? (size / points.length) * 100 : 0}%`, backgroundColor: COLORS[i % COLORS.length] }} />
                       </div>
-                      <span className="text-xs font-mono w-6 text-right text-gray-600">{size}</span>
+                      <span className="text-xs font-mono w-6 text-right text-gray-600 dark:text-gray-400">{size}</span>
                     </div>
                   ))}
-                  {points.length === 0 && <p className="text-xs text-gray-400">Add points.</p>}
+                  {points.length === 0 && <p className="text-xs text-gray-400 dark:text-gray-500">Add points.</p>}
                 </div>
               </div>
             </div>
 
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-1.5 text-gray-700">Elbow Method</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-1.5 text-gray-700 dark:text-gray-300">Elbow Method</h3>
               {renderElbowChart()}
               {elbowK && (
                 <p className="text-xs text-amber-700 mt-1">
@@ -603,18 +603,18 @@ export default function KMeansAnimation() {
               )}
             </div>
 
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-1.5 text-gray-700">WCSS Convergence</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-1.5 text-gray-700 dark:text-gray-300">WCSS Convergence</h3>
               {renderConvergenceChart()}
               {wcssHistory.length >= 2 && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   WCSS: {wcssHistory[0].toFixed(1)} → {wcssHistory[wcssHistory.length - 1].toFixed(1)}{' '}
                   ({((1 - wcssHistory[wcssHistory.length - 1] / wcssHistory[0]) * 100).toFixed(0)}% reduction)
                 </p>
               )}
             </div>
 
-            <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+            <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
               <p className="font-semibold mb-1">How it works:</p>
               <ol className="list-decimal list-inside space-y-0.5 text-xs">
                 <li>Click <strong>Random Data</strong> or click canvas to add points</li>

@@ -27,7 +27,7 @@ export async function getContentBySlug(section: string, slug: string) {
   try {
     const result = await bundleMDX({
       source,
-      xdmOptions(options) {
+      mdxOptions(options) {
         options.remarkPlugins = [...(options.remarkPlugins || []), remarkMath as any, remarkGfm as any];
 
         options.rehypePlugins = [

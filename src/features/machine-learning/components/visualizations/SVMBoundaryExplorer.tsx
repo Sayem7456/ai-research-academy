@@ -627,14 +627,14 @@ export default function SVMBoundaryExplorer() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div className="flex gap-1">
               {(['linear', 'circles', 'moons', 'xor'] as const).map(name => (
                 <button key={name} onClick={() => switchDataset(name)}
                   className={`px-3 py-1.5 text-xs rounded-md font-medium transition-colors ${
-                    dataset === name ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    dataset === name ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}>{datasetLabels[name]}</button>
               ))}
             </div>
@@ -645,7 +645,7 @@ export default function SVMBoundaryExplorer() {
                   className={`px-3 py-1.5 text-xs rounded-md font-medium transition-colors ${
                     kernelType === k
                       ? 'bg-violet-600 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}>{k === 'linear' ? 'Linear' : kernelLabels[k]}</button>
               ))}
             </div>
@@ -653,16 +653,16 @@ export default function SVMBoundaryExplorer() {
             <div className="flex gap-2">
               <button onClick={() => setMode('add')}
                 className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${
-                  mode === 'add' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  mode === 'add' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}>Add Data</button>
               <button onClick={() => { setMode('test'); setTestPoint(null); }}
                 className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${
-                  mode === 'test' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  mode === 'test' ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}>Test SVM</button>
             </div>
 
             <div
-              className="relative w-full max-w-[400px] aspect-square bg-white border-2 border-gray-300 rounded cursor-crosshair select-none"
+              className="relative w-full max-w-[400px] aspect-square bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded cursor-crosshair select-none"
               onClick={handleCanvasClick}
             >
               <svg width={WIDTH} height={HEIGHT} viewBox={`-20 -10 ${WIDTH + 40} ${HEIGHT + 30}`}
@@ -747,7 +747,7 @@ export default function SVMBoundaryExplorer() {
             </div>
 
             {history && history.length > 0 && (
-              <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
                 <div className="flex items-center gap-2 mb-2">
                   <button onClick={() => { if (isTraining) stopTraining(); else startTraining(); }}
                     disabled={points.length < 2}
@@ -763,9 +763,9 @@ export default function SVMBoundaryExplorer() {
                   </button>
                   <button onClick={() => setShowProgress(v => !v)}
                     className={`px-3 py-1.5 text-xs rounded-md font-medium ${
-                      showProgress ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      showProgress ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                     }`}>Progress</button>
-                  <span className="text-[10px] text-gray-500 ml-auto">
+                  <span className="text-[10px] text-gray-500 dark:text-gray-400 ml-auto">
                     {animStep >= 0 && currentHistoryEntry
                       ? `Step ${animStep + 1}/${history.length} (iter ${currentHistoryEntry.iteration})`
                       : `Final (${history.length} steps)`}
@@ -775,7 +775,7 @@ export default function SVMBoundaryExplorer() {
                   value={animStep}
                   onChange={(e) => { const v = parseInt(e.target.value); setAnimStep(v); setIsTraining(false); }}
                   className="w-full" />
-                <div className="flex justify-between text-[10px] text-gray-400 mt-0.5">
+                <div className="flex justify-between text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
                   <span>Start</span>
                   <span>Converged</span>
                 </div>
@@ -789,15 +789,15 @@ export default function SVMBoundaryExplorer() {
               <div className="flex gap-2 flex-wrap">
                 <button onClick={() => setActiveClass(1)}
                   className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                    activeClass === 1 ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    activeClass === 1 ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                   }`}>Class 1 (Blue)</button>
                 <button onClick={() => setActiveClass(0)}
                   className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                    activeClass === 0 ? 'bg-red-600 text-white ring-2 ring-red-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    activeClass === 0 ? 'bg-red-600 text-white ring-2 ring-red-300' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                   }`}>Class 0 (Red)</button>
                 <button onClick={() => setShowMargin(!showMargin)}
                   className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                    showMargin ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    showMargin ? 'bg-purple-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                   }`}>Margin</button>
                 <button onClick={handleRandomData}
                   className="px-3 py-1.5 bg-indigo-600 text-white rounded text-sm font-medium hover:bg-indigo-700 transition-colors">Random</button>
@@ -810,42 +810,42 @@ export default function SVMBoundaryExplorer() {
 
             {mode === 'test' && (
               <div className="flex items-start gap-2">
-                <p className="text-sm text-gray-500 italic">
+                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
                   Click the canvas to test the decision function at any point.
                 </p>
                 {testPoint && (
                   <button onClick={() => setTestPoint(null)}
-                    className="shrink-0 px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">Clear</button>
+                    className="shrink-0 px-3 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Clear</button>
                 )}
               </div>
             )}
           </div>
 
           <div className="space-y-4">
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-2 text-gray-700">Kernel Parameters</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">Kernel Parameters</h3>
               <div className="space-y-2.5">
                 <div>
-                  <label className="text-xs text-gray-500">
-                    Regularization (C): <span className="font-mono font-semibold text-gray-700">{C.toFixed(1)}</span>
+                  <label className="text-xs text-gray-500 dark:text-gray-400">
+                    Regularization (C): <span className="font-mono font-semibold text-gray-700 dark:text-gray-300">{C.toFixed(1)}</span>
                   </label>
                   <input type="range" min={0.1} max={10} step={0.1} value={C}
                     onChange={(e) => { setC(parseFloat(e.target.value)); setTestPoint(null); }}
                     className="w-full mt-0.5" />
-                  <div className="flex justify-between text-[10px] text-gray-400 mt-0.5">
+                  <div className="flex justify-between text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
                     <span>0.1 (soft)</span><span>10 (hard)</span>
                   </div>
                 </div>
 
                 {kernelType !== 'linear' && (
                   <div>
-                    <label className="text-xs text-gray-500">
-                      Gamma (γ): <span className="font-mono font-semibold text-gray-700">{gamma.toFixed(2)}</span>
+                    <label className="text-xs text-gray-500 dark:text-gray-400">
+                      Gamma (γ): <span className="font-mono font-semibold text-gray-700 dark:text-gray-300">{gamma.toFixed(2)}</span>
                     </label>
                     <input type="range" min={0.05} max={4} step={0.05} value={gamma}
                       onChange={(e) => { setGamma(parseFloat(e.target.value)); setTestPoint(null); }}
                       className="w-full mt-0.5" />
-                    <div className="flex justify-between text-[10px] text-gray-400 mt-0.5">
+                    <div className="flex justify-between text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
                       <span>0.05 (wide)</span><span>4.0 (tight)</span>
                     </div>
                   </div>
@@ -853,13 +853,13 @@ export default function SVMBoundaryExplorer() {
 
                 {kernelType === 'polynomial' && (
                   <div>
-                    <label className="text-xs text-gray-500">
-                      Degree: <span className="font-mono font-semibold text-gray-700">{degree}</span>
+                    <label className="text-xs text-gray-500 dark:text-gray-400">
+                      Degree: <span className="font-mono font-semibold text-gray-700 dark:text-gray-300">{degree}</span>
                     </label>
                     <input type="range" min={1} max={7} step={1} value={degree}
                       onChange={(e) => { setDegree(parseInt(e.target.value)); setTestPoint(null); }}
                       className="w-full mt-0.5" />
-                    <div className="flex justify-between text-[10px] text-gray-400 mt-0.5">
+                    <div className="flex justify-between text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
                       <span>1 (linear)</span><span>7 (high)</span>
                     </div>
                   </div>
@@ -867,8 +867,8 @@ export default function SVMBoundaryExplorer() {
 
                 {(kernelType === 'polynomial' || kernelType === 'sigmoid') && (
                   <div>
-                    <label className="text-xs text-gray-500">
-                      Coef0 (r): <span className="font-mono font-semibold text-gray-700">{coef0.toFixed(1)}</span>
+                    <label className="text-xs text-gray-500 dark:text-gray-400">
+                      Coef0 (r): <span className="font-mono font-semibold text-gray-700 dark:text-gray-300">{coef0.toFixed(1)}</span>
                     </label>
                     <input type="range" min={-3} max={3} step={0.1} value={coef0}
                       onChange={(e) => { setCoef0(parseFloat(e.target.value)); setTestPoint(null); }}
@@ -879,39 +879,39 @@ export default function SVMBoundaryExplorer() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-purple-50 p-3 rounded-lg">
+              <div className="bg-purple-50 dark:bg-purple-950/30 p-3 rounded-lg">
                 <h3 className="font-semibold text-sm mb-1.5">SVM Model</h3>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Kernel:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Kernel:</span>
                     <span className="font-mono font-medium">{kernelType}{kernelType !== 'linear' ? ` (γ=${gamma.toFixed(2)})` : ''}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Support Vectors:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Support Vectors:</span>
                     <span className="font-mono font-medium">{supportVectorIndices.length}/{points.length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Margin (2/||w||):</span>
+                    <span className="text-gray-500 dark:text-gray-400">Margin (2/||w||):</span>
                     <span className="font-mono font-medium">{margin === Infinity ? '∞' : margin.toFixed(3)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">||w||<tspan dy="-3" fontSize={7}>2</tspan>:</span>
+                    <span className="text-gray-500 dark:text-gray-400">||w||<tspan dy="-3" fontSize={7}>2</tspan>:</span>
                     <span className="font-mono">{wSquared.toFixed(4)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Dual obj. (J<sub>D</sub>):</span>
+                    <span className="text-gray-500 dark:text-gray-400">Dual obj. (J<sub>D</sub>):</span>
                     <span className="font-mono">{objective.toFixed(4)}</span>
                   </div>
                   {animStep >= 0 && currentHistoryEntry && (
-                    <div className="flex justify-between pt-1 border-t border-gray-300 mt-1">
-                      <span className="text-gray-500">Iter:</span>
+                    <div className="flex justify-between pt-1 border-t border-gray-300 dark:border-gray-600 mt-1">
+                      <span className="text-gray-500 dark:text-gray-400">Iter:</span>
                       <span className="font-mono">{currentHistoryEntry.iteration}</span>
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="bg-emerald-50 p-3 rounded-lg">
+              <div className="bg-emerald-50 dark:bg-emerald-950/30 p-3 rounded-lg">
                 <div className="flex items-center justify-between mb-1.5">
                   <h3 className="font-semibold text-sm">Accuracy</h3>
                   <button onClick={() => setShowConfusion(v => !v)}
@@ -921,21 +921,21 @@ export default function SVMBoundaryExplorer() {
                 </div>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Correct:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Correct:</span>
                     <span className="font-mono font-medium text-emerald-700">{accuracy.correct}/{accuracy.total}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Accuracy:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Accuracy:</span>
                     <span className={`font-mono font-bold ${accuracy.pct >= 100 ? 'text-emerald-600' : accuracy.pct >= 75 ? 'text-amber-600' : 'text-red-600'}`}>
                       {accuracy.pct.toFixed(0)}%
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Class 0:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Class 0:</span>
                     <span className="font-mono">{points.filter(p => p.label === 0).length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Class 1:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Class 1:</span>
                     <span className="font-mono">{points.filter(p => p.label === 1).length}</span>
                   </div>
                 </div>
@@ -945,53 +945,53 @@ export default function SVMBoundaryExplorer() {
             <AnimatePresence>
               {showConfusion && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden rounded-lg bg-indigo-50 p-3">
+                  className="overflow-hidden rounded-lg bg-indigo-50 dark:bg-indigo-950/30 p-3">
                   <h3 className="font-semibold text-sm mb-2">Confusion Matrix</h3>
                   <div className="grid grid-cols-2 gap-1 text-[10px] mb-2">
-                    <div className="bg-white p-2 rounded border text-center">
-                      <div className="text-gray-500">True Neg</div>
+                    <div className="bg-white dark:bg-gray-800 p-2 rounded border text-center">
+                      <div className="text-gray-500 dark:text-gray-400">True Neg</div>
                       <div className="font-mono text-lg">{confusion.tn}</div>
                     </div>
-                    <div className="bg-white p-2 rounded border text-center">
-                      <div className="text-gray-500">False Pos</div>
+                    <div className="bg-white dark:bg-gray-800 p-2 rounded border text-center">
+                      <div className="text-gray-500 dark:text-gray-400">False Pos</div>
                       <div className="font-mono text-lg">{confusion.fp}</div>
                     </div>
-                    <div className="bg-white p-2 rounded border text-center">
-                      <div className="text-gray-500">False Neg</div>
+                    <div className="bg-white dark:bg-gray-800 p-2 rounded border text-center">
+                      <div className="text-gray-500 dark:text-gray-400">False Neg</div>
                       <div className="font-mono text-lg">{confusion.fn}</div>
                     </div>
-                    <div className="bg-white p-2 rounded border text-center">
-                      <div className="text-gray-500">True Pos</div>
+                    <div className="bg-white dark:bg-gray-800 p-2 rounded border text-center">
+                      <div className="text-gray-500 dark:text-gray-400">True Pos</div>
                       <div className="font-mono text-lg">{confusion.tp}</div>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-[10px]">
-                    <div className="flex justify-between"><span className="text-gray-500">Precision:</span><span className="font-mono font-medium">{confusion.precision.toFixed(3)}</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Recall:</span><span className="font-mono font-medium">{confusion.recall.toFixed(3)}</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">F1 Score:</span><span className="font-mono font-medium">{confusion.f1.toFixed(3)}</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Accuracy:</span><span className="font-mono font-medium">{confusion.accuracy.toFixed(1)}%</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Precision:</span><span className="font-mono font-medium">{confusion.precision.toFixed(3)}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Recall:</span><span className="font-mono font-medium">{confusion.recall.toFixed(3)}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">F1 Score:</span><span className="font-mono font-medium">{confusion.f1.toFixed(3)}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Accuracy:</span><span className="font-mono font-medium">{confusion.accuracy.toFixed(1)}%</span></div>
                   </div>
-                  <p className="text-[10px] text-gray-400 mt-1">Predicted → cols, Actual → rows</p>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Predicted → cols, Actual → rows</p>
                 </motion.div>
               )}
             </AnimatePresence>
 
             {mode === 'test' && testPrediction && testPoint && (
-              <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg">
+              <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 p-3 rounded-lg">
                 <h3 className="font-semibold text-sm mb-2 text-emerald-800">Test Result</h3>
                 <div className="space-y-1 text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-500">Predicted:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Predicted:</span>
                     <span className={`px-2 py-0.5 rounded text-xs font-bold ${testPrediction.prediction === 1 ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
                       Class {testPrediction.prediction}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Decision f(x):</span>
+                    <span className="text-gray-500 dark:text-gray-400">Decision f(x):</span>
                     <span className="font-mono">{testPrediction.raw.toFixed(3)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Distance to boundary:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Distance to boundary:</span>
                     <span className="font-mono">{testPrediction.distance.toFixed(3)}</span>
                   </div>
                 </div>
@@ -999,7 +999,7 @@ export default function SVMBoundaryExplorer() {
             )}
 
             {supportVectorIndices.length > 0 && (
-              <div className="bg-amber-50 p-3 rounded-lg">
+              <div className="bg-amber-50 dark:bg-amber-950/30 p-3 rounded-lg">
                 <h3 className="font-semibold text-sm mb-1.5">Support Vectors (α &gt; 0)</h3>
                 <div className="max-h-28 overflow-y-auto space-y-0.5 text-xs font-mono">
                   {supportVectorIndices.map((idx) => {
@@ -1018,28 +1018,28 @@ export default function SVMBoundaryExplorer() {
                     );
                   })}
                 </div>
-                <p className="text-[10px] text-gray-400 mt-1">
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
                   {'ξ > 0: inside margin or misclassified. ξ > 1: misclassified.'}
                 </p>
               </div>
             )}
 
             {kernelMatrix && kernelMatrix.n > 0 && (
-              <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
                 <button onClick={() => setShowKernelMatrix(v => !v)}
-                  className="w-full flex items-center justify-between text-sm font-semibold text-gray-700">
+                  className="w-full flex items-center justify-between text-sm font-semibold text-gray-700 dark:text-gray-300">
                   <span>Kernel Matrix (K[i][j])</span>
-                  <span className="text-gray-400">{showKernelMatrix ? '▾' : '▸'}</span>
+                  <span className="text-gray-400 dark:text-gray-500">{showKernelMatrix ? '▾' : '▸'}</span>
                 </button>
                 <AnimatePresence>
                   {showKernelMatrix && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
                       className="overflow-hidden mt-2">
-                      <p className="text-[10px] text-gray-400 mb-1">
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-1">
                         {kernelType} kernel | γ={gamma.toFixed(2)}{kernelType === 'polynomial' ? ` d=${degree}` : ''}
                       </p>
                       {renderKernelMatrixViz()}
-                      <p className="text-[10px] text-gray-400 mt-1">
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
                         Darker = higher similarity. Row i = K(xᵢ, ·). The kernel measures dot products in the transformed feature space without explicit mapping.
                       </p>
                     </motion.div>
@@ -1049,18 +1049,18 @@ export default function SVMBoundaryExplorer() {
             )}
 
             {decisionValues.length > 0 && (
-              <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
                 <button onClick={() => setShowHistogram(v => !v)}
-                  className="w-full flex items-center justify-between text-sm font-semibold text-gray-700">
+                  className="w-full flex items-center justify-between text-sm font-semibold text-gray-700 dark:text-gray-300">
                   <span>Decision Value Histogram</span>
-                  <span className="text-gray-400">{showHistogram ? '▾' : '▸'}</span>
+                  <span className="text-gray-400 dark:text-gray-500">{showHistogram ? '▾' : '▸'}</span>
                 </button>
                 <AnimatePresence>
                   {showHistogram && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
                       className="overflow-hidden mt-2">
                       {renderHistogramViz()}
-                      <p className="text-[10px] text-gray-400 mt-1">
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
                         Distribution of f(x) for all data points. Red line: decision boundary (f=0). |f| &lt; 1 = inside margin.
                       </p>
                     </motion.div>
@@ -1069,11 +1069,11 @@ export default function SVMBoundaryExplorer() {
               </div>
             )}
 
-            <div className="bg-gray-50 p-3 rounded-lg">
+            <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
               <button onClick={() => setShowGrid(v => !v)}
-                className="w-full flex items-center justify-between text-sm font-semibold text-gray-700">
+                className="w-full flex items-center justify-between text-sm font-semibold text-gray-700 dark:text-gray-300">
                 <span>Hyperparameter Grid Search</span>
-                <span className="text-gray-400">{showGrid ? '▾' : '▸'}</span>
+                <span className="text-gray-400 dark:text-gray-500">{showGrid ? '▾' : '▸'}</span>
               </button>
               <AnimatePresence>
                 {showGrid && (
@@ -1085,7 +1085,7 @@ export default function SVMBoundaryExplorer() {
                     </button>
                     {gridResult && renderGridViz()}
                     {gridResult && (
-                      <p className="text-[10px] text-gray-400 mt-1">
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
                         Each cell: SVM trained with given C and γ, shows training accuracy. Darker = higher accuracy.
                       </p>
                     )}
@@ -1094,30 +1094,30 @@ export default function SVMBoundaryExplorer() {
               </AnimatePresence>
             </div>
 
-            <div className="bg-gray-50 p-3 rounded-lg">
+            <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
               <h3 className="font-semibold text-sm mb-1.5">Decision Function</h3>
               {kernelType === 'linear' ? (
-                <p className="text-xs font-mono text-gray-600">
+                <p className="text-xs font-mono text-gray-600 dark:text-gray-400">
                   f(x) = Σ αᵢ yᵢ ⟨xᵢ, x⟩ + b
                 </p>
               ) : (
-                <p className="text-xs font-mono text-gray-600">
+                <p className="text-xs font-mono text-gray-600 dark:text-gray-400">
                   f(x) = Σ αᵢ yᵢ K(xᵢ, x) + b
                 </p>
               )}
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                 b = {currentB.toFixed(4)} | Σαᵢ = {currentAlpha.reduce((s, a) => s + a, 0).toFixed(4)}
               </p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-400 dark:text-gray-500">
                 f &gt; 0 → Class 1 | f &lt; 0 → Class 0 | |f| &lt; 1 → inside margin
               </p>
             </div>
 
             <details className="group">
-              <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700 transition-colors select-none font-medium">
+              <summary className="text-sm text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 dark:text-gray-300 transition-colors select-none font-medium">
                 How SVM + Kernels work
               </summary>
-              <div className="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg space-y-2 text-xs">
+              <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg space-y-2 text-xs">
                 <p><strong>Linear kernel</strong>: K(x,y) = ⟨x,y⟩ — standard maximum-margin classifier. Good for linearly separable data.</p>
                 <p><strong>RBF kernel</strong>: K(x,y) = exp(-γ‖x-y‖²) — maps points into infinite-dimensional space. γ controls the reach of each support vector: low γ → smooth boundary, high γ → wiggly/overfitted.</p>
                 <p><strong>Polynomial kernel</strong>: K(x,y) = (γ⟨x,y⟩ + r)^d — creates polynomial decision boundaries. Degree d controls complexity.</p>

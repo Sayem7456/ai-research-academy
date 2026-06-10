@@ -158,9 +158,9 @@ export default function CNNLayerViewer() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-2">CNN Layer Viewer</h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           Explore how data transforms as it flows through a CNN. Each layer changes the shape and
           content of the feature maps. Click on any layer to see its effect.
         </p>
@@ -173,7 +173,7 @@ export default function CNNLayerViewer() {
             {isAutoPlay ? 'Stop Pipeline' : 'Run Pipeline'}
           </button>
           {activeLayer > 0 && (
-            <button onClick={() => setActiveLayer(0)} className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
+            <button onClick={() => setActiveLayer(0)} className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300 transition-colors">
               Reset
             </button>
           )}
@@ -204,7 +204,7 @@ export default function CNNLayerViewer() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3 }}
-                className="inline-block border-2 border-gray-300 rounded overflow-hidden"
+                className="inline-block border-2 border-gray-300 dark:border-gray-600 rounded overflow-hidden"
               >
                 {currentMap.data.map((row, i) => (
                   <div key={i} className="flex">
@@ -212,7 +212,7 @@ export default function CNNLayerViewer() {
                       const g = Math.round(Math.max(0, Math.min(255, val)));
                       return (
                         <div key={j}
-                          className="flex items-center justify-center border border-gray-200 text-[8px] font-mono"
+                          className="flex items-center justify-center border border-gray-200 dark:border-gray-700 text-[8px] font-mono"
                           style={{ width: mapCellSize, height: mapCellSize, backgroundColor: `rgb(${g},${g},${g})`, color: g > 128 ? '#000' : '#fff' }}
                         >
                           {mapCellSize >= 12 ? val : ''}
@@ -223,7 +223,7 @@ export default function CNNLayerViewer() {
                 ))}
               </motion.div>
             </AnimatePresence>
-            <div className="text-xs text-gray-500 mt-2 font-mono">
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 font-mono">
               {currentMap.size}×{currentMap.size}
             </div>
           </div>
@@ -234,15 +234,15 @@ export default function CNNLayerViewer() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3 }}
-              className="p-4 bg-blue-50 rounded-lg"
+              className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg"
             >
               <div className="flex items-center gap-2 mb-2">
                 <div className={`w-3 h-3 rounded-full ${layer.color}`} />
                 <h3 className="font-semibold text-lg">{layer.name}</h3>
               </div>
-              <p className="text-sm text-gray-700 mb-3">{layer.description}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">{layer.description}</p>
 
-              <div className="bg-white rounded p-3 text-xs space-y-2 text-gray-600">
+              <div className="bg-white dark:bg-gray-800 rounded p-3 text-xs space-y-2 text-gray-600 dark:text-gray-400">
                 <div className="flex justify-between">
                   <span className="font-semibold">Layer Type:</span>
                   <span className="font-mono uppercase">{layer.type}</span>
@@ -271,7 +271,7 @@ export default function CNNLayerViewer() {
               </motion.div>
             )}
             {layer.type === 'pool' && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-green-50 rounded text-xs text-green-800">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-green-50 dark:bg-green-950/30 rounded text-xs text-green-800">
                 <strong>Max Pooling:</strong> Downsamples by taking the maximum value in each 2×2 window, reducing computation and providing translation invariance.
               </motion.div>
             )}

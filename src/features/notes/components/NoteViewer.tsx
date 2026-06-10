@@ -117,13 +117,13 @@ export function NoteViewer({
         <div className="flex items-center gap-2 pb-4 border-b border-gray-200 dark:border-gray-700">
           <button
             onClick={handlePin}
-            className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 text-sm border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
             {note.isPinned ? '📌 Unpin' : '📍 Pin'}
           </button>
           <button
             onClick={handleEdit}
-            className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 text-sm border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
             ✏️ Edit
           </button>

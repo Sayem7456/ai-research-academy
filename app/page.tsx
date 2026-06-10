@@ -10,6 +10,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useProgressStore, useNotesStore, useBookmarksStore } from '@/store';
 import { StatsCards, RecentActivity } from '@/features/dashboard/components';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const NAV_CARDS = [
   {
@@ -68,7 +69,7 @@ export default function HomePage() {
   const hasActivity = progress.completedTopics.length > 0 || progress.solvedProblems.length > 0 || notes.length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 safe-top safe-bottom transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Hero Section */}
@@ -77,6 +78,10 @@ export default function HomePage() {
             {/* Background decoration */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/3 -translate-x-1/4" />
+
+            <div className="absolute top-4 right-4 z-10">
+              <ThemeToggle />
+            </div>
 
             <div className="relative">
               <h1 className="text-3xl sm:text-4xl font-bold mb-3">

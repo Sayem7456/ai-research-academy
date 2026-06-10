@@ -241,28 +241,28 @@ export default function LinearRegressionPlayground() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-4">Linear Regression Playground</h2>
-        <p className="text-gray-600 mb-4">
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
           Click to add points. Right-click a point to remove it. Watch gradient descent find the best-fit curve.
         </p>
 
         {/* Compact toolbar */}
-        <div className="flex flex-wrap gap-2 mb-4 p-3 bg-gray-50 rounded-lg">
+        <div className="flex flex-wrap gap-2 mb-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <button onClick={handleReset} className="px-3 py-1.5 text-sm bg-gray-600 text-white rounded hover:bg-gray-700">Reset</button>
           <button onClick={handleRandomData} className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">Random Data</button>
           <button onClick={handleAddOutlier} disabled={points.length < 3} className="px-3 py-1.5 text-sm bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed">+ Outlier</button>
           <button onClick={() => { if (isTraining) stopTraining(); else startTraining(); }} disabled={gdResult.history.length === 0 || points.length === 0} className="px-3 py-1.5 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed">{toggleButton}</button>
-          <button onClick={() => setShowLossChart(v => !v)} className={`px-3 py-1.5 text-sm rounded ${showLossChart ? 'bg-purple-700 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Loss History</button>
-          <button onClick={() => setShowResidualPlot(v => !v)} className={`px-3 py-1.5 text-sm rounded ${showResidualPlot ? 'bg-purple-700 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Residuals</button>
-          <button onClick={() => setShowConfidenceBands(v => !v)} className={`px-3 py-1.5 text-sm rounded ${showConfidenceBands ? 'bg-purple-700 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>CI Bands</button>
-          <button onClick={() => setShowOlsSolution(v => !v)} className={`px-3 py-1.5 text-sm rounded ${showOlsSolution ? 'bg-purple-700 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>OLS</button>
+          <button onClick={() => setShowLossChart(v => !v)} className={`px-3 py-1.5 text-sm rounded ${showLossChart ? 'bg-purple-700 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>Loss History</button>
+          <button onClick={() => setShowResidualPlot(v => !v)} className={`px-3 py-1.5 text-sm rounded ${showResidualPlot ? 'bg-purple-700 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>Residuals</button>
+          <button onClick={() => setShowConfidenceBands(v => !v)} className={`px-3 py-1.5 text-sm rounded ${showConfidenceBands ? 'bg-purple-700 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>CI Bands</button>
+          <button onClick={() => setShowOlsSolution(v => !v)} className={`px-3 py-1.5 text-sm rounded ${showOlsSolution ? 'bg-purple-700 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>OLS</button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-[1fr_380px] gap-6">
           {/* --- SVG CANVAS --- */}
           <div className="space-y-4">
-            <div ref={canvasRef} onClick={handleCanvasClick} className="relative w-full max-w-[520px] aspect-square bg-gray-50 border-2 border-gray-300 rounded cursor-crosshair select-none">
+            <div ref={canvasRef} onClick={handleCanvasClick} className="relative w-full max-w-[520px] aspect-square bg-gray-50 dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-600 rounded cursor-crosshair select-none">
               <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
                 {/* Grid */}
                 <g stroke="#e5e7eb" strokeWidth="1">
@@ -296,26 +296,26 @@ export default function LinearRegressionPlayground() {
           {/* --- SIDEBAR --- */}
           <div className="space-y-4">
             {/* Model parameters */}
-            <div className={`rounded-lg p-3 ${isTraining || animStep >= 0 ? 'bg-indigo-50' : 'bg-blue-50'}`}>
+            <div className={`rounded-lg p-3 ${isTraining || animStep >= 0 ? 'bg-indigo-50 dark:bg-indigo-950/30' : 'bg-blue-50 dark:bg-blue-950/30'}`}>
               <h3 className="font-semibold text-sm mb-2">Model (Gradient Descent)</h3>
               <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between"><span className="text-gray-500">Formula:</span><span className="font-mono text-right ml-2">{formula}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Loss (MSE):</span><span className="font-mono">{currentLoss.toFixed(4)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">R²:</span><span className="font-mono">{stats.r2.toFixed(4)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Adj. R²:</span><span className="font-mono">{stats.adjR2.toFixed(4)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">RMSE:</span><span className="font-mono">{stats.rmse.toFixed(4)}</span></div>
-                {animStep >= 0 && (<div className="flex justify-between pt-1 border-t border-gray-300"><span className="text-gray-500">Step:</span><span className="font-mono">{animStep + 1} / {gdResult.history.length}</span></div>)}
-                {points.length > 0 && degree === 1 && stats.k <= points.length && (<div className="flex justify-between"><span className="text-gray-500">DF:</span><span className="font-mono">{points.length - stats.k}</span></div>)}
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Formula:</span><span className="font-mono text-right ml-2">{formula}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Loss (MSE):</span><span className="font-mono">{currentLoss.toFixed(4)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">R²:</span><span className="font-mono">{stats.r2.toFixed(4)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Adj. R²:</span><span className="font-mono">{stats.adjR2.toFixed(4)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">RMSE:</span><span className="font-mono">{stats.rmse.toFixed(4)}</span></div>
+                {animStep >= 0 && (<div className="flex justify-between pt-1 border-t border-gray-300 dark:border-gray-600"><span className="text-gray-500 dark:text-gray-400">Step:</span><span className="font-mono">{animStep + 1} / {gdResult.history.length}</span></div>)}
+                {points.length > 0 && degree === 1 && stats.k <= points.length && (<div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">DF:</span><span className="font-mono">{points.length - stats.k}</span></div>)}
               </div>
             </div>
 
             {/* OLS stats */}
-            {showOlsSolution && (<div className="rounded-lg p-3 bg-emerald-50">
+            {showOlsSolution && (<div className="rounded-lg p-3 bg-emerald-50 dark:bg-emerald-950/30">
               <h3 className="font-semibold text-sm mb-2">OLS (Closed Form) {regType === 'l2' ? 'Ridge' : 'OLS'}</h3>
               <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between"><span className="text-gray-500">Formula:</span><span className="font-mono text-right ml-2">{coeffsToFormula(olsCoeffs)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">MSE:</span><span className="font-mono">{olsStats.mse.toFixed(4)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">R²:</span><span className="font-mono">{olsStats.r2.toFixed(4)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Formula:</span><span className="font-mono text-right ml-2">{coeffsToFormula(olsCoeffs)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">MSE:</span><span className="font-mono">{olsStats.mse.toFixed(4)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">R²:</span><span className="font-mono">{olsStats.r2.toFixed(4)}</span></div>
               </div>
             </div>)}
 
@@ -332,12 +332,12 @@ export default function LinearRegressionPlayground() {
               <div>
                 <label className="block text-xs font-medium mb-1">Polynomial Degree: {degree}</label>
                 <input type="range" min="1" max="5" step="1" value={degree} onChange={e => setDegree(parseInt(e.target.value))} className="w-full" />
-                <div className="text-[10px] text-gray-400 mt-0.5">Degree 1 = linear line; higher = polynomial curve</div>
+                  <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">Degree 1 = linear line; higher = polynomial curve</div>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs font-medium mb-1">Regularization</label>
-                  <select value={regType} onChange={e => setRegType(e.target.value as RegType)} className="w-full text-xs border border-gray-300 rounded p-1.5 bg-white">
+                  <select value={regType} onChange={e => setRegType(e.target.value as RegType)} className="w-full text-xs border border-gray-300 dark:border-gray-600 rounded p-1.5 bg-white dark:bg-gray-800">
                     <option value="none">None</option>
                     <option value="l2">L2 (Ridge)</option>
                     <option value="l1">L1 (LASSO)</option>
@@ -348,14 +348,14 @@ export default function LinearRegressionPlayground() {
                   <input type="range" min="0" max="2" step="0.05" value={regLambda} onChange={e => setRegLambda(parseFloat(e.target.value))} disabled={regType === 'none'} className="w-full" />
                 </div>
               </div>
-              <div className="text-[10px] text-gray-400 space-y-0.5">
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 space-y-0.5">
                 <p><strong>L2 (Ridge)</strong>: Shrinks coefficients, keeps all features. Good for multicollinearity.</p>
                 <p><strong>L1 (LASSO)</strong>: Can zero out coefficients. Good for feature selection.</p>
               </div>
             </div>
 
             {/* Quick stats */}
-            <div className="text-[11px] text-gray-500 bg-gray-50 px-3 py-2 rounded space-y-0.5">
+            <div className="text-[11px] text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded space-y-0.5">
               <p>Data points: <strong>{points.length}</strong></p>
               <p>Mean x: {xVals.length ? avg(xVals).toFixed(2) : '—'} &middot; Mean y: {yVals.length ? avg(yVals).toFixed(2) : '—'}</p>
             </div>
@@ -367,7 +367,7 @@ export default function LinearRegressionPlayground() {
           {showResidualPlot && residuals.length > 0 && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mt-6 overflow-hidden">
               <h3 className="font-semibold mb-1 text-sm">Residual Plot</h3>
-              <p className="text-xs text-gray-500 mb-2">Fitted values vs residuals. Ideally: random scatter around y=0 with no pattern.</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Fitted values vs residuals. Ideally: random scatter around y=0 with no pattern.</p>
               <ResponsiveContainer width="100%" height={200}>
                 <ScatterChart>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -387,7 +387,7 @@ export default function LinearRegressionPlayground() {
           {showLossChart && gdResult.history.length > 0 && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mt-6 overflow-hidden">
               <h3 className="font-semibold mb-1 text-sm">Training Progress (Loss over Iterations)</h3>
-              <p className="text-xs text-gray-500 mb-2">MSE should decrease as gradient descent runs. A flat or rising line means divergence.</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">MSE should decrease as gradient descent runs. A flat or rising line means divergence.</p>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={gdResult.history}>
                   <CartesianGrid strokeDasharray="3 3" />

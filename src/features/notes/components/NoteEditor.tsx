@@ -76,7 +76,7 @@ export function NoteEditor({
             <button
               type="button"
               onClick={() => setShowPreview(!showPreview)}
-              className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="px-4 py-2 text-sm border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               {showPreview ? '📝 Edit' : '👁️ Preview'}
             </button>
@@ -190,7 +190,7 @@ export function NoteEditor({
             type="button"
             onClick={onCancel}
             disabled={isSaving}
-            className="px-6 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+            className="px-6 py-2 border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
           >
             Cancel
           </button>

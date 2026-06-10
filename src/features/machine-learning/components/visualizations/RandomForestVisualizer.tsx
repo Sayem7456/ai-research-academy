@@ -554,12 +554,12 @@ export default function RandomForestVisualizer() {
           const pct = (count / total) * 100;
           return (
             <div key={f} className="flex items-center gap-1.5">
-              <span className="text-[11px] font-mono w-5 font-bold shrink-0 text-gray-500">{f.toUpperCase()}</span>
-              <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+              <span className="text-[11px] font-mono w-5 font-bold shrink-0 text-gray-500 dark:text-gray-400">{f.toUpperCase()}</span>
+              <div className="flex-1 h-2.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                 <div className={`h-full rounded-full transition-all ${f === 'x' ? 'bg-violet-300' : 'bg-fuchsia-300'}`}
                   style={{ width: `${pct}%` }} />
               </div>
-              <span className="text-[11px] font-mono w-12 text-right shrink-0 text-gray-500">{count}</span>
+              <span className="text-[11px] font-mono w-12 text-right shrink-0 text-gray-500 dark:text-gray-400">{count}</span>
             </div>
           );
         })}
@@ -606,14 +606,14 @@ export default function RandomForestVisualizer() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div className="flex gap-1">
               {(['linear', 'circles', 'moons', 'xor'] as const).map(name => (
                 <button key={name} onClick={() => switchDataset(name)}
                   className={`px-3 py-1.5 text-xs rounded-md font-medium transition-colors ${
-                    dataset === name ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    dataset === name ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}>{datasetLabels[name]}</button>
               ))}
             </div>
@@ -621,15 +621,15 @@ export default function RandomForestVisualizer() {
             <div className="flex gap-2">
               <button onClick={() => setMode('add')}
                 className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${
-                  mode === 'add' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  mode === 'add' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}>Add Data</button>
               <button onClick={() => { setMode('test'); setTestPoint(null); }}
                 className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${
-                  mode === 'test' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  mode === 'test' ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}>Test RF</button>
             </div>
 
-            <div className="relative w-full max-w-[400px] aspect-square bg-white border-2 border-gray-300 rounded cursor-crosshair select-none"
+            <div className="relative w-full max-w-[400px] aspect-square bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded cursor-crosshair select-none"
               onClick={handleCanvasClick}>
               <svg width={WIDTH} height={HEIGHT} viewBox={`-20 -10 ${WIDTH + 40} ${HEIGHT + 30}`}
                 className="absolute inset-0 w-full h-full">
@@ -706,11 +706,11 @@ export default function RandomForestVisualizer() {
               <div className="flex gap-2 flex-wrap">
                 <button onClick={() => setActiveClass(1)}
                   className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                    activeClass === 1 ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    activeClass === 1 ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                   }`}>Class 1 (Blue)</button>
                 <button onClick={() => setActiveClass(0)}
                   className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                    activeClass === 0 ? 'bg-red-600 text-white ring-2 ring-red-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    activeClass === 0 ? 'bg-red-600 text-white ring-2 ring-red-300' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                   }`}>Class 0 (Red)</button>
                 <button onClick={handleRandomData}
                   className="px-3 py-1.5 bg-indigo-600 text-white rounded text-sm font-medium hover:bg-indigo-700 transition-colors">Random</button>
@@ -724,67 +724,67 @@ export default function RandomForestVisualizer() {
             <div className="flex gap-2 flex-wrap">
               <button onClick={() => setShowPointError(v => !v)}
                 className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                  showPointError ? 'bg-orange-600 text-white ring-2 ring-orange-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 ring-1 ring-gray-200'
+                  showPointError ? 'bg-orange-600 text-white ring-2 ring-orange-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 ring-1 ring-gray-200 dark:ring-gray-700'
                 }`}>Error coloring</button>
               <button onClick={() => setShowTrees(v => !v)}
                 className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                  showTrees ? 'bg-violet-600 text-white ring-2 ring-violet-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 ring-1 ring-gray-200'
+                  showTrees ? 'bg-violet-600 text-white ring-2 ring-violet-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 ring-1 ring-gray-200 dark:ring-gray-700'
                 }`}>Show Tree #{safeSelectedIndex + 1}</button>
               <button onClick={() => setShowInBag(v => !v)}
                 className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                  showInBag ? 'bg-amber-600 text-white ring-2 ring-amber-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 ring-1 ring-gray-200'
+                  showInBag ? 'bg-amber-600 text-white ring-2 ring-amber-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 ring-1 ring-gray-200 dark:ring-gray-700'
                 }`}>In-bag/OOB</button>
             </div>
 
             {mode === 'test' && (
               <div className="flex items-start gap-2">
-                <p className="text-sm text-gray-500 italic">
+                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
                   Click the canvas to test the ensemble prediction at any point.
                 </p>
                 {testPoint && (
                   <button onClick={() => setTestPoint(null)}
-                    className="shrink-0 px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">Clear</button>
+                    className="shrink-0 px-3 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Clear</button>
                 )}
               </div>
             )}
           </div>
 
           <div className="space-y-3">
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-2 text-gray-700">Forest Configuration</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">Forest Configuration</h3>
               <div className="space-y-2.5">
                 <div>
-                  <label className="text-xs text-gray-500">
-                    Trees: <span className="font-mono font-semibold text-gray-700">{nTrees}</span>
+                  <label className="text-xs text-gray-500 dark:text-gray-400">
+                    Trees: <span className="font-mono font-semibold text-gray-700 dark:text-gray-300">{nTrees}</span>
                   </label>
                   <input type="range" min={1} max={80} step={1} value={nTrees}
                     onChange={(e) => { setNTrees(parseInt(e.target.value)); setTestPoint(null); }}
                     className="w-full mt-0.5" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">
-                    Max Depth: <span className="font-mono font-semibold text-gray-700">{maxDepth}</span>
+                  <label className="text-xs text-gray-500 dark:text-gray-400">
+                    Max Depth: <span className="font-mono font-semibold text-gray-700 dark:text-gray-300">{maxDepth}</span>
                   </label>
                   <input type="range" min={1} max={6} step={1} value={maxDepth}
                     onChange={(e) => { setMaxDepth(parseInt(e.target.value)); setTestPoint(null); }}
                     className="w-full mt-0.5" />
-                  <div className="flex justify-between text-[10px] text-gray-400 mt-0.5">
+                  <div className="flex justify-between text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
                     <span>Stumps</span><span>Deep</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Max Features</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Max Features</p>
                   <div className="flex gap-2">
                     <button onClick={() => setMaxFeatures('all')}
                       className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-colors ${
-                        maxFeatures === 'all' ? 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-300' : 'bg-white text-gray-600 hover:bg-gray-100 ring-1 ring-gray-200'
+                        maxFeatures === 'all' ? 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-300' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-700'
                       }`}>All</button>
                     <button onClick={() => setMaxFeatures('sqrt')}
                       className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-colors ${
-                        maxFeatures === 'sqrt' ? 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-300' : 'bg-white text-gray-600 hover:bg-gray-100 ring-1 ring-gray-200'
+                        maxFeatures === 'sqrt' ? 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-300' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-700'
                       }`}>Random (√p)</button>
                   </div>
-                  <p className="text-[10px] text-gray-400 mt-1">
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
                     {maxFeatures === 'all' ? 'Trees see both features — less diversity' : 'Each split sees 1 random feature — more diversity'}
                   </p>
                 </div>
@@ -792,11 +792,11 @@ export default function RandomForestVisualizer() {
             </div>
 
             {forest.trees.length > 0 && (
-              <div className="border border-gray-200 rounded-lg p-3">
-                <h3 className="font-semibold text-sm mb-2 text-gray-700">Tree Browser</h3>
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">Tree Browser</h3>
                 <div className="space-y-2">
                   <div>
-                    <label className="text-xs text-gray-500">
+                    <label className="text-xs text-gray-500 dark:text-gray-400">
                       Tree #{safeSelectedIndex + 1} of {forest.trees.length}
                     </label>
                     <input type="range" min={0} max={Math.max(0, forest.trees.length - 1)} step={1}
@@ -804,54 +804,54 @@ export default function RandomForestVisualizer() {
                       onChange={(e) => setSelectedTreeIndex(parseInt(e.target.value))}
                       className="w-full mt-0.5" />
                   </div>
-                  <div className="grid grid-cols-2 gap-1.5 text-[10px] bg-gray-50 rounded p-2">
-                    <div className="flex justify-between"><span className="text-gray-500">Accuracy:</span>
+                  <div className="grid grid-cols-2 gap-1.5 text-[10px] bg-gray-50 dark:bg-gray-900 rounded p-2">
+                    <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Accuracy:</span>
                       <span className="font-mono font-medium">{forest.perTreeAccuracy[safeSelectedIndex]?.toFixed(1) ?? '—'}%</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Nodes:</span>
+                    <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Nodes:</span>
                       <span className="font-mono">{forest.treeDepth.length > 0 ? '' : '—'}{forest.trees[safeSelectedIndex] && countNodes(forest.trees[safeSelectedIndex].root)}</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Depth:</span>
+                    <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Depth:</span>
                       <span className="font-mono">{forest.treeDepth[safeSelectedIndex] ?? '—'}</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Leaves:</span>
+                    <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Leaves:</span>
                       <span className="font-mono">{forest.treeLeafCount[safeSelectedIndex] ?? '—'}</span></div>
-                    <div className="flex justify-between col-span-2"><span className="text-gray-500">In-bag:</span>
+                    <div className="flex justify-between col-span-2"><span className="text-gray-500 dark:text-gray-400">In-bag:</span>
                       <span className="font-mono">{forest.trees[safeSelectedIndex]?.inBag.filter(Boolean).length ?? 0}/{points.length}</span></div>
-                    <div className="flex justify-between col-span-2"><span className="text-gray-500">OOB:</span>
+                    <div className="flex justify-between col-span-2"><span className="text-gray-500 dark:text-gray-400">OOB:</span>
                       <span className="font-mono">{forest.trees[safeSelectedIndex]?.oobMask.filter(Boolean).length ?? 0}/{points.length}</span></div>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-2 text-gray-700">Scores</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">Scores</h3>
               <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-                <div className="flex justify-between"><span className="text-gray-500">Trees:</span><span className="font-mono font-medium">{forest.trees.length}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Training:</span><span className={`font-mono font-bold ${currentAccuracy >= 100 ? 'text-emerald-600' : currentAccuracy >= 75 ? 'text-amber-600' : 'text-red-600'}`}>{currentAccuracy.toFixed(1)}%</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Nodes:</span><span className="font-mono">{forest.totalNodes}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">OOB:</span><span className={`font-mono font-bold ${currentOOB >= 100 ? 'text-emerald-600' : currentOOB >= 75 ? 'text-amber-600' : 'text-red-600'}`}>{forest.oobTotal > 0 ? `${currentOOB.toFixed(1)}%` : '—'}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Splits:</span><span className="font-mono">{forest.totalSplits}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Data:</span><span className="font-mono">{points.length} pts</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Nodes/Tree:</span><span className="font-mono">{forest.trees.length > 0 ? (forest.totalNodes / forest.trees.length).toFixed(1) : '—'}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Tree #1:</span><span className="font-mono">{forest.perTreeAccuracy.length > 0 ? `${forest.perTreeAccuracy[0].toFixed(1)}%` : '—'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Trees:</span><span className="font-mono font-medium">{forest.trees.length}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Training:</span><span className={`font-mono font-bold ${currentAccuracy >= 100 ? 'text-emerald-600' : currentAccuracy >= 75 ? 'text-amber-600' : 'text-red-600'}`}>{currentAccuracy.toFixed(1)}%</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Nodes:</span><span className="font-mono">{forest.totalNodes}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">OOB:</span><span className={`font-mono font-bold ${currentOOB >= 100 ? 'text-emerald-600' : currentOOB >= 75 ? 'text-amber-600' : 'text-red-600'}`}>{forest.oobTotal > 0 ? `${currentOOB.toFixed(1)}%` : '—'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Splits:</span><span className="font-mono">{forest.totalSplits}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Data:</span><span className="font-mono">{points.length} pts</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Nodes/Tree:</span><span className="font-mono">{forest.trees.length > 0 ? (forest.totalNodes / forest.trees.length).toFixed(1) : '—'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Tree #1:</span><span className="font-mono">{forest.perTreeAccuracy.length > 0 ? `${forest.perTreeAccuracy[0].toFixed(1)}%` : '—'}</span></div>
                 {forest.perTreeAccuracy.length > 1 && (
-                  <div className="flex justify-between"><span className="text-gray-500">Gain:</span><span className={`font-mono font-medium ${currentAccuracy - forest.perTreeAccuracy[0] > 0 ? 'text-emerald-600' : 'text-gray-500'}`}>+{(currentAccuracy - forest.perTreeAccuracy[0]).toFixed(1)}%</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Gain:</span><span className={`font-mono font-medium ${currentAccuracy - forest.perTreeAccuracy[0] > 0 ? 'text-emerald-600' : 'text-gray-500 dark:text-gray-400'}`}>+{(currentAccuracy - forest.perTreeAccuracy[0]).toFixed(1)}%</span></div>
                 )}
               </div>
             </div>
 
             {forest.trees.length > 0 && (
-              <div className="border border-gray-200 rounded-lg p-3">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-1.5">
-                  <h3 className="font-semibold text-sm text-gray-700">Convergence</h3>
+                  <h3 className="font-semibold text-sm text-gray-700 dark:text-gray-300">Convergence</h3>
                   <button onClick={() => setShowConvergence(v => !v)}
                     className={`text-[10px] px-2 py-0.5 rounded font-medium ${
-                      showConvergence ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      showConvergence ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                     }`}>{showConvergence ? 'Hide' : 'Show'}</button>
                 </div>
                 {showConvergence && (
                   <>
                     {renderConvergenceChart()}
-                    <p className="text-[10px] text-gray-400 mt-0.5">
+                    <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
                       Blue = training accuracy, Purple = OOB estimate.
                       {forest.cumulativeAccuracy.length > 2 && forest.cumulativeAccuracy[forest.cumulativeAccuracy.length - 1] > forest.cumulativeAccuracy[0] + 5
                         ? ' Ensemble improves with more trees.'
@@ -865,18 +865,18 @@ export default function RandomForestVisualizer() {
             )}
 
             {forest.totalSplits > 0 && (
-              <div className="border border-gray-200 rounded-lg p-3">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-1.5">
-                  <h3 className="font-semibold text-sm text-gray-700">Feature Importance</h3>
+                  <h3 className="font-semibold text-sm text-gray-700 dark:text-gray-300">Feature Importance</h3>
                   <button onClick={() => setShowFeatureImp(v => !v)}
                     className={`text-[10px] px-2 py-0.5 rounded font-medium ${
-                      showFeatureImp ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      showFeatureImp ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                     }`}>{showFeatureImp ? 'Hide' : 'Show'}</button>
                 </div>
                 {showFeatureImp && (
                   <>
                     {renderFeatureImportance()}
-                    <p className="text-[10px] text-gray-400 mt-1">
+                    <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
                       How often each feature is used for splitting across all trees. Higher = more discriminative.
                     </p>
                   </>
@@ -885,7 +885,7 @@ export default function RandomForestVisualizer() {
             )}
 
             {mode === 'test' && testPrediction && testPoint && (
-              <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg">
+              <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 p-3 rounded-lg">
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="font-semibold text-sm text-emerald-800">Test Result</h3>
                   <button onClick={() => setShowVotes(v => !v)}
@@ -895,17 +895,17 @@ export default function RandomForestVisualizer() {
                 </div>
                 <div className="space-y-1 text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-500">Predicted:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Predicted:</span>
                     <span className={`px-2 py-0.5 rounded text-xs font-bold ${testPrediction.prediction === 1 ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
                       Class {testPrediction.prediction}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">P(Class 1):</span>
+                    <span className="text-gray-500 dark:text-gray-400">P(Class 1):</span>
                     <span className="font-mono">{testPrediction.prob1.toFixed(3)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Ensemble vote:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Ensemble vote:</span>
                     <span className="font-mono">{Math.round(testPrediction.prob1 * testPrediction.totalVotes)} / {testPrediction.totalVotes}</span>
                   </div>
                   {renderVoteChart()}
@@ -914,10 +914,10 @@ export default function RandomForestVisualizer() {
             )}
 
             <details className="group">
-              <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700 transition-colors select-none font-medium">
+              <summary className="text-sm text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 dark:text-gray-300 transition-colors select-none font-medium">
                 How Random Forest works
               </summary>
-              <div className="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg space-y-2 text-xs">
+              <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg space-y-2 text-xs">
                 <p><strong>Bagging</strong>: Each tree trains on a bootstrap sample (sampled with replacement, ~63% of points). The remaining ~37% are <strong>out-of-bag (OOB)</strong> and serve as a built-in validation set.</p>
                 <p><strong>Random feature selection</strong>: With <strong>Random (√p)</strong>, each split considers only 1 random feature. This decorrelates trees so the ensemble reduces variance.</p>
                 <p><strong>Ensemble prediction</strong>: All trees vote. The probability heatmap shows the fraction of trees voting for class 1 (blue). White = 50/50 tie.</p>

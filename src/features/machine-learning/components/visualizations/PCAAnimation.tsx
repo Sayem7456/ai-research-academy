@@ -230,7 +230,7 @@ export default function PCAAnimation() {
   };
 
   const renderPCChart = () => {
-    if (projections.length === 0) return <p className="text-xs text-gray-400">Add points to see PC coordinates.</p>;
+    if (projections.length === 0) return <p className="text-xs text-gray-400 dark:text-gray-500">Add points to see PC coordinates.</p>;
     const cw = 240;
     const ch = 120;
     const pad = 28;
@@ -315,11 +315,11 @@ export default function PCAAnimation() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div
-              className="relative w-full max-w-[400px] aspect-square bg-white border-2 border-gray-300 rounded cursor-crosshair select-none"
+              className="relative w-full max-w-[400px] aspect-square bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded cursor-crosshair select-none"
               onClick={handleCanvasClick}
             >
               <svg
@@ -387,19 +387,19 @@ export default function PCAAnimation() {
 
             <div className="flex gap-2 flex-wrap">
               <button onClick={() => setShowPC1(!showPC1)}
-                className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${showPC1 ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${showPC1 ? 'bg-red-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
                 PC1
               </button>
               <button onClick={() => setShowPC2(!showPC2)}
-                className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${showPC2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${showPC2 ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
                 PC2
               </button>
               <button onClick={() => setShowProjections(!showProjections)}
-                className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${showProjections ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${showProjections ? 'bg-purple-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
                 Projections
               </button>
               <button onClick={() => setShowEllipse(!showEllipse)}
-                className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${showEllipse ? 'bg-violet-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${showEllipse ? 'bg-violet-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
                 1σ Ellipse
               </button>
               <button onClick={handleRandomData}
@@ -414,46 +414,46 @@ export default function PCAAnimation() {
           </div>
 
           <div className="space-y-4">
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-2 text-gray-700">Configuration</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">Configuration</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs text-gray-500">
-                    Components (K): <span className="font-mono font-medium text-gray-700">{numComponents}</span>
+                  <label className="text-xs text-gray-500 dark:text-gray-400">
+                    Components (K): <span className="font-mono font-medium text-gray-700 dark:text-gray-300">{numComponents}</span>
                   </label>
                   <input type="range" min={1} max={2} step={1} value={numComponents}
                     onChange={(e) => setNumComponents(parseInt(e.target.value))}
                     className="w-full mt-0.5" />
-                  <div className="flex justify-between text-[11px] text-gray-400 mt-0.5">
+                  <div className="flex justify-between text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
                     <span>1 (reconstruct)</span><span>2 (lossless)</span>
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">
-                    Rotation: <span className="font-mono font-medium text-gray-700">{rotationDeg}°</span>
+                  <label className="text-xs text-gray-500 dark:text-gray-400">
+                    Rotation: <span className="font-mono font-medium text-gray-700 dark:text-gray-300">{rotationDeg}°</span>
                   </label>
                   <input type="range" min={0} max={180} step={1} value={rotationDeg}
                     onChange={(e) => setRotationDeg(parseInt(e.target.value))}
                     className="w-full mt-0.5" />
-                  <p className="text-[11px] text-gray-400 mt-0.5">
+                  <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
                     Rotates data to see PCA adapt in real time. Click <strong>Random</strong> for fresh data at this angle.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-2 text-gray-700">Principal Components</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">Principal Components</h3>
               {points.length < 2 ? (
-                <p className="text-xs text-gray-400">Add at least 2 points.</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Add at least 2 points.</p>
               ) : (
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-red-50 p-2 rounded-lg">
+                  <div className="bg-red-50 dark:bg-red-950/30 p-2 rounded-lg">
                     <p className="font-semibold text-xs text-red-700 mb-1">PC1</p>
                     <div className="text-[11px] space-y-0.5">
-                      <div className="flex justify-between"><span className="text-gray-500">λ =</span><span className="font-mono">{eigenvalues[0].toFixed(2)}</span></div>
-                      <div className="flex justify-between"><span className="text-gray-500">var =</span><span className="font-mono font-bold text-red-700">{(explained[0] * 100).toFixed(1)}%</span></div>
-                      <div className="text-[10px] text-gray-400 font-mono truncate">({pc1.x.toFixed(2)}, {pc1.y.toFixed(2)})</div>
+                      <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">λ =</span><span className="font-mono">{eigenvalues[0].toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">var =</span><span className="font-mono font-bold text-red-700">{(explained[0] * 100).toFixed(1)}%</span></div>
+                      <div className="text-[10px] text-gray-400 dark:text-gray-500 font-mono truncate">({pc1.x.toFixed(2)}, {pc1.y.toFixed(2)})</div>
                     </div>
                   </div>
                   <div className="flex items-center justify-center">
@@ -472,29 +472,29 @@ export default function PCAAnimation() {
                       })}
                     </svg>
                   </div>
-                  <div className="bg-blue-50 p-2 rounded-lg">
+                  <div className="bg-blue-50 dark:bg-blue-950/30 p-2 rounded-lg">
                     <p className="font-semibold text-xs text-blue-700 mb-1">PC2</p>
                     <div className="text-[11px] space-y-0.5">
-                      <div className="flex justify-between"><span className="text-gray-500">λ =</span><span className="font-mono">{eigenvalues[1].toFixed(2)}</span></div>
-                      <div className="flex justify-between"><span className="text-gray-500">var =</span><span className="font-mono font-bold text-blue-700">{(explained[1] * 100).toFixed(1)}%</span></div>
-                      <div className="text-[10px] text-gray-400 font-mono truncate">({pc2.x.toFixed(2)}, {pc2.y.toFixed(2)})</div>
+                      <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">λ =</span><span className="font-mono">{eigenvalues[1].toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">var =</span><span className="font-mono font-bold text-blue-700">{(explained[1] * 100).toFixed(1)}%</span></div>
+                      <div className="text-[10px] text-gray-400 dark:text-gray-500 font-mono truncate">({pc2.x.toFixed(2)}, {pc2.y.toFixed(2)})</div>
                     </div>
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-2 text-gray-700">Analysis</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">Analysis</h3>
               {points.length < 2 ? (
-                <p className="text-xs text-gray-400">Add at least 2 points.</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Add at least 2 points.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <p className="text-xs font-medium text-gray-500 mb-1">Covariance Matrix</p>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Covariance Matrix</p>
                     <div className="flex items-center gap-3">
                       {renderCovHeatmap()}
-                      <div className="text-[10px] text-gray-400 leading-relaxed">
+                      <div className="text-[10px] text-gray-400 dark:text-gray-500 leading-relaxed">
                         σ<sub>xx</sub>={covMatrix.xx.toFixed(2)}<br />
                         σ<sub>xy</sub>={covMatrix.xy.toFixed(2)}<br />
                         σ<sub>yy</sub>={covMatrix.yy.toFixed(2)}
@@ -502,27 +502,27 @@ export default function PCAAnimation() {
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-gray-500 mb-1">Data in PC Coordinates</p>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Data in PC Coordinates</p>
                     {renderPCChart()}
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-2 text-gray-700">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">
                 Dimensionality Reduction {numComponents === 1 ? <span className="text-red-500 font-bold">(lossy)</span> : <span className="text-emerald-600">(lossless)</span>}
               </h3>
               {numComponents === 1 && projections.length > 0 ? (
                 <div className="space-y-1">
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
                     Keeping only PC1. Red dashed lines on the canvas show reconstruction error.
                   </p>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono">
                       RMSE: <span className="font-bold text-red-600">{reconstructionError.toFixed(3)}</span>
                     </span>
-                    <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer">
+                    <label className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 cursor-pointer">
                       <input type="checkbox" checked={showReconstruction}
                         onChange={(e) => setShowReconstruction(e.target.checked)} className="rounded" />
                       Show
@@ -530,37 +530,37 @@ export default function PCAAnimation() {
                   </div>
                   <div className="pt-1 border-t border-gray-100 mt-1">
                     <div className="grid grid-cols-2 gap-2 text-[11px]">
-                      <div className="flex justify-between"><span className="text-gray-500">Points:</span><span className="font-mono">{points.length}</span></div>
-                      <div className="flex justify-between"><span className="text-gray-500">Mean:</span><span className="font-mono">({mean.x.toFixed(1)}, {mean.y.toFixed(1)})</span></div>
-                      <div className="flex justify-between"><span className="text-gray-500">Total var:</span><span className="font-mono">{(eigenvalues[0] + eigenvalues[1]).toFixed(2)}</span></div>
-                      <div className="flex justify-between"><span className="text-gray-500">Rotation:</span><span className="font-mono">{rotationDeg}°</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Points:</span><span className="font-mono">{points.length}</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Mean:</span><span className="font-mono">({mean.x.toFixed(1)}, {mean.y.toFixed(1)})</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Total var:</span><span className="font-mono">{(eigenvalues[0] + eigenvalues[1]).toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Rotation:</span><span className="font-mono">{rotationDeg}°</span></div>
                     </div>
                   </div>
                 </div>
               ) : numComponents === 2 ? (
                 <div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     K=2 retains all variance ({(explained[0] * 100 + explained[1] * 100).toFixed(0)}%). No information lost.
                   </p>
                   <div className="mt-2 pt-1 border-t border-gray-100">
                     <div className="grid grid-cols-2 gap-2 text-[11px]">
-                      <div className="flex justify-between"><span className="text-gray-500">Points:</span><span className="font-mono">{points.length}</span></div>
-                      <div className="flex justify-between"><span className="text-gray-500">Mean:</span><span className="font-mono">({mean.x.toFixed(1)}, {mean.y.toFixed(1)})</span></div>
-                      <div className="flex justify-between"><span className="text-gray-500">Total var:</span><span className="font-mono">{(eigenvalues[0] + eigenvalues[1]).toFixed(2)}</span></div>
-                      <div className="flex justify-between"><span className="text-gray-500">Rotation:</span><span className="font-mono">{rotationDeg}°</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Points:</span><span className="font-mono">{points.length}</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Mean:</span><span className="font-mono">({mean.x.toFixed(1)}, {mean.y.toFixed(1)})</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Total var:</span><span className="font-mono">{(eigenvalues[0] + eigenvalues[1]).toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Rotation:</span><span className="font-mono">{rotationDeg}°</span></div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-gray-400">Add points to see reconstruction.</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Add points to see reconstruction.</p>
               )}
             </div>
 
             <details className="group">
-              <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700 transition-colors select-none font-medium">
+              <summary className="text-sm text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 dark:text-gray-300 transition-colors select-none font-medium">
                 How PCA works
               </summary>
-              <div className="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+              <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
                 <ol className="list-decimal list-inside space-y-0.5 text-xs">
                   <li>Center data at mean (purple triangle)</li>
                   <li>Compute <strong>covariance matrix</strong> — measures how X and Y vary together</li>

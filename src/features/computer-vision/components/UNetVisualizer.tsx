@@ -106,32 +106,32 @@ export default function UNetVisualizer() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-2">U-Net</h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           U-Net is a fully convolutional network for semantic segmentation, featuring a symmetric
           encoder-decoder architecture with skip connections that preserve spatial information.
         </p>
 
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
           <h3 className="font-semibold mb-3">Architecture Overview</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
               <h4 className="font-semibold text-blue-700 mb-1">Encoder (Contracting Path)</h4>
-              <p className="text-gray-700">
+              <p className="text-gray-700 dark:text-gray-300">
                 Downsamples the input through convolutions and pooling, capturing semantic information
                 at multiple scales.
               </p>
             </div>
             <div>
               <h4 className="font-semibold text-red-700 mb-1">Bottleneck</h4>
-              <p className="text-gray-700">
+              <p className="text-gray-700 dark:text-gray-300">
                 The deepest layer with lowest spatial resolution but highest semantic information.
               </p>
             </div>
             <div>
               <h4 className="font-semibold text-green-700 mb-1">Decoder (Expanding Path)</h4>
-              <p className="text-gray-700">
+              <p className="text-gray-700 dark:text-gray-300">
                 Upsamples feature maps and combines them with encoder features via skip connections.
               </p>
             </div>
@@ -164,17 +164,17 @@ export default function UNetVisualizer() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-400"
+            className="p-4 bg-purple-50 dark:bg-purple-950/30 rounded-lg border-l-4 border-purple-400"
           >
             <h3 className="font-semibold mb-2 text-sm">Skip Connections</h3>
-            <p className="text-xs text-gray-700 mb-2">
+            <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">
               High-resolution features from encoder are concatenated with upsampled decoder features.
             </p>
-            <div className="text-xs space-y-1 font-mono text-gray-600">
+            <div className="text-xs space-y-1 font-mono text-gray-600 dark:text-gray-400">
               <div>enc1 (568×568×64) → concat → dec1</div>
               <div>enc2 (280×280×128) → concat → dec2</div>
             </div>
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
               This preserves spatial details lost during downsampling.
             </p>
           </motion.div>
@@ -183,25 +183,25 @@ export default function UNetVisualizer() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-400"
+            className="p-4 bg-orange-50 dark:bg-orange-950/30 rounded-lg border-l-4 border-orange-400"
           >
             <h3 className="font-semibold mb-2 text-sm">U-Shape Design</h3>
-            <p className="text-xs text-gray-700 mb-2">
+            <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">
               The symmetric encoder-decoder forms a "U" shape:
             </p>
-            <div className="text-xs space-y-1 text-gray-600">
+            <div className="text-xs space-y-1 text-gray-600 dark:text-gray-400">
               <div>↓ Encoder: 572 → 284 → 140 → 136 (bottleneck)</div>
               <div>↑ Decoder: 136 → 272 → 536 (output)</div>
             </div>
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
               Spatial resolution decreases then increases symmetrically.
             </p>
           </motion.div>
         </div>
 
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <h3 className="font-semibold mb-3 text-sm">Key Features</h3>
-          <ul className="space-y-2 text-sm text-gray-700">
+          <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
             <li className="flex gap-2">
               <span className="text-blue-600 font-bold">1.</span>
               <span><strong>Fully Convolutional:</strong> No fully connected layers. Can process images of any size.</span>
@@ -217,15 +217,15 @@ export default function UNetVisualizer() {
           </ul>
         </div>
 
-        <div className="mt-6 p-4 bg-green-50 rounded-lg">
+        <div className="mt-6 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
           <h3 className="font-semibold mb-3 text-sm">Applications</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
+          <div className="grid grid-cols-2 gap-2 text-sm text-gray-700 dark:text-gray-300">
             <div>✓ Medical Image Segmentation</div>
             <div>✓ Cell Tracking</div>
             <div>✓ Satellite Image Analysis</div>
             <div>✓ Autonomous Driving</div>
           </div>
-          <p className="text-xs text-gray-600 mt-3">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">
             <strong>Original Paper:</strong> "U-Net: Convolutional Networks for Biomedical Image Segmentation" (Ronneberger et al., 2015)
           </p>
         </div>

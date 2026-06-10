@@ -127,14 +127,14 @@ export default function YOLOPipelineVisualizer() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-2">YOLO Pipeline Visualizer</h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           YOLO frames object detection as a single regression problem: it divides the image into a grid
           and predicts bounding boxes and class probabilities directly in one forward pass.
         </p>
 
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
           <h3 className="font-semibold mb-3">Controls</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
@@ -169,7 +169,7 @@ export default function YOLOPipelineVisualizer() {
                 {isAnimating ? 'Stop' : 'Animate'}
               </button>
               <button onClick={() => { regenerate(); stopAnim(); }}
-                className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
+                className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300 transition-colors">
                 New Image
               </button>
             </div>
@@ -185,7 +185,7 @@ export default function YOLOPipelineVisualizer() {
               {(animPhase >= 3 && animPhase <= 4) && 'Raw Detections'}
               {animPhase >= 5 && 'Final Detections'}
             </h3>
-            <div className="relative border-2 border-gray-300 rounded overflow-hidden bg-gray-100"
+            <div className="relative border-2 border-gray-300 rounded overflow-hidden bg-gray-100 dark:bg-gray-800"
               style={{ width: 400, height: 400 }}>
               <svg width={400} height={400} className="absolute inset-0">
                 {Array.from({ length: gridSize }).map((_, i) => (
@@ -240,12 +240,12 @@ export default function YOLOPipelineVisualizer() {
               </AnimatePresence>
 
               {animPhase >= 5 && nmsBoxes.length === 0 && (
-                <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-400">
+                <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-400 dark:text-gray-500">
                   No detections above threshold
                 </div>
               )}
             </div>
-            <div className="mt-2 text-xs text-gray-500 text-center">
+            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
               {animPhase >= 3 ? `${displayBoxes.length} boxes` : 'Waiting...'}
             </div>
           </div>
@@ -254,7 +254,7 @@ export default function YOLOPipelineVisualizer() {
             <AnimatePresence mode="wait">
               {isAnimating && (
                 <motion.div key={animPhase} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                  className="p-4 bg-indigo-50 rounded-lg border-l-4 border-indigo-400">
+                  className="p-4 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg border-l-4 border-indigo-400">
                   <div className="flex items-center gap-3">
                     <div className="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold">
                       {animPhase + 1}
@@ -271,7 +271,7 @@ export default function YOLOPipelineVisualizer() {
               className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-400"
             >
               <h3 className="font-semibold text-sm mb-2">Grid Cell Predictions</h3>
-              <p className="text-xs text-gray-700">
+              <p className="text-xs text-gray-700 dark:text-gray-300">
                 Each grid cell predicts B bounding boxes (x, y, w, h, confidence) and C class
                 probabilities. Output tensor: S × S × (B × 5 + C).
               </p>
@@ -281,13 +281,13 @@ export default function YOLOPipelineVisualizer() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="p-4 bg-green-50 rounded-lg border-l-4 border-green-400"
+              className="p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border-l-4 border-green-400"
             >
               <h3 className="font-semibold text-sm mb-2">Non-Maximum Suppression</h3>
-              <p className="text-xs text-gray-700 mb-2">
+              <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">
                 Removes duplicate detections. Steps:
               </p>
-              <ol className="text-xs text-gray-600 space-y-1 list-decimal list-inside">
+              <ol className="text-xs text-gray-600 dark:text-gray-400 space-y-1 list-decimal list-inside">
                 <li>Sort boxes by confidence score</li>
                 <li>Select highest confidence box</li>
                 <li>Remove boxes with IoU &gt; threshold</li>
@@ -302,7 +302,7 @@ export default function YOLOPipelineVisualizer() {
               className="p-4 bg-amber-50 rounded-lg border-l-4 border-amber-400"
             >
               <h3 className="font-semibold text-sm mb-2">Multi-Scale Detection</h3>
-              <p className="text-xs text-gray-700">
+              <p className="text-xs text-gray-700 dark:text-gray-300">
                 YOLOv3+ uses 3 detection scales (13×13, 26×26, 52×52) to detect small, medium, and
                 large objects simultaneously.
               </p>

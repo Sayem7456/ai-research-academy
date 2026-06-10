@@ -46,7 +46,7 @@ export default async function Page({ params }: Props) {
       .replace(/\b\w/g, (c) => c.toUpperCase());
 
     return (
-      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900 safe-top safe-bottom transition-colors duration-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Breadcrumbs */}
           <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">

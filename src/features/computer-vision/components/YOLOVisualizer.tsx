@@ -84,19 +84,19 @@ export default function YOLOVisualizer() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <h2 className="text-2xl font-bold mb-2">YOLO (You Only Look Once)</h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           YOLO is a single-stage object detector that frames detection as a regression problem,
           predicting bounding boxes and class probabilities directly in one forward pass.
         </p>
 
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
           <h3 className="font-semibold mb-3">Key Innovation: Single-Stage Detection</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
               <h4 className="font-semibold text-red-700 mb-1">Two-Stage (R-CNN, Faster R-CNN)</h4>
-              <div className="text-xs text-gray-700 space-y-1">
+              <div className="text-xs text-gray-700 dark:text-gray-300 space-y-1">
                 <div>1. Region proposals (~2000 regions)</div>
                 <div>2. Classify each region</div>
                 <div className="text-red-600">Slow: ~5-7 FPS</div>
@@ -104,7 +104,7 @@ export default function YOLOVisualizer() {
             </div>
             <div>
               <h4 className="font-semibold text-green-700 mb-1">Single-Stage (YOLO)</h4>
-              <div className="text-xs text-gray-700 space-y-1">
+              <div className="text-xs text-gray-700 dark:text-gray-300 space-y-1">
                 <div>1. Divide image into grid</div>
                 <div>2. Predict boxes + classes directly</div>
                 <div className="text-green-600">Fast: ~45-155 FPS</div>
@@ -119,7 +119,7 @@ export default function YOLOVisualizer() {
           showDetails={true}
         />
 
-        <div className="mt-6 p-4 bg-purple-50 rounded-lg">
+        <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-950/30 rounded-lg">
           <h3 className="font-semibold mb-3">Multi-Scale Detection</h3>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">Select Detection Scale</label>
@@ -131,7 +131,7 @@ export default function YOLOVisualizer() {
                   className={`px-4 py-2 text-sm rounded ${
                     selectedScale === scale
                       ? 'bg-purple-600 text-white'
-                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                      : 'bg-white text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'
                   }`}
                 >
                   {scale}×{scale}
@@ -144,7 +144,7 @@ export default function YOLOVisualizer() {
             key={selectedScale}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-3 bg-white rounded border border-purple-200"
+            className="p-3 bg-white dark:bg-gray-800 rounded border border-purple-200"
           >
             <div className="text-sm space-y-1">
               <div className="flex justify-between">
@@ -174,10 +174,10 @@ export default function YOLOVisualizer() {
             className="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-400"
           >
             <h4 className="font-semibold text-sm mb-2">Anchor Boxes</h4>
-            <p className="text-xs text-gray-700 mb-2">
+            <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">
               Pre-defined box shapes based on training data. Each grid cell predicts 3 boxes.
             </p>
-            <div className="text-xs font-mono text-gray-600 bg-white p-2 rounded">
+            <div className="text-xs font-mono text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 p-2 rounded">
               <div>Each box predicts:</div>
               <div>• x, y (center offset)</div>
               <div>• w, h (width, height)</div>
@@ -190,13 +190,13 @@ export default function YOLOVisualizer() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-4 bg-green-50 rounded-lg border-l-4 border-green-400"
+            className="p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border-l-4 border-green-400"
           >
             <h4 className="font-semibold text-sm mb-2">Non-Maximum Suppression (NMS)</h4>
-            <p className="text-xs text-gray-700 mb-2">
+            <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">
               Removes duplicate detections by suppressing boxes with high IoU overlap.
             </p>
-            <div className="text-xs text-gray-600 space-y-1">
+            <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
               <div>1. Sort boxes by confidence</div>
               <div>2. Keep highest confidence box</div>
               <div>3. Remove boxes with IoU &gt; threshold</div>
@@ -205,41 +205,41 @@ export default function YOLOVisualizer() {
           </motion.div>
         </div>
 
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <h3 className="font-semibold mb-3 text-sm">YOLO Evolution</h3>
           <div className="space-y-2 text-xs">
             <div className="flex gap-2">
-              <span className="font-semibold text-gray-700 min-w-[80px]">YOLOv1 (2016):</span>
-              <span className="text-gray-600">First single-stage detector, 45 FPS</span>
+              <span className="font-semibold text-gray-700 dark:text-gray-300 min-w-[80px]">YOLOv1 (2016):</span>
+              <span className="text-gray-600 dark:text-gray-400">First single-stage detector, 45 FPS</span>
             </div>
             <div className="flex gap-2">
-              <span className="font-semibold text-gray-700 min-w-[80px]">YOLOv2 (2017):</span>
-              <span className="text-gray-600">Anchor boxes, batch normalization</span>
+              <span className="font-semibold text-gray-700 dark:text-gray-300 min-w-[80px]">YOLOv2 (2017):</span>
+              <span className="text-gray-600 dark:text-gray-400">Anchor boxes, batch normalization</span>
             </div>
             <div className="flex gap-2">
-              <span className="font-semibold text-gray-700 min-w-[80px]">YOLOv3 (2018):</span>
-              <span className="text-gray-600">Multi-scale predictions, FPN</span>
+              <span className="font-semibold text-gray-700 dark:text-gray-300 min-w-[80px]">YOLOv3 (2018):</span>
+              <span className="text-gray-600 dark:text-gray-400">Multi-scale predictions, FPN</span>
             </div>
             <div className="flex gap-2">
               <span className="font-semibold text-blue-700 min-w-[80px]">YOLOv4 (2020):</span>
-              <span className="text-gray-600">CSPDarknet, Mish activation</span>
+              <span className="text-gray-600 dark:text-gray-400">CSPDarknet, Mish activation</span>
             </div>
             <div className="flex gap-2">
-              <span className="font-semibold text-gray-700 min-w-[80px]">YOLOv5-8:</span>
-              <span className="text-gray-600">Further optimizations, SOTA performance</span>
+              <span className="font-semibold text-gray-700 dark:text-gray-300 min-w-[80px]">YOLOv5-8:</span>
+              <span className="text-gray-600 dark:text-gray-400">Further optimizations, SOTA performance</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 p-4 bg-green-50 rounded-lg">
+        <div className="mt-6 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
           <h3 className="font-semibold mb-3 text-sm">Applications</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
+          <div className="grid grid-cols-2 gap-2 text-sm text-gray-700 dark:text-gray-300">
             <div>✓ Real-time Video Surveillance</div>
             <div>✓ Autonomous Driving</div>
             <div>✓ Robotics</div>
             <div>✓ Sports Analytics</div>
           </div>
-          <p className="text-xs text-gray-600 mt-3">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-3">
             <strong>Paper:</strong> "You Only Look Once: Unified, Real-Time Object Detection" (Redmon et al., 2016)
           </p>
         </div>

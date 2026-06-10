@@ -34,16 +34,16 @@ interface ArchitectureViewerProps {
 }
 
 const LAYER_COLORS: Record<Layer['type'], string> = {
-  input: 'bg-blue-100 border-blue-400',
-  conv: 'bg-purple-100 border-purple-400',
-  pool: 'bg-green-100 border-green-400',
-  fc: 'bg-orange-100 border-orange-400',
-  activation: 'bg-yellow-100 border-yellow-400',
-  norm: 'bg-pink-100 border-pink-400',
-  dropout: 'bg-gray-100 border-gray-400',
-  residual: 'bg-indigo-100 border-indigo-400',
-  attention: 'bg-red-100 border-red-400',
-  output: 'bg-emerald-100 border-emerald-400',
+  input: 'bg-blue-100 dark:bg-blue-950/30 border-blue-400',
+  conv: 'bg-purple-100 dark:bg-purple-950/30 border-purple-400',
+  pool: 'bg-green-100 dark:bg-green-950/30 border-green-400',
+  fc: 'bg-orange-100 dark:bg-orange-950/30 border-orange-400',
+  activation: 'bg-yellow-100 dark:bg-yellow-950/30 border-yellow-400',
+  norm: 'bg-pink-100 dark:bg-pink-950/30 border-pink-400',
+  dropout: 'bg-gray-100 dark:bg-gray-800 border-gray-400',
+  residual: 'bg-indigo-100 dark:bg-indigo-950/30 border-indigo-400',
+  attention: 'bg-red-100 dark:bg-red-950/30 border-red-400',
+  output: 'bg-emerald-100 dark:bg-emerald-950/30 border-emerald-400',
 };
 
 export default function ArchitectureViewer({
@@ -87,9 +87,9 @@ export default function ArchitectureViewer({
         >
           <div className="text-center">
             <div className="font-semibold text-sm mb-1">{layer.name}</div>
-            <div className="text-xs text-gray-600 uppercase">{layer.type}</div>
+            <div className="text-xs text-gray-600 dark:text-gray-400 uppercase">{layer.type}</div>
             {layer.shape && (
-              <div className="text-xs text-gray-500 mt-1 font-mono">{layer.shape}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-mono">{layer.shape}</div>
             )}
           </div>
         </motion.div>
@@ -98,17 +98,17 @@ export default function ArchitectureViewer({
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute z-10 mt-2 p-3 bg-white border-2 border-gray-300 rounded-lg shadow-lg w-64 text-sm"
+            className="absolute z-10 mt-2 p-3 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-lg w-64 text-sm"
             style={{ top: '100%' }}
           >
             <div className="font-semibold mb-2">{layer.name}</div>
-            <div className="text-xs text-gray-600 mb-2">{layer.description}</div>
+            <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">{layer.description}</div>
             {layer.params && Object.keys(layer.params).length > 0 && (
               <div className="text-xs space-y-1">
-                <div className="font-semibold text-gray-700">Parameters:</div>
+                <div className="font-semibold text-gray-700 dark:text-gray-300">Parameters:</div>
                 {Object.entries(layer.params).map(([key, value]) => (
                   <div key={key} className="flex justify-between">
-                    <span className="text-gray-500">{key}:</span>
+                    <span className="text-gray-500 dark:text-gray-400">{key}:</span>
                     <span className="font-mono">{value}</span>
                   </div>
                 ))}
@@ -171,11 +171,11 @@ export default function ArchitectureViewer({
   const connections = architecture.connections || [];
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
       <div className="mb-6">
         <h3 className="text-2xl font-bold mb-2">{architecture.title}</h3>
         {architecture.description && (
-          <p className="text-gray-600 text-sm">{architecture.description}</p>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">{architecture.description}</p>
         )}
       </div>
 
@@ -191,9 +191,9 @@ export default function ArchitectureViewer({
       </div>
 
       {connections.length > 0 && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <h4 className="font-semibold text-sm mb-2">Special Connections</h4>
-          <div className="space-y-1 text-xs text-gray-600">
+          <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
             {connections.map((conn, i) => (
               <div key={i} className="flex items-center gap-2">
                 <span className="font-mono">{conn.from}</span>
@@ -213,7 +213,7 @@ export default function ArchitectureViewer({
       )}
 
       {interactive && (
-        <div className="mt-4 text-xs text-gray-500 text-center">
+        <div className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
           Click on a layer to see details
         </div>
       )}

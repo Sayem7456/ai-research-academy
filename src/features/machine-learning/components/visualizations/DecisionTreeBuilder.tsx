@@ -474,14 +474,14 @@ export default function DecisionTreeBuilder() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div className="flex gap-2 mb-1">
               <button
                 onClick={() => setMode('add')}
                 className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${
-                  mode === 'add' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  mode === 'add' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
               >
                 Add Data
@@ -492,7 +492,7 @@ export default function DecisionTreeBuilder() {
                   setTestPoint(null);
                 }}
                 className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${
-                  mode === 'test' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  mode === 'test' ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
               >
                 Test Tree
@@ -500,7 +500,7 @@ export default function DecisionTreeBuilder() {
             </div>
 
             <div
-              className="relative w-full max-w-[400px] aspect-square bg-white border-2 border-gray-300 rounded cursor-crosshair select-none"
+              className="relative w-full max-w-[400px] aspect-square bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-600 rounded cursor-crosshair select-none"
               onClick={handleCanvasClick}
             >
               <svg
@@ -575,7 +575,7 @@ export default function DecisionTreeBuilder() {
                 <button
                   onClick={() => setActiveClass(1)}
                   className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
-                    activeClass === 1 ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    activeClass === 1 ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                   }`}
                 >
                   Class 1 (Blue)
@@ -583,7 +583,7 @@ export default function DecisionTreeBuilder() {
                 <button
                   onClick={() => setActiveClass(0)}
                   className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
-                    activeClass === 0 ? 'bg-red-600 text-white ring-2 ring-red-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    activeClass === 0 ? 'bg-red-600 text-white ring-2 ring-red-300' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                   }`}
                 >
                   Class 0 (Red)
@@ -602,13 +602,13 @@ export default function DecisionTreeBuilder() {
 
             {mode === 'test' && (
               <div className="flex items-start gap-2">
-                <p className="text-sm text-gray-500 italic">
+                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
                   Click the canvas to place a test point and trace the decision path.
                 </p>
                 {testPoint && (
                   <button
                     onClick={() => setTestPoint(null)}
-                    className="shrink-0 px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                    className="shrink-0 px-3 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                   >
                     Clear
                   </button>
@@ -618,11 +618,11 @@ export default function DecisionTreeBuilder() {
           </div>
 
           <div className="space-y-4">
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-2 text-gray-700">Model Configuration</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">Model Configuration</h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs text-gray-500 mb-1.5">Impurity Measure</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1.5">Impurity Measure</p>
                   <div className="flex gap-2">
                     {Object.entries(IMPURITY_LABELS).map(([key, { label, desc }]) => (
                       <button
@@ -632,7 +632,7 @@ export default function DecisionTreeBuilder() {
                           setTestPoint(null);
                         }}
                         className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-colors ${
-                          impurityKey === key ? 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-300' : 'bg-white text-gray-600 hover:bg-gray-100 ring-1 ring-gray-200'
+                          impurityKey === key ? 'bg-indigo-100 dark:bg-indigo-950/30 text-indigo-700 ring-1 ring-indigo-300' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 ring-1 ring-gray-200 dark:ring-gray-700'
                         }`}
                         title={desc}
                       >
@@ -643,8 +643,8 @@ export default function DecisionTreeBuilder() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-gray-500">
-                    Max Depth: <span className="font-mono font-medium text-gray-700">{maxDepth}</span>
+                  <label className="text-xs text-gray-500 dark:text-gray-400">
+                    Max Depth: <span className="font-mono font-medium text-gray-700 dark:text-gray-300">{maxDepth}</span>
                   </label>
                   <input
                     type="range"
@@ -662,9 +662,9 @@ export default function DecisionTreeBuilder() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-gray-500">
-                    Build Step: <span className="font-mono font-medium text-gray-700">{buildStep}</span>
-                    <span className="text-gray-400 ml-1">/ {maxDepth}</span>
+                  <label className="text-xs text-gray-500 dark:text-gray-400">
+                    Build Step: <span className="font-mono font-medium text-gray-700 dark:text-gray-300">{buildStep}</span>
+                    <span className="text-gray-400 dark:text-gray-500 ml-1">/ {maxDepth}</span>
                   </label>
                   <input
                     type="range"
@@ -678,7 +678,7 @@ export default function DecisionTreeBuilder() {
                     }}
                     className="w-full mt-0.5"
                   />
-                  <p className="text-[11px] text-gray-400 mt-0.5">
+                  <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
                     {buildStep === 0
                       ? 'Root only — no splits yet.'
                       : buildStep < maxDepth
@@ -690,68 +690,68 @@ export default function DecisionTreeBuilder() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-purple-50 p-3 rounded-lg">
+              <div className="bg-purple-50 dark:bg-purple-950/30 p-3 rounded-lg">
                 <h3 className="font-semibold text-sm mb-1.5">Tree Stats</h3>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Nodes:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Nodes:</span>
                     <span className="font-mono font-medium">{tree ? countNodes(tree) : 0}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Leaves:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Leaves:</span>
                     <span className="font-mono font-medium">{tree ? countLeaves(tree) : 0}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Depth:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Depth:</span>
                     <span className="font-mono font-medium">{effectiveDepth} / {maxDepth}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Root {IMPURITY_LABELS[impurityKey].abbr}:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Root {IMPURITY_LABELS[impurityKey].abbr}:</span>
                     <span className="font-mono font-medium">{tree ? tree.impurity.toFixed(3) : '0.000'}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-blue-50 p-3 rounded-lg">
+              <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg">
                 <h3 className="font-semibold text-sm mb-1.5">Data</h3>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Points:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Points:</span>
                     <span className="font-mono font-medium">{points.length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Class 0:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Class 0:</span>
                     <span className="font-mono font-medium text-red-600">{points.filter(p => p.label === 0).length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Class 1:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Class 1:</span>
                     <span className="font-mono font-medium text-blue-600">{points.filter(p => p.label === 1).length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Regions:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Regions:</span>
                     <span className="font-mono font-medium">{regions.length}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-2 text-gray-700">Performance</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">Performance</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs font-medium text-gray-500 mb-1.5">Accuracy by Depth</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Accuracy by Depth</p>
                   {accuracyAtDepths.length === 0 ? (
-                    <p className="text-xs text-gray-400">Add points to see accuracy.</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Add points to see accuracy.</p>
                   ) : (
                     <div className="space-y-1">
                       {accuracyAtDepths.map(({ depth, acc }) => {
                         const isCurrent = depth === effectiveDepth;
                         return (
                           <div key={`acc-${depth}`} className="flex items-center gap-1.5">
-                            <span className={`text-[11px] font-mono w-14 shrink-0 ${isCurrent ? 'font-bold text-gray-900' : 'text-gray-400'}`}>
+                            <span className={`text-[11px] font-mono w-14 shrink-0 ${isCurrent ? 'font-bold text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}`}>
                               d={depth}:
                             </span>
-                            <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="flex-1 h-2.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                               <div
                                 className={`h-full rounded-full transition-all ${
                                   acc >= 100 ? 'bg-emerald-400' : acc >= 75 ? 'bg-amber-300' : 'bg-red-300'
@@ -759,7 +759,7 @@ export default function DecisionTreeBuilder() {
                                 style={{ width: `${acc}%` }}
                               />
                             </div>
-                            <span className={`text-[11px] font-mono w-8 text-right ${isCurrent ? 'font-bold text-gray-900' : 'text-gray-400'}`}>
+                            <span className={`text-[11px] font-mono w-8 text-right ${isCurrent ? 'font-bold text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}`}>
                               {acc.toFixed(0)}%
                             </span>
                           </div>
@@ -768,17 +768,17 @@ export default function DecisionTreeBuilder() {
                     </div>
                   )}
                   {points.length > 0 && effectiveDepth < maxDepth && currentAccuracy < 100 && (
-                    <p className="text-[11px] text-amber-600 mt-1">Accuracy grows with depth. Deeper → overfitting risk.</p>
+                    <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1">Accuracy grows with depth. Deeper → overfitting risk.</p>
                   )}
                   {points.length > 0 && currentAccuracy >= 100 && effectiveDepth < maxDepth && (
-                    <p className="text-[11px] text-emerald-600 mt-1">Perfect at depth {effectiveDepth}. Further depth may memorize noise.</p>
+                    <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">Perfect at depth {effectiveDepth}. Further depth may memorize noise.</p>
                   )}
                 </div>
 
                 <div>
-                  <p className="text-xs font-medium text-gray-500 mb-1.5">Feature Importance</p>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Feature Importance</p>
                   {featureImportance.x + featureImportance.y === 0 ? (
-                    <p className="text-xs text-gray-400">No splits yet.</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">No splits yet.</p>
                   ) : (
                     <div className="space-y-1.5">
                       {(['x', 'y'] as const).map(f => {
@@ -787,14 +787,14 @@ export default function DecisionTreeBuilder() {
                         const pct = total > 0 ? (count / total) * 100 : 0;
                         return (
                           <div key={f} className="flex items-center gap-1.5">
-                            <span className="text-[11px] font-mono w-5 font-bold shrink-0 text-gray-500">{f.toUpperCase()}</span>
-                            <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+                            <span className="text-[11px] font-mono w-5 font-bold shrink-0 text-gray-500 dark:text-gray-400">{f.toUpperCase()}</span>
+                            <div className="flex-1 h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                               <div
                                 className={`h-full rounded-full transition-all ${f === 'x' ? 'bg-violet-300' : 'bg-fuchsia-300'}`}
                                 style={{ width: `${pct}%` }}
                               />
                             </div>
-                            <span className="text-[11px] font-mono w-14 text-right shrink-0 text-gray-500">
+                            <span className="text-[11px] font-mono w-14 text-right shrink-0 text-gray-500 dark:text-gray-400">
                               {count} ({pct.toFixed(0)}%)
                             </span>
                           </div>
@@ -807,21 +807,21 @@ export default function DecisionTreeBuilder() {
             </div>
 
             {mode === 'test' && prediction && testPoint && (
-              <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg">
-                <h3 className="font-semibold text-sm mb-2 text-emerald-800">Prediction</h3>
+              <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-950 p-3 rounded-lg">
+                <h3 className="font-semibold text-sm mb-2 text-emerald-800 dark:text-emerald-400">Prediction</h3>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs text-gray-500">Predicted:</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Predicted:</span>
                   <span
                     className={`px-2 py-0.5 rounded text-xs font-bold ${
-                      prediction.prediction === 1 ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
+                      prediction.prediction === 1 ? 'bg-blue-100 dark:bg-blue-950/30 text-blue-700' : 'bg-red-100 dark:bg-red-950/30 text-red-700'
                     }`}
                   >
                     Class {prediction.prediction}
                   </span>
                 </div>
-                <div className="text-xs text-gray-600">
+                <div className="text-xs text-gray-600 dark:text-gray-400">
                   <span className="font-medium">Decision path:</span>
-                  <div className="mt-1 ml-2 font-mono text-[11px] text-gray-500 space-y-0.5">
+                  <div className="mt-1 ml-2 font-mono text-[11px] text-gray-500 dark:text-gray-400 space-y-0.5">
                     {prediction.path.map((step, i) => (
                       <div key={i} className="flex items-center gap-1">
                         <span className="text-purple-500">→</span>
@@ -840,8 +840,8 @@ export default function DecisionTreeBuilder() {
         </div>
 
         <div className="mt-6">
-          <h3 className="font-semibold text-sm mb-2 text-gray-700">Tree Structure</h3>
-          <div className="bg-gray-50 border border-gray-200 rounded-lg overflow-auto" style={{ maxHeight: '400px' }}>
+          <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">Tree Structure</h3>
+          <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-auto" style={{ maxHeight: '400px' }}>
             <svg
               width={treeSVGWidth}
               height={treeSVGHeight}
@@ -863,10 +863,10 @@ export default function DecisionTreeBuilder() {
         </div>
 
         <details className="mt-4 group">
-          <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700 transition-colors select-none">
+          <summary className="text-sm text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 transition-colors select-none">
             How it works
           </summary>
-          <div className="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+          <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
             <ul className="list-disc list-inside space-y-0.5 text-xs">
               <li>Add blue/red training points, then set tree depth to see splits</li>
               <li>Purple dashed lines show decision boundaries based on impurity</li>

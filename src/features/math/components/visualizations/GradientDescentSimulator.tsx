@@ -218,7 +218,7 @@ export default function GradientDescentSimulator() {
               </marker>
             </defs>
           </svg>
-          <div className="flex justify-between mt-1 text-xs text-gray-500">
+          <div className="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400">
             <span>Step: {Math.min(animStep, result.path.length - 1)} / {result.path.length - 1}</span>
             <span className={isDiverging ? 'text-red-500 font-semibold' : ''}>
               f = {currentValue.toFixed(4)}{isDiverging ? ' ⚠ diverging' : ''}

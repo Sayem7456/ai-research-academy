@@ -203,14 +203,14 @@ export default function NaiveBayesVisualizer() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div className="flex gap-1">
               {(['linear', 'circles', 'moons', 'xor'] as const).map(name => (
                 <button key={name} onClick={() => switchDataset(name)}
                   className={`px-3 py-1.5 text-xs rounded-md font-medium transition-colors ${
-                    dataset === name ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    dataset === name ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}>{datasetLabels[name]}</button>
               ))}
             </div>
@@ -218,15 +218,15 @@ export default function NaiveBayesVisualizer() {
             <div className="flex gap-2">
               <button onClick={() => setMode('add')}
                 className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${
-                  mode === 'add' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  mode === 'add' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}>Add Data</button>
               <button onClick={() => { setMode('test'); setTestPoint(null); }}
                 className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${
-                  mode === 'test' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  mode === 'test' ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}>Test NB</button>
             </div>
 
-            <div className="relative w-full max-w-[400px] aspect-square bg-white border-2 border-gray-300 rounded cursor-crosshair select-none"
+            <div className="relative w-full max-w-[400px] aspect-square bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded cursor-crosshair select-none"
               onClick={handleCanvasClick}>
               <svg width={WIDTH} height={HEIGHT} viewBox={`-20 -10 ${WIDTH + 40} ${HEIGHT + 30}`}
                 className="absolute inset-0 w-full h-full">
@@ -320,11 +320,11 @@ export default function NaiveBayesVisualizer() {
               <div className="flex gap-2 flex-wrap">
                 <button onClick={() => setActiveClass(1)}
                   className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                    activeClass === 1 ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    activeClass === 1 ? 'bg-blue-600 text-white ring-2 ring-blue-300' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                   }`}>Class 1 (Blue)</button>
                 <button onClick={() => setActiveClass(0)}
                   className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                    activeClass === 0 ? 'bg-red-600 text-white ring-2 ring-red-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    activeClass === 0 ? 'bg-red-600 text-white ring-2 ring-red-300' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                   }`}>Class 0 (Red)</button>
                 <button onClick={handleRandomData}
                   className="px-3 py-1.5 bg-indigo-600 text-white rounded text-sm font-medium hover:bg-indigo-700 transition-colors">Random</button>
@@ -338,56 +338,56 @@ export default function NaiveBayesVisualizer() {
             <div className="flex gap-2 flex-wrap">
               <button onClick={() => setShowHeatmap(v => !v)}
                 className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                  showHeatmap ? 'bg-indigo-600 text-white ring-2 ring-indigo-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 ring-1 ring-gray-200'
+                  showHeatmap ? 'bg-indigo-600 text-white ring-2 ring-indigo-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 ring-1 ring-gray-200 dark:ring-gray-700'
                 }`}>Heatmap</button>
               <button onClick={() => setShowEllipses(v => !v)}
                 className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                  showEllipses ? 'bg-violet-600 text-white ring-2 ring-violet-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 ring-1 ring-gray-200'
+                  showEllipses ? 'bg-violet-600 text-white ring-2 ring-violet-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 ring-1 ring-gray-200 dark:ring-gray-700'
                 }`}>Ellipses</button>
               <button onClick={() => setShowBoundary(v => !v)}
                 className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                  showBoundary ? 'bg-emerald-600 text-white ring-2 ring-emerald-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 ring-1 ring-gray-200'
+                  showBoundary ? 'bg-emerald-600 text-white ring-2 ring-emerald-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 ring-1 ring-gray-200 dark:ring-gray-700'
                 }`}>Boundary</button>
               {showEllipses && (
                 <button onClick={() => setShowBothContours(v => !v)}
                   className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                    showBothContours ? 'bg-amber-600 text-white ring-2 ring-amber-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 ring-1 ring-gray-200'
+                    showBothContours ? 'bg-amber-600 text-white ring-2 ring-amber-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 ring-1 ring-gray-200 dark:ring-gray-700'
                   }`}>2σ</button>
               )}
             </div>
 
             {mode === 'test' && (
               <div className="flex items-start gap-2">
-                <p className="text-sm text-gray-500 italic">
+                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
                   Click the canvas to compute posterior probabilities at any point.
                 </p>
                 {testPoint && (
                   <button onClick={() => setTestPoint(null)}
-                    className="shrink-0 px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">Clear</button>
+                    className="shrink-0 px-3 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Clear</button>
                 )}
               </div>
             )}
           </div>
 
           <div className="space-y-3">
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-2 text-gray-700">Class Statistics</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">Class Statistics</h3>
               <div className="space-y-3">
                 {([1, 0] as const).map(c => {
                   const info = perClassInfo[c];
                   return (
-                    <div key={c} className={`p-2 rounded ${c === 1 ? 'bg-blue-50' : 'bg-red-50'}`}>
+                    <div key={c} className={`p-2 rounded ${c === 1 ? 'bg-blue-50 dark:bg-blue-950/30' : 'bg-red-50 dark:bg-red-950/30'}`}>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`w-3 h-3 rounded-full ${c === 1 ? 'bg-blue-500' : 'bg-red-500'}`} />
+                        <span className={`w-3 h-3 rounded-full ${c === 1 ? 'bg-blue-50 dark:bg-blue-950/300' : 'bg-red-50 dark:bg-red-950/300'}`} />
                         <span className="font-semibold text-sm">Class {c}</span>
-                        <span className="text-xs text-gray-500">n={info.count}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">n={info.count}</span>
                       </div>
                       <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[11px]">
-                        <div className="flex justify-between"><span className="text-gray-500">μ_x:</span><span className="font-mono">{info.mean.x.toFixed(2)}</span></div>
-                        <div className="flex justify-between"><span className="text-gray-500">μ_y:</span><span className="font-mono">{info.mean.y.toFixed(2)}</span></div>
-                        <div className="flex justify-between"><span className="text-gray-500">σ²_x:</span><span className="font-mono">{info.var.x.toFixed(3)}</span></div>
-                        <div className="flex justify-between"><span className="text-gray-500">σ²_y:</span><span className="font-mono">{info.var.y.toFixed(3)}</span></div>
-                        <div className="flex justify-between col-span-2"><span className="text-gray-500">Prior P(y={c}):</span><span className="font-mono">{info.prior.toFixed(3)}</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">μ_x:</span><span className="font-mono">{info.mean.x.toFixed(2)}</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">μ_y:</span><span className="font-mono">{info.mean.y.toFixed(2)}</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">σ²_x:</span><span className="font-mono">{info.var.x.toFixed(3)}</span></div>
+                        <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">σ²_y:</span><span className="font-mono">{info.var.y.toFixed(3)}</span></div>
+                        <div className="flex justify-between col-span-2"><span className="text-gray-500 dark:text-gray-400">Prior P(y={c}):</span><span className="font-mono">{info.prior.toFixed(3)}</span></div>
                       </div>
                     </div>
                   );
@@ -395,59 +395,59 @@ export default function NaiveBayesVisualizer() {
               </div>
             </div>
 
-            <div className="border border-gray-200 rounded-lg p-3">
-              <h3 className="font-semibold text-sm mb-2 text-gray-700">Performance</h3>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+              <h3 className="font-semibold text-sm mb-2 text-gray-700 dark:text-gray-300">Performance</h3>
               <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-                <div className="flex justify-between"><span className="text-gray-500">Accuracy:</span>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Accuracy:</span>
                   <span className={`font-mono font-bold ${accuracy >= 90 ? 'text-emerald-600' : accuracy >= 75 ? 'text-amber-600' : 'text-red-600'}`}>
                     {accuracy.toFixed(1)}%
                   </span>
                 </div>
-                <div className="flex justify-between"><span className="text-gray-500">Data:</span><span className="font-mono">{points.length} pts</span></div>
+                <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Data:</span><span className="font-mono">{points.length} pts</span></div>
               </div>
               <div className="mt-2 grid grid-cols-2 gap-1 text-[10px]">
-                <div className="bg-green-50 p-1.5 rounded text-center">
-                  <div className="text-gray-500">TP</div>
+                <div className="bg-green-50 dark:bg-green-950/30 p-1.5 rounded text-center">
+                  <div className="text-gray-500 dark:text-gray-400">TP</div>
                   <div className="font-mono font-bold text-green-700">{confusion.tp}</div>
                 </div>
-                <div className="bg-red-50 p-1.5 rounded text-center">
-                  <div className="text-gray-500">FP</div>
+                <div className="bg-red-50 dark:bg-red-950/30 p-1.5 rounded text-center">
+                  <div className="text-gray-500 dark:text-gray-400">FP</div>
                   <div className="font-mono font-bold text-red-700">{confusion.fp}</div>
                 </div>
-                <div className="bg-green-50 p-1.5 rounded text-center">
-                  <div className="text-gray-500">TN</div>
+                <div className="bg-green-50 dark:bg-green-950/30 p-1.5 rounded text-center">
+                  <div className="text-gray-500 dark:text-gray-400">TN</div>
                   <div className="font-mono font-bold text-green-700">{confusion.tn}</div>
                 </div>
-                <div className="bg-red-50 p-1.5 rounded text-center">
-                  <div className="text-gray-500">FN</div>
+                <div className="bg-red-50 dark:bg-red-950/30 p-1.5 rounded text-center">
+                  <div className="text-gray-500 dark:text-gray-400">FN</div>
                   <div className="font-mono font-bold text-red-700">{confusion.fn}</div>
                 </div>
               </div>
             </div>
 
             {testPrediction && testPoint && (
-              <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg">
+              <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 p-3 rounded-lg">
                 <h3 className="font-semibold text-sm mb-1.5 text-emerald-800">Decision at ({testPoint.x.toFixed(1)}, {testPoint.y.toFixed(1)})</h3>
                 <div className="space-y-1 text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-500">Predicted:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Predicted:</span>
                     <span className={`px-2 py-0.5 rounded text-xs font-bold ${testPrediction.prediction === 1 ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
                       Class {testPrediction.prediction}
                     </span>
                   </div>
-                  <div className="flex justify-between"><span className="text-gray-500">P(c=0 | x):</span><span className="font-mono">{(testPrediction.posterior[0] * 100).toFixed(1)}%</span></div>
-                  <div className="flex justify-between"><span className="text-gray-500">P(c=1 | x):</span><span className="font-mono">{(testPrediction.posterior[1] * 100).toFixed(1)}%</span></div>
-                  <div className="flex justify-between"><span className="text-gray-500">log P(x|c=0):</span><span className="font-mono">{testPrediction.logPosterior[0].toFixed(2)}</span></div>
-                  <div className="flex justify-between"><span className="text-gray-500">log P(x|c=1):</span><span className="font-mono">{testPrediction.logPosterior[1].toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">P(c=0 | x):</span><span className="font-mono">{(testPrediction.posterior[0] * 100).toFixed(1)}%</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">P(c=1 | x):</span><span className="font-mono">{(testPrediction.posterior[1] * 100).toFixed(1)}%</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">log P(x|c=0):</span><span className="font-mono">{testPrediction.logPosterior[0].toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">log P(x|c=1):</span><span className="font-mono">{testPrediction.logPosterior[1].toFixed(2)}</span></div>
                 </div>
               </div>
             )}
 
             <details className="group">
-              <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700 transition-colors select-none font-medium">
+              <summary className="text-sm text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 dark:text-gray-300 transition-colors select-none font-medium">
                 How Gaussian Naive Bayes works
               </summary>
-              <div className="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg space-y-2 text-xs">
+              <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg space-y-2 text-xs">
                 <p><strong>Bayes Rule</strong>: P(y|x) ∝ P(x|y) · P(y). For each class, we compute the posterior probability — the probability of class y given the observed features x.</p>
                 <p><strong>Gaussian assumption</strong>: For continuous features, Naive Bayes assumes each feature follows a normal (Gaussian) distribution within each class: P(x|y) = N(μ_y, σ²_y).</p>
                 <p><strong>Naive independence</strong>: Features are assumed conditionally independent given the class. This means P(x₁, x₂|y) = P(x₁|y) · P(x₂|y). This simplifies computation but is rarely true in practice.</p>
