@@ -21,14 +21,6 @@ const NAV_CARDS = [
     borderColor: 'border-emerald-200 dark:border-emerald-800',
   },
   {
-    href: '/math/visualizations',
-    icon: '🎨',
-    title: 'Visualizations',
-    description: '7 interactive tools: matrix transforms, gradient descent, distributions, PCA, and more.',
-    color: 'from-blue-500 to-indigo-600',
-    borderColor: 'border-blue-200 dark:border-blue-800',
-  },
-  {
     href: '/ml',
     icon: '🤖',
     title: 'Machine Learning',
@@ -96,12 +88,7 @@ export default function HomePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
-                <Link
-                  href="/math/visualizations"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-white/15 text-white rounded-lg font-semibold hover:bg-white/25 transition-colors border border-white/20"
-                >
-                  Explore Visualizations
-                </Link>
+
               </div>
             </div>
           </div>

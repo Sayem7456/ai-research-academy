@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import KMeansAnimation from '@/features/machine-learning/components/visualizations/KMeansAnimation';
+import RandomForestVisualizer from '@/features/machine-learning/components/visualizations/RandomForestVisualizer';
 
 export const metadata: Metadata = {
-  title: "K-Means Clustering — Interactive Visualizer",
+  title: "Random Forest — Interactive Visualizer",
   description:
-    "Learn K-Means clustering with an interactive animation. Add points, adjust K, and watch centroids converge step by step.",
+    "Explore Random Forest ensembles. Add points, adjust trees and depth, and watch the ensemble decision boundary evolve.",
 };
 
-export default function KMeansPage() {
+export default function RandomForestPage() {
   return (
     <main className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
@@ -17,23 +17,23 @@ export default function KMeansPage() {
           <span>/</span>
           <Link href="/ml" className="hover:text-gray-900 transition-colors">Machine Learning</Link>
           <span>/</span>
-          <span className="text-gray-900 font-medium">K-Means Clustering</span>
+          <span className="text-gray-900 font-medium">Random Forest</span>
         </nav>
 
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">K-Means Clustering</h1>
-            <p className="text-gray-600 mt-1">Interactive playground — click on the canvas to add points and explore</p>
+            <h1 className="text-3xl font-bold text-gray-900">Random Forest</h1>
+            <p className="text-gray-600 mt-1">Interactive playground — build an ensemble of decision trees and see how bagging reduces variance</p>
           </div>
           <Link
-            href="/content/ml/ml-kmeans"
+            href="/content/ml/ml-random-forest"
             className="shrink-0 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
           >
             View Full Lesson →
           </Link>
         </div>
 
-        <KMeansAnimation />
+        <RandomForestVisualizer />
       </div>
     </main>
   );

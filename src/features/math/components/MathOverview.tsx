@@ -13,6 +13,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useMathProgress } from '../hooks/useMathProgress';
 import { useMathTopics } from '../hooks/useMathTopics';
 import MathTopicCard from './MathTopicCard';
@@ -30,6 +31,13 @@ export default function MathOverview() {
     return (
       <div>
         <div className="max-w-6xl mx-auto pt-8 px-4">
+          <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
+            <Link href="/" className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Home</Link>
+            <span>/</span>
+            <Link href="/math" className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Mathematics</Link>
+            <span>/</span>
+            <span className="text-gray-900 dark:text-gray-100 font-medium">Visualizations</span>
+          </nav>
           <button
             onClick={() => setView('curriculum')}
             className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4 transition-colors"
@@ -51,6 +59,12 @@ export default function MathOverview() {
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-4">
+      <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+        <Link href="/" className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Home</Link>
+        <span>/</span>
+        <span className="text-gray-900 dark:text-gray-100 font-medium">Mathematics</span>
+      </nav>
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-start justify-between">

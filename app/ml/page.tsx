@@ -51,6 +51,20 @@ export default function MLIndex() {
       icon: '⚡',
       color: 'bg-indigo-50 border-indigo-200 hover:border-indigo-400',
     },
+    {
+      title: 'Random Forest',
+      description: 'Build an ensemble of decision trees with bagging. Watch the forest reduce variance and improve accuracy.',
+      href: '/ml/random-forest',
+      icon: '🌲',
+      color: 'bg-teal-50 border-teal-200 hover:border-teal-400',
+    },
+    {
+      title: 'Naive Bayes',
+      description: 'Probabilistic classification using Bayes\' theorem. See how Gaussian Naive Bayes estimates class-conditional distributions.',
+      href: '/ml/naive-bayes',
+      icon: '📐',
+      color: 'bg-rose-50 border-rose-200 hover:border-rose-400',
+    },
   ];
 
   return (
