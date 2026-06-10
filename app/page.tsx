@@ -29,6 +29,14 @@ const NAV_CARDS = [
     borderColor: 'border-cyan-200 dark:border-cyan-800',
   },
   {
+    href: '/cv',
+    icon: '👁️',
+    title: 'Computer Vision',
+    description: 'Interactive architecture visualizations: CNN, ResNet, U-Net, ViT, and YOLO.',
+    color: 'from-purple-500 to-pink-600',
+    borderColor: 'border-purple-200 dark:border-purple-800',
+  },
+  {
     href: '/notes',
     icon: '📝',
     title: 'Personal Notes',
@@ -49,7 +57,7 @@ const NAV_CARDS = [
 const LEARNING_PATH = [
   { step: 1, label: 'Mathematics', icon: '📐', href: '/math', color: 'bg-emerald-500' },
   { step: 2, label: 'Machine Learning', icon: '🤖', href: '/ml', color: 'bg-blue-500' },
-  { step: 3, label: 'Computer Vision', icon: '👁️', href: '#', color: 'bg-purple-500', soon: true },
+  { step: 3, label: 'Computer Vision', icon: '👁️', href: '/cv', color: 'bg-purple-500' },
   { step: 4, label: 'LLMs', icon: '💬', href: '#', color: 'bg-amber-500', soon: true },
   { step: 5, label: 'Research', icon: '📄', href: '#', color: 'bg-red-500', soon: true },
 ];
