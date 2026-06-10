@@ -95,6 +95,9 @@ function buildTreeRF(
   const best = valid.reduce((a, b) => (a.split!.gain >= b.split!.gain ? a : b));
   const leftPoints = points.filter(p => p[best.feature] <= best.split!.threshold);
   const rightPoints = points.filter(p => p[best.feature] > best.split!.threshold);
+  if (leftPoints.length === 0 || rightPoints.length === 0) {
+    return { feature: 'x' as const, threshold: 0, impurity, samples: points.length, prediction: leafPrediction() };
+  }
   return {
     feature: best.feature,
     threshold: best.split!.threshold,
@@ -110,7 +113,13 @@ function predictTree(node: TreeNode | undefined, x: number, y: number): 0 | 1 {
   let curr: TreeNode = node;
   while (curr.prediction === undefined && (curr.left || curr.right)) {
     const val = curr.feature === 'x' ? x : y;
-    curr = (val <= curr.threshold && curr.left) ? curr.left : curr.right!;
+    if (val <= curr.threshold && curr.left) {
+      curr = curr.left;
+    } else if (curr.right) {
+      curr = curr.right;
+    } else {
+      break;
+    }
   }
   return curr.prediction ?? 0;
 }
