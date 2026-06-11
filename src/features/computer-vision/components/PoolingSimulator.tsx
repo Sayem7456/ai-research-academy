@@ -19,6 +19,7 @@ export default function PoolingSimulator() {
   const [animRow, setAnimRow] = useState<number | null>(null);
   const [animCol, setAnimCol] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [speed, setSpeed] = useState<'slow' | 'fast'>('slow');
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const inputSize = SAMPLE_FEATURE_MAP.length;
@@ -53,6 +54,7 @@ export default function PoolingSimulator() {
     let step = 0;
     setAnimRow(0);
     setAnimCol(0);
+    const delay = speed === 'slow' ? 600 : 150;
     intervalRef.current = setInterval(() => {
       step++;
       if (step >= totalSteps) { stopPlaying(); return; }
@@ -60,8 +62,8 @@ export default function PoolingSimulator() {
       const c = step % outSize;
       setAnimRow(r);
       setAnimCol(c);
-    }, 600);
-  }, [totalSteps, outSize, stopPlaying]);
+    }, delay);
+  }, [totalSteps, outSize, stopPlaying, speed]);
 
   useEffect(() => { return () => stopPlaying(); }, [stopPlaying]);
 
@@ -71,8 +73,6 @@ export default function PoolingSimulator() {
     const startC = animCol * stride;
     return i >= startR && i < startR + poolSize && j >= startC && j < startC + poolSize;
   };
-
-  const cellSize = 40;
 
   return (
     <div className="space-y-6">
@@ -113,9 +113,17 @@ export default function PoolingSimulator() {
                 {isPlaying ? 'Stop' : 'Animate Window'}
               </button>
               <button onClick={stopPlaying}
-                className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300 transition-colors">
+                className="px-3 py-2 text-sm rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:opacity-90 transition-colors">
                 Reset
               </button>
+              <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 ml-2">
+                <span className={speed === 'slow' ? 'font-semibold text-gray-900 dark:text-gray-100' : ''}>Slow</span>
+                <button onClick={() => setSpeed(s => s === 'slow' ? 'fast' : 'slow')}
+                  className={`relative w-9 h-4 rounded-full transition-colors ${speed === 'fast' ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                  <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform ${speed === 'fast' ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                </button>
+                <span className={speed === 'fast' ? 'font-semibold text-gray-900 dark:text-gray-100' : ''}>Fast</span>
+              </div>
             </div>
           </div>
         </div>
@@ -130,10 +138,9 @@ export default function PoolingSimulator() {
                     const active = isWindowActive(i, j);
                     return (
                       <motion.div key={j}
-                        animate={active ? { scale: 1.1, backgroundColor: '#fef3c7', borderColor: '#f59e0b' } : { scale: 1, backgroundColor: 'white', borderColor: '#e5e7eb' }}
+                        animate={active ? { scale: 1.1, backgroundColor: '#fef3c7', borderColor: '#f59e0b' } : { scale: 1 }}
                         transition={{ duration: 0.2 }}
-                        className="w-10 h-10 border flex items-center justify-center text-xs font-mono text-gray-800"
-                        style={{ borderColor: active ? '#f59e0b' : '#e5e7eb' }}
+                        className={`w-10 h-10 border flex items-center justify-center text-xs font-mono ${active ? 'bg-amber-100 dark:bg-amber-900/40 border-amber-400' : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600'} text-gray-800 dark:text-gray-200`}
                       >
                         {val}
                       </motion.div>
@@ -143,7 +150,7 @@ export default function PoolingSimulator() {
               ))}
             </div>
             {(animRow !== null && animCol !== null) && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 text-xs text-amber-700 bg-amber-50 px-3 py-1.5 rounded">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded">
                 Pooling window at ({animRow * stride}:{animRow * stride + poolSize - 1}, {animCol * stride}:{animCol * stride + poolSize - 1})
               </motion.div>
             )}
@@ -160,9 +167,9 @@ export default function PoolingSimulator() {
                     const isCurrent = animRow === i && animCol === j;
                     return (
                       <motion.div key={j}
-                        animate={isCurrent ? { scale: 1.2, backgroundColor: '#d1fae5', borderColor: '#10b981' } : { scale: 1, backgroundColor: '#f0fdf4', borderColor: '#d1d5db' }}
+                        animate={isCurrent ? { scale: 1.2, backgroundColor: '#d1fae5', borderColor: '#10b981' } : { scale: 1 }}
                         transition={{ duration: 0.2 }}
-                        className="w-10 h-10 border flex items-center justify-center text-xs font-mono font-bold text-green-800"
+                        className={`w-10 h-10 border flex items-center justify-center text-xs font-mono font-bold ${isCurrent ? 'bg-green-100 border-green-400' : 'bg-green-50 dark:bg-green-950/20 border-gray-300 dark:border-gray-600'} text-green-800 dark:text-green-200`}
                       >
                         {val}
                       </motion.div>

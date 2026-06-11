@@ -86,8 +86,9 @@ export default function VisionTransformerVisualizer() {
 
   const renderPatchGrid = () => {
     const patchesPerSide = imageSize / patchSize;
-    const cellSize = 40;
-    const totalSize = cellSize * patchesPerSide;
+    const displaySize = Math.min(patchesPerSide, 14);
+    const cellSize = Math.min(40, Math.floor(560 / displaySize));
+    const totalSize = cellSize * displaySize;
 
     return (
       <div className="flex flex-col items-center">
@@ -96,24 +97,29 @@ export default function VisionTransformerVisualizer() {
           {patchesPerSide}×{patchesPerSide} = {numPatches} patches
         </div>
         <svg width={totalSize} height={totalSize} className="border-2 border-gray-300 dark:border-gray-600 rounded">
-          {Array.from({ length: patchesPerSide }).map((_, i) =>
-            Array.from({ length: patchesPerSide }).map((_, j) => (
+          {Array.from({ length: displaySize }).map((_, i) =>
+            Array.from({ length: displaySize }).map((_, j) => (
               <motion.rect
                 key={`${i}-${j}`}
                 x={j * cellSize}
                 y={i * cellSize}
                 width={cellSize - 2}
                 height={cellSize - 2}
-                fill={`hsl(${(i * patchesPerSide + j) * (360 / numPatches)}, 70%, 80%)`}
+                fill={`hsl(${(i * displaySize + j) * (360 / (displaySize * displaySize))}, 70%, 80%)`}
                 stroke="#666"
                 strokeWidth="1"
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: (i * patchesPerSide + j) * 0.01 }}
+                transition={{ delay: (i * displaySize + j) * 0.01 }}
               />
             ))
           )}
         </svg>
+        {patchesPerSide > 14 && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Showing {displaySize}×{displaySize} of {patchesPerSide}×{patchesPerSide} patches
+          </p>
+        )}
       </div>
     );
   };

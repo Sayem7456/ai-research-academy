@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { UNetExplorer, UNetVisualizer, UNetAdvancedDive } from '@/features/computer-vision/components';
+import { GANExplorer, GANAdvancedDive } from '@/features/computer-vision/components';
 
-export default function UNetPage() {
+export default function GANPage() {
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 safe-top safe-bottom transition-colors duration-200">
       <div className="max-w-7xl mx-auto">
@@ -10,11 +10,10 @@ export default function UNetPage() {
           <span>/</span>
           <Link href="/cv" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Computer Vision</Link>
           <span>/</span>
-          <span className="text-gray-900 dark:text-gray-100 font-medium">U-Net</span>
+          <span className="text-gray-900 dark:text-gray-100 font-medium">GANs</span>
         </nav>
-        <UNetExplorer />
-        <UNetVisualizer />
-        <UNetAdvancedDive />
+        <GANExplorer />
+        <GANAdvancedDive />
       </div>
     </main>
   );

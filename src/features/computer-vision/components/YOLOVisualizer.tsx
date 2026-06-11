@@ -95,19 +95,19 @@ export default function YOLOVisualizer() {
           <h3 className="font-semibold mb-3">Key Innovation: Single-Stage Detection</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
-              <h4 className="font-semibold text-red-700 mb-1">Two-Stage (R-CNN, Faster R-CNN)</h4>
+              <h4 className="font-semibold text-red-700 dark:text-red-400 mb-1">Two-Stage (R-CNN, Faster R-CNN)</h4>
               <div className="text-xs text-gray-700 dark:text-gray-300 space-y-1">
                 <div>1. Region proposals (~2000 regions)</div>
                 <div>2. Classify each region</div>
-                <div className="text-red-600">Slow: ~5-7 FPS</div>
+                <div className="text-red-600 dark:text-red-400">Slow: ~5-7 FPS</div>
               </div>
             </div>
             <div>
-              <h4 className="font-semibold text-green-700 mb-1">Single-Stage (YOLO)</h4>
+              <h4 className="font-semibold text-green-700 dark:text-green-400 mb-1">Single-Stage (YOLO)</h4>
               <div className="text-xs text-gray-700 dark:text-gray-300 space-y-1">
                 <div>1. Divide image into grid</div>
                 <div>2. Predict boxes + classes directly</div>
-                <div className="text-green-600">Fast: ~45-155 FPS</div>
+                <div className="text-green-600 dark:text-green-400">Fast: ~45-155 FPS</div>
               </div>
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function YOLOVisualizer() {
             key={selectedScale}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-3 bg-white dark:bg-gray-800 rounded border border-purple-200"
+            className="p-3 bg-white dark:bg-gray-800 rounded border border-purple-200 dark:border-purple-800"
           >
             <div className="text-sm space-y-1">
               <div className="flex justify-between">
@@ -171,7 +171,7 @@ export default function YOLOVisualizer() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-400"
+            className="p-4 bg-orange-50 dark:bg-orange-950/30 rounded-lg border-l-4 border-orange-400"
           >
             <h4 className="font-semibold text-sm mb-2">Anchor Boxes</h4>
             <p className="text-xs text-gray-700 dark:text-gray-300 mb-2">
@@ -221,7 +221,7 @@ export default function YOLOVisualizer() {
               <span className="text-gray-600 dark:text-gray-400">Multi-scale predictions, FPN</span>
             </div>
             <div className="flex gap-2">
-              <span className="font-semibold text-blue-700 min-w-[80px]">YOLOv4 (2020):</span>
+              <span className="font-semibold text-blue-700 dark:text-blue-400 min-w-[80px]">YOLOv4 (2020):</span>
               <span className="text-gray-600 dark:text-gray-400">CSPDarknet, Mish activation</span>
             </div>
             <div className="flex gap-2">

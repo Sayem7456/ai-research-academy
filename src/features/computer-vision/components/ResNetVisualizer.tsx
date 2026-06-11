@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import ArchitectureViewer, { type Architecture } from './ArchitectureViewer';
 
@@ -87,16 +87,13 @@ const RESNET_ARCHITECTURE: Architecture = {
     },
   ],
   connections: [
-    { from: 'res2', to: 'res2', type: 'skip' },
-    { from: 'res3', to: 'res3', type: 'skip' },
-    { from: 'res4', to: 'res4', type: 'skip' },
-    { from: 'res5', to: 'res5', type: 'skip' },
+    { from: 'res2', to: 'res3', type: 'skip' },
+    { from: 'res3', to: 'res4', type: 'skip' },
+    { from: 'res4', to: 'res5', type: 'skip' },
   ],
 };
 
 export default function ResNetVisualizer() {
-  const [selectedFeature, setSelectedFeature] = useState<'skip' | 'bottleneck' | 'depth'>('skip');
-
   return (
     <div className="space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
@@ -110,14 +107,14 @@ export default function ResNetVisualizer() {
           <h3 className="font-semibold mb-3">Key Innovation</h3>
           <div className="flex gap-4 items-start">
             <div className="flex-1">
-              <h4 className="font-semibold text-sm mb-2 text-blue-700">Skip Connection</h4>
+              <h4 className="font-semibold text-sm mb-2 text-blue-700 dark:text-blue-300">Skip Connection</h4>
               <p className="text-sm text-gray-700 dark:text-gray-300">
                 Instead of learning H(x), the block learns residual F(x) = H(x) - x, so H(x) = F(x) + x.
                 This allows the network to learn identity functions easily.
               </p>
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-sm mb-2 text-green-700">Bottleneck Block</h4>
+              <h4 className="font-semibold text-sm mb-2 text-green-700 dark:text-green-300">Bottleneck Block</h4>
               <p className="text-sm text-gray-700 dark:text-gray-300">
                 Reduces dimensions with 1×1 conv, applies 3×3 conv, then expands back with 1×1 conv.
                 This is computationally efficient for deep networks.
@@ -140,9 +137,9 @@ export default function ResNetVisualizer() {
           >
             <h3 className="font-semibold mb-2 text-sm">Skip Connection Flow</h3>
             <div className="text-xs space-y-2 text-gray-700 dark:text-gray-300">
-              <div className="font-mono text-purple-700">x → [F(x) block] → output</div>
+              <div className="font-mono text-purple-700 dark:text-purple-300">x → [F(x) block] → output</div>
               <div className="text-gray-500 dark:text-gray-400">and in parallel:</div>
-              <div className="font-mono text-green-700">x → + (added to output)</div>
+              <div className="font-mono text-green-700 dark:text-green-300">x → + (added to output)</div>
               <div className="text-gray-500 dark:text-gray-400 mt-2">Final: output + x</div>
             </div>
           </motion.div>
@@ -157,7 +154,7 @@ export default function ResNetVisualizer() {
             <div className="text-xs space-y-1 text-gray-700 dark:text-gray-300 font-mono">
               <div>ResNet-18: 18 layers (shallow)</div>
               <div>ResNet-34: 34 layers</div>
-              <div className="text-blue-700 font-bold">ResNet-50: 50 layers ← shown</div>
+              <div className="text-blue-700 dark:text-blue-300 font-bold">ResNet-50: 50 layers ← shown</div>
               <div>ResNet-101: 101 layers</div>
               <div>ResNet-152: 152 layers (very deep)</div>
             </div>

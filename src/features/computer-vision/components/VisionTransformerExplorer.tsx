@@ -3,6 +3,11 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
+
 export default function VisionTransformerExplorer() {
   const [patchSize, setPatchSize] = useState(16);
   const [animPhase, setAnimPhase] = useState(0);
@@ -28,22 +33,21 @@ export default function VisionTransformerExplorer() {
   const stopAnim = useCallback(() => {
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
     setIsAnimating(false);
-    setAnimPhase(0);
   }, []);
 
   const startAnim = useCallback(() => {
     setIsAnimating(true);
     setAnimPhase(0);
+    let e = 0;
     intervalRef.current = setInterval(() => {
-      setAnimPhase(prev => {
-        if (prev >= phases.length - 1) {
-          stopAnim();
-          return prev;
-        }
-        return prev + 1;
-      });
+      e++;
+      setAnimPhase(e);
+      if (e >= phases.length - 1) {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        setIsAnimating(false);
+      }
     }, 1000);
-  }, [stopAnim]);
+  }, []);
 
   useEffect(() => { return () => stopAnim(); }, [stopAnim]);
 
@@ -53,7 +57,7 @@ export default function VisionTransformerExplorer() {
     for (let i = 0; i < p; i++) {
       data[i] = [];
       for (let j = 0; j < p; j++) {
-        data[i][j] = Math.round(Math.sin((i + attentionHead) * 0.5 + j * 0.3 + attentionHead * 0.7) * 40 + 50 + Math.random() * 10);
+        data[i][j] = Math.round(Math.sin((i + attentionHead) * 0.5 + j * 0.3 + attentionHead * 0.7) * 40 + 50 + seededRandom(i * 13 + j * 7 + attentionHead * 31) * 10);
       }
     }
     return data;
@@ -129,7 +133,7 @@ export default function VisionTransformerExplorer() {
                 className={`px-4 py-2 text-sm rounded transition-colors ${isAnimating ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'} hover:opacity-90`}>
                 {isAnimating ? 'Stop' : 'Animate Pipeline'}
               </button>
-              <button onClick={stopAnim}
+              <button onClick={() => { stopAnim(); setAnimPhase(0); }}
                 className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300 transition-colors">
                 Reset
               </button>
@@ -152,7 +156,7 @@ export default function VisionTransformerExplorer() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="absolute -bottom-6 left-0 right-0 text-center text-[10px] text-purple-600 font-mono"
+                    className="absolute -bottom-6 left-0 right-0 text-center text-[10px] text-purple-600 dark:text-purple-400 font-mono"
                   >
                     Each patch → 768-dim vector
                   </motion.div>
@@ -213,7 +217,7 @@ export default function VisionTransformerExplorer() {
                 <div className="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold">
                   {animPhase + 1}
                 </div>
-                <p className="text-sm text-indigo-900">{phases[animPhase]}</p>
+                <p className="text-sm text-indigo-900 dark:text-indigo-200">{phases[animPhase]}</p>
               </div>
             </motion.div>
           )}
@@ -223,7 +227,7 @@ export default function VisionTransformerExplorer() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-400"
+            className="p-4 bg-purple-50 dark:bg-purple-950/30 rounded-lg border-l-4 border-purple-400"
           >
             <h3 className="font-semibold text-sm mb-2">Patch Embedding</h3>
             <p className="text-xs text-gray-700 dark:text-gray-300">
@@ -236,7 +240,7 @@ export default function VisionTransformerExplorer() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-4 bg-amber-50 rounded-lg border-l-4 border-amber-400"
+            className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-lg border-l-4 border-amber-400"
           >
             <h3 className="font-semibold text-sm mb-2">Position Embeddings</h3>
             <p className="text-xs text-gray-700 dark:text-gray-300">
@@ -250,10 +254,10 @@ export default function VisionTransformerExplorer() {
           <h3 className="font-semibold mb-3 text-sm">ViT Pipeline</h3>
             <div className="text-xs text-gray-700 dark:text-gray-300 font-mono bg-white dark:bg-gray-800 p-3 rounded border space-y-1">
             <div>Input (224×224×3)</div>
-            <div className="text-purple-600">→ Patch embed (16×16) → 196 patches × 768d</div>
-            <div className="text-amber-600">→ + Position embeddings → 197 × 768 (added [CLS])</div>
-            <div className="text-blue-600">→ Transformer × 12 layers (MSA + FFN)</div>
-            <div className="text-green-600">→ Extract [CLS] → MLP → Class scores</div>
+            <div className="text-purple-600 dark:text-purple-400">→ Patch embed (16×16) → 196 patches × 768d</div>
+            <div className="text-amber-600 dark:text-amber-400">→ + Position embeddings → 197 × 768 (added [CLS])</div>
+            <div className="text-blue-600 dark:text-blue-400">→ Transformer × 12 layers (MSA + FFN)</div>
+            <div className="text-green-600 dark:text-green-400">→ Extract [CLS] → MLP → Class scores</div>
           </div>
         </div>
       </div>

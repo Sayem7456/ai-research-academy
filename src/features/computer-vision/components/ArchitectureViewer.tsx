@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export type Layer = {
   id: string;
@@ -179,7 +179,7 @@ export default function ArchitectureViewer({
         )}
       </div>
 
-      <div className={`flex ${vertical ? 'flex-col items-center' : 'flex-row items-center justify-center'} overflow-x-auto pb-4`}>
+      <div className={`flex ${vertical ? 'flex-col items-center' : 'flex-row items-center justify-start'} overflow-x-auto pb-4 px-2`}>
         {layers.map((layer, index) => (
           <React.Fragment key={layer.id}>
             {renderLayer(layer, index)}

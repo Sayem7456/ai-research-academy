@@ -25,54 +25,25 @@ const PIPELINE: LayerInfo[] = [
 ];
 
 const LAYER_WIDTHS: Record<LayerType, number> = {
-  conv: 100,
-  relu: 60,
-  pool: 80,
-  flatten: 50,
+  conv: 110,
+  relu: 70,
+  pool: 100,
+  flatten: 70,
   fc: 90,
 };
 
-function generateRandomMap(size: number, seed: number): number[][] {
+function generateMap(size: number, seed: number): number[][] {
   const map: number[][] = [];
   for (let i = 0; i < size; i++) {
     map[i] = [];
     for (let j = 0; j < size; j++) {
-      map[i][j] = Math.round(Math.sin(i * seed + j * 0.5 + seed) * 60 + 100 + Math.random() * 30);
+      map[i][j] = Math.round(Math.sin(i * seed + j * 0.5 + seed) * 60 + 100);
     }
   }
   return map;
 }
 
-function applyMaxPool(map: number[][], poolSize: number): number[][] {
-  const outSize = Math.floor(map.length / poolSize);
-  const out: number[][] = [];
-  for (let i = 0; i < outSize; i++) {
-    out[i] = [];
-    for (let j = 0; j < outSize; j++) {
-      let max = -Infinity;
-      for (let pi = 0; pi < poolSize; pi++)
-        for (let pj = 0; pj < poolSize; pj++)
-          max = Math.max(max, map[i * poolSize + pi][j * poolSize + pj]);
-      out[i][j] = max;
-    }
-  }
-  return out;
-}
-
-function applyPoolLayer(map: number[][], convCount: number): number[][] {
-  const seed = 3 + convCount * 7;
-  const size = convCount % 2 === 0 ? map.length : Math.max(2, Math.floor(map.length / 2));
-  const result: number[][] = [];
-  for (let i = 0; i < size; i++) {
-    result[i] = [];
-    for (let j = 0; j < size; j++) {
-      result[i][j] = Math.round(Math.sin(i * seed + j * 0.7 + seed) * 40 + 120);
-    }
-  }
-  return result;
-}
-
-function applyConvLayer(map: number[][], convCount: number): number[][] {
+function applyConv(map: number[][], convCount: number): number[][] {
   const size = map.length;
   const seed = 5 + convCount * 3;
   const result: number[][] = [];
@@ -96,40 +67,91 @@ function applyConvLayer(map: number[][], convCount: number): number[][] {
   return result;
 }
 
+function applyReLU(map: number[][]): number[][] {
+  return map.map(row => row.map(v => Math.max(0, v)));
+}
+
+function applyMaxPool(map: number[][], poolSize: number): number[][] {
+  const outSize = Math.floor(map.length / poolSize);
+  const out: number[][] = [];
+  for (let i = 0; i < outSize; i++) {
+    out[i] = [];
+    for (let j = 0; j < outSize; j++) {
+      let max = -Infinity;
+      for (let pi = 0; pi < poolSize; pi++)
+        for (let pj = 0; pj < poolSize; pj++)
+          max = Math.max(max, map[i * poolSize + pi][j * poolSize + pj]);
+      out[i][j] = max;
+    }
+  }
+  return out;
+}
+
+function flattenMap(map: number[][]): number[] {
+  const flat: number[] = [];
+  for (const row of map) {
+    for (const v of row) {
+      flat.push(v);
+    }
+  }
+  return flat;
+}
+
+function applyFC(flat: number[], fcSeed: number): number[] {
+  return flat.map(v => {
+    const w = Math.sin(v * 0.1 + fcSeed) * 0.5 + 0.5;
+    return Math.round(v * w * 0.3 + 10);
+  });
+}
+
 export default function CNNLayerViewer() {
   const [activeLayer, setActiveLayer] = useState<number>(0);
   const [isAutoPlay, setIsAutoPlay] = useState(false);
+  const [speed, setSpeed] = useState<'slow' | 'fast'>('slow');
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const layer = PIPELINE[activeLayer];
 
-  const featureMaps = useMemo(() => {
-    const maps: { size: number; data: number[][] }[] = [];
-    let cCount = 0;
-    let mapSize = 8;
-    let currentMap = generateRandomMap(mapSize, 1);
-    maps.push({ size: mapSize, data: currentMap });
+  const layers = useMemo(() => {
+    const result: {
+      output: number[][];
+      input: number[][];
+      flat?: number[];
+      fcOut?: number[];
+    }[] = [];
+
+    let map = generateMap(8, 1);
 
     for (let i = 0; i < PIPELINE.length; i++) {
       const l = PIPELINE[i];
+      const input = map;
+      let output: number[][];
+
       if (l.type === 'conv') {
-        cCount++;
-        currentMap = applyConvLayer(currentMap, cCount);
-        mapSize = currentMap.length;
+        output = applyConv(input, i);
+      } else if (l.type === 'relu') {
+        output = applyReLU(input);
       } else if (l.type === 'pool') {
-        currentMap = applyPoolLayer(currentMap, cCount);
-        mapSize = currentMap.length;
+        output = applyMaxPool(input, 2);
       } else if (l.type === 'flatten') {
-        mapSize = 1;
-        currentMap = [[Math.round(Math.random() * 100 + 50)]];
-      } else if (l.type === 'fc') {
-        mapSize = 1;
-        currentMap = [[Math.round(Math.random() * 80 + 10)]];
+        output = input;
+      } else {
+        output = input;
       }
-      maps.push({ size: mapSize, data: currentMap });
+
+      result.push({ input, output });
+      map = output;
     }
-    return maps;
+
+    return result;
   }, []);
+
+  const current = layers[activeLayer];
+  const currentOutput = current.output;
+  const currentInput = current.input;
+
+  const maxDim = 160;
+  const mapCellSize = Math.max(8, Math.min(Math.floor(maxDim / currentOutput.length), 32));
 
   const stopAutoPlay = useCallback(() => {
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
@@ -139,22 +161,42 @@ export default function CNNLayerViewer() {
   const startAutoPlay = useCallback(() => {
     setIsAutoPlay(true);
     setActiveLayer(0);
+    let e = 0;
+    const delay = speed === 'slow' ? 2000 : 300;
     intervalRef.current = setInterval(() => {
-      setActiveLayer(prev => {
-        if (prev >= PIPELINE.length - 1) {
-          stopAutoPlay();
-          return PIPELINE.length - 1;
-        }
-        return prev + 1;
-      });
-    }, 1000);
-  }, [stopAutoPlay]);
+      e++;
+      if (e >= PIPELINE.length) {
+        stopAutoPlay();
+        setActiveLayer(PIPELINE.length - 1);
+        return;
+      }
+      setActiveLayer(e);
+    }, delay);
+  }, [stopAutoPlay, speed]);
 
   useEffect(() => { return () => stopAutoPlay(); }, [stopAutoPlay]);
 
-  const currentMap = featureMaps[activeLayer];
-  const maxDim = 160;
-  const mapCellSize = currentMap ? Math.max(8, Math.min(Math.floor(maxDim / currentMap.size), 32)) : 8;
+  const renderMap = (data: number[][], cellSize: number) => (
+    <div className="inline-block border-2 border-gray-300 dark:border-gray-600 rounded overflow-hidden">
+      {data.map((row, i) => (
+        <div key={i} className="flex">
+          {row.map((val, j) => {
+            const g = Math.round(Math.max(0, Math.min(255, val)));
+            return (
+              <div key={j}
+                className="flex items-center justify-center border border-gray-200 dark:border-gray-700 text-[8px] font-mono"
+                style={{ width: cellSize, height: cellSize, backgroundColor: `rgb(${g},${g},${g})`, color: g > 128 ? '#000' : '#fff' }}
+              >
+                {cellSize >= 12 ? val : ''}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+
+  const flattened = useMemo(() => flattenMap(currentOutput), [currentOutput]);
 
   return (
     <div className="space-y-6">
@@ -173,10 +215,23 @@ export default function CNNLayerViewer() {
             {isAutoPlay ? 'Stop Pipeline' : 'Run Pipeline'}
           </button>
           {activeLayer > 0 && (
-            <button onClick={() => setActiveLayer(0)} className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300 transition-colors">
+            <button onClick={() => setActiveLayer(0)} className="px-3 py-2 text-sm rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:opacity-90 transition-colors">
               Reset
             </button>
           )}
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            Layer {activeLayer + 1} of {PIPELINE.length}
+          </span>
+          <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 ml-auto">
+            <span className={speed === 'slow' ? 'font-semibold text-gray-900 dark:text-gray-100' : ''}>Slow</span>
+            <button
+              onClick={() => setSpeed(s => s === 'slow' ? 'fast' : 'slow')}
+              className={`relative w-10 h-5 rounded-full transition-colors ${speed === 'fast' ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+            >
+              <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${speed === 'fast' ? 'translate-x-5' : 'translate-x-0.5'}`} />
+            </button>
+            <span className={speed === 'fast' ? 'font-semibold text-gray-900 dark:text-gray-100' : ''}>Fast</span>
+          </div>
         </div>
 
         <div className="flex overflow-x-auto pb-4 gap-1 mb-6">
@@ -196,7 +251,7 @@ export default function CNNLayerViewer() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="flex flex-col items-center justify-center">
-            <h3 className="font-semibold mb-2 text-sm">Feature Map</h3>
+            <h3 className="font-semibold mb-2 text-sm">Output Feature Map</h3>
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeLayer}
@@ -204,28 +259,72 @@ export default function CNNLayerViewer() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3 }}
-                className="inline-block border-2 border-gray-300 dark:border-gray-600 rounded overflow-hidden"
               >
-                {currentMap.data.map((row, i) => (
-                  <div key={i} className="flex">
-                    {row.map((val, j) => {
-                      const g = Math.round(Math.max(0, Math.min(255, val)));
-                      return (
-                        <div key={j}
-                          className="flex items-center justify-center border border-gray-200 dark:border-gray-700 text-[8px] font-mono"
-                          style={{ width: mapCellSize, height: mapCellSize, backgroundColor: `rgb(${g},${g},${g})`, color: g > 128 ? '#000' : '#fff' }}
-                        >
-                          {mapCellSize >= 12 ? val : ''}
-                        </div>
-                      );
-                    })}
+                {layer.type === 'flatten' ? (
+                  <div className="border-2 border-gray-300 dark:border-gray-600 rounded overflow-hidden p-2 max-w-full">
+                    <div className="flex flex-wrap gap-0.5">
+                      {flattened.slice(0, 64).map((val, i) => {
+                        const g = Math.round(Math.max(0, Math.min(255, val)));
+                        return (
+                          <div key={i}
+                            className="w-[18px] h-[18px] flex items-center justify-center text-[6px] font-mono"
+                            style={{ backgroundColor: `rgb(${g},${g},${g})`, color: g > 128 ? '#000' : '#fff' }}
+                          >
+                            {val}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {flattened.length > 64 && (
+                      <div className="text-[9px] text-gray-500 dark:text-gray-400 mt-1 text-center">
+                        ... {flattened.length - 64} more
+                      </div>
+                    )}
                   </div>
-                ))}
+                ) : layer.type === 'fc' ? (
+                  <div className="border-2 border-gray-300 dark:border-gray-600 rounded overflow-hidden p-2">
+                    <div className="flex gap-1 items-end h-24">
+                      {(() => {
+                        const vals = applyFC(flattened, activeLayer);
+                        const maxV = Math.max(...vals, 1);
+                        return vals.slice(0, 16).map((val, i) => (
+                          <div key={i} className="flex flex-col items-center gap-0.5">
+                            <div
+                              className="w-4 rounded-t"
+                              style={{
+                                height: `${(val / maxV) * 80}px`,
+                                backgroundColor: activeLayer === PIPELINE.length - 1 ? '#3b82f6' : '#ef4444',
+                                opacity: 0.8,
+                              }}
+                            />
+                            <span className="text-[6px] font-mono text-gray-500 dark:text-gray-400">{val}</span>
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                    {activeLayer === PIPELINE.length - 1 && (
+                      <div className="text-[9px] text-blue-600 dark:text-blue-400 mt-1 text-center">
+                        Class scores (argmax = prediction)
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  renderMap(currentOutput, mapCellSize)
+                )}
               </motion.div>
             </AnimatePresence>
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 font-mono">
-              {currentMap.size}×{currentMap.size}
+              {layer.type === 'flatten' ? `${flattened.length}-d vector` :
+               layer.type === 'fc' ? `${applyFC(flattened, activeLayer).length}-d vector` :
+               `${currentOutput.length}×${currentOutput.length}`}
             </div>
+
+            {/* Show input size too */}
+            {activeLayer > 0 && currentInput.length !== currentOutput.length && (
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+                Input: {currentInput.length}×{currentInput.length}
+              </div>
+            )}
           </div>
 
           <div className="space-y-4">
@@ -250,39 +349,43 @@ export default function CNNLayerViewer() {
                 <div className="flex justify-between">
                   <span className="font-semibold">Input Size:</span>
                   <span className="font-mono">
-                    {activeLayer > 0 ? `${featureMaps[activeLayer - 1].size}×${featureMaps[activeLayer - 1].size}` : '-'}
+                    {currentInput.length}×{currentInput.length}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-semibold">Output Size:</span>
-                  <span className="font-mono">{currentMap.size}×{currentMap.size}</span>
+                  <span className="font-mono">
+                    {layer.type === 'flatten' ? `${flattened.length}` :
+                     layer.type === 'fc' ? `${applyFC(flattened, activeLayer).length}` :
+                     `${currentOutput.length}×${currentOutput.length}`}
+                  </span>
                 </div>
               </div>
             </motion.div>
 
             {layer.type === 'conv' && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-purple-50 rounded text-xs text-purple-800">
-                <strong>Convolution:</strong> Extracts patterns like edges, textures, and shapes. Multiple filters learn different features.
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-purple-50 dark:bg-purple-950/30 rounded text-xs text-purple-800 dark:text-purple-200">
+                <strong>Convolution:</strong> Extracts patterns like edges, textures, and shapes. Multiple filters learn different features. The kernel slides over the input, computing weighted sums.
               </motion.div>
             )}
             {layer.type === 'relu' && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-yellow-50 rounded text-xs text-yellow-800">
-                <strong>ReLU (max(0,x)):</strong> Removes negative values, introducing non-linearity without affecting the receptive field.
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-yellow-50 dark:bg-yellow-950/30 rounded text-xs text-yellow-800 dark:text-yellow-200">
+                <strong>ReLU (max(0,x)):</strong> Removes negative values, introducing non-linearity without affecting the receptive field. All negative activations become 0.
               </motion.div>
             )}
             {layer.type === 'pool' && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-green-50 dark:bg-green-950/30 rounded text-xs text-green-800">
-                <strong>Max Pooling:</strong> Downsamples by taking the maximum value in each 2×2 window, reducing computation and providing translation invariance.
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-green-50 dark:bg-green-950/30 rounded text-xs text-green-800 dark:text-green-200">
+                <strong>Max Pooling:</strong> Downsamples by taking the maximum value in each 2×2 window, reducing computation and providing translation invariance. Spatial dimensions halve.
               </motion.div>
             )}
             {layer.type === 'flatten' && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-orange-50 rounded text-xs text-orange-800">
-                <strong>Flatten:</strong> Converts the 2D feature map into a 1D vector so fully connected layers can process it.
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-orange-50 dark:bg-orange-950/30 rounded text-xs text-orange-800 dark:text-orange-200">
+                <strong>Flatten:</strong> Converts the 2D feature map into a 1D vector so fully connected layers can process it. A {currentInput.length}×{currentInput.length} map becomes {flattened.length} values.
               </motion.div>
             )}
             {layer.type === 'fc' && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-red-50 rounded text-xs text-red-800">
-                <strong>Fully Connected:</strong> Every neuron connects to every neuron in the previous layer. The final layer outputs class scores.
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 bg-red-50 dark:bg-red-950/30 rounded text-xs text-red-800 dark:text-red-200">
+                <strong>Fully Connected:</strong> Every neuron connects to every neuron in the previous layer. The final layer outputs class scores (softmax) for prediction.
               </motion.div>
             )}
           </div>

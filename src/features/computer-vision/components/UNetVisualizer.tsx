@@ -117,20 +117,20 @@ export default function UNetVisualizer() {
           <h3 className="font-semibold mb-3">Architecture Overview</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <h4 className="font-semibold text-blue-700 mb-1">Encoder (Contracting Path)</h4>
+              <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-1">Encoder (Contracting Path)</h4>
               <p className="text-gray-700 dark:text-gray-300">
                 Downsamples the input through convolutions and pooling, capturing semantic information
                 at multiple scales.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-red-700 mb-1">Bottleneck</h4>
+              <h4 className="font-semibold text-red-700 dark:text-red-400 mb-1">Bottleneck</h4>
               <p className="text-gray-700 dark:text-gray-300">
                 The deepest layer with lowest spatial resolution but highest semantic information.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-green-700 mb-1">Decoder (Expanding Path)</h4>
+              <h4 className="font-semibold text-green-700 dark:text-green-400 mb-1">Decoder (Expanding Path)</h4>
               <p className="text-gray-700 dark:text-gray-300">
                 Upsamples feature maps and combines them with encoder features via skip connections.
               </p>
@@ -203,15 +203,15 @@ export default function UNetVisualizer() {
           <h3 className="font-semibold mb-3 text-sm">Key Features</h3>
           <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
             <li className="flex gap-2">
-              <span className="text-blue-600 font-bold">1.</span>
+              <span className="text-blue-600 dark:text-blue-400 font-bold">1.</span>
               <span><strong>Fully Convolutional:</strong> No fully connected layers. Can process images of any size.</span>
             </li>
             <li className="flex gap-2">
-              <span className="text-blue-600 font-bold">2.</span>
+              <span className="text-blue-600 dark:text-blue-400 font-bold">2.</span>
               <span><strong>Data Augmentation:</strong> Originally designed for medical imaging with limited training data.</span>
             </li>
             <li className="flex gap-2">
-              <span className="text-blue-600 font-bold">3.</span>
+              <span className="text-blue-600 dark:text-blue-400 font-bold">3.</span>
               <span><strong>Precise Localization:</strong> Skip connections combine low-level spatial details with high-level semantics.</span>
             </li>
           </ul>

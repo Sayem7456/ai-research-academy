@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface ULayer {
   name: string;
@@ -12,25 +12,25 @@ interface ULayer {
 }
 
 const ENCODER: ULayer[] = [
-  { name: 'Input\n572×572×1', color: 'bg-blue-400', textColor: 'text-white', width: 80 },
-  { name: 'Conv\n568×568×64', color: 'bg-purple-500', textColor: 'text-white', width: 72 },
-  { name: 'Pool\n284×284×64', color: 'bg-green-500', textColor: 'text-white', width: 56 },
-  { name: 'Conv\n280×280×128', color: 'bg-purple-600', textColor: 'text-white', width: 56 },
-  { name: 'Pool\n140×140×128', color: 'bg-green-500', textColor: 'text-white', width: 44 },
-  { name: 'Bottleneck\n136×136×256', color: 'bg-red-500', textColor: 'text-white', width: 36, isBottleneck: true },
+  { name: 'Input\n572×572×1', color: 'bg-blue-400', textColor: 'text-white', width: 120 },
+  { name: 'Conv\n568×568×64', color: 'bg-purple-500', textColor: 'text-white', width: 110 },
+  { name: 'Pool\n284×284×64', color: 'bg-green-500', textColor: 'text-white', width: 90 },
+  { name: 'Conv\n280×280×128', color: 'bg-purple-600', textColor: 'text-white', width: 90 },
+  { name: 'Pool\n140×140×128', color: 'bg-green-500', textColor: 'text-white', width: 76 },
+  { name: 'Bottleneck\n136×136×256', color: 'bg-red-500', textColor: 'text-white', width: 64, isBottleneck: true },
 ];
 
 const DECODER: ULayer[] = [
-  { name: 'Up-Conv\n272×272×128', color: 'bg-orange-500', textColor: 'text-white', width: 44 },
-  { name: 'Conv\n268×268×128', color: 'bg-purple-600', textColor: 'text-white', width: 44 },
-  { name: 'Up-Conv\n536×536×64', color: 'bg-orange-500', textColor: 'text-white', width: 56 },
-  { name: 'Conv\n532×532×64', color: 'bg-purple-500', textColor: 'text-white', width: 56 },
-  { name: 'Output\n388×388×2', color: 'bg-emerald-500', textColor: 'text-white', width: 64 },
+  { name: 'Up-Conv\n272×272×128', color: 'bg-orange-500', textColor: 'text-white', width: 76 },
+  { name: 'Conv\n268×268×128', color: 'bg-purple-600', textColor: 'text-white', width: 76 },
+  { name: 'Up-Conv\n536×536×64', color: 'bg-orange-500', textColor: 'text-white', width: 90 },
+  { name: 'Conv\n532×532×64', color: 'bg-purple-500', textColor: 'text-white', width: 90 },
+  { name: 'Output\n388×388×2', color: 'bg-emerald-500', textColor: 'text-white', width: 110 },
 ];
 
 const SKIP_PAIRS = [
-  { encIdx: 3, decIdx: 1, label: 'Encoder 3 → Decoder 3' },
-  { encIdx: 1, decIdx: 3, label: 'Encoder 1 → Decoder 1' },
+  { encIdx: 3, decIdx: 1, label: 'Conv Block 2 (128) → Conv Block 3 (128)' },
+  { encIdx: 1, decIdx: 3, label: 'Conv Block 1 (64) → Conv Block 4 (64)' },
 ];
 
 export default function UNetExplorer() {
@@ -40,24 +40,26 @@ export default function UNetExplorer() {
   const [hoveredConnection, setHoveredConnection] = useState<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const totalPhases = ENCODER.length + DECODER.length + 1;
+  const totalPhases = ENCODER.length + 1 + DECODER.length;
 
   const stopAnim = useCallback(() => {
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
     setIsAnimating(false);
-    setAnimPhase(0);
   }, []);
 
   const startAnim = useCallback(() => {
     setIsAnimating(true);
-    setAnimPhase(1);
+    setAnimPhase(0);
+    let e = 0;
     intervalRef.current = setInterval(() => {
-      setAnimPhase(prev => {
-        if (prev >= totalPhases) { stopAnim(); return prev; }
-        return prev + 1;
-      });
+      e++;
+      setAnimPhase(e);
+      if (e >= totalPhases) {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        setIsAnimating(false);
+      }
     }, 700);
-  }, [totalPhases, stopAnim]);
+  }, []);
 
   useEffect(() => { return () => stopAnim(); }, [stopAnim]);
 
@@ -83,10 +85,15 @@ export default function UNetExplorer() {
               className={`px-4 py-2 text-sm rounded transition-colors ${isAnimating ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'} hover:opacity-90`}>
               {isAnimating ? 'Stop' : 'Animate Flow'}
             </button>
-            <button onClick={stopAnim}
-              className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300 transition-colors">
+            <button onClick={() => { stopAnim(); setAnimPhase(0); }}
+              className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
               Reset
             </button>
+            {isAnimating && (
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                Step {animPhase}/{totalPhases}
+              </span>
+            )}
           </div>
         </div>
 
@@ -102,8 +109,8 @@ export default function UNetExplorer() {
                   <motion.div
                     animate={isActive ? { opacity: 1, scale: 1, x: 0 } : { opacity: 0.5, scale: 0.9, x: -10 }}
                     transition={{ duration: 0.4, ease: 'easeOut' }}
-                    className={`${layer.color} ${layer.textColor} rounded px-3 py-2 text-[10px] font-semibold text-center leading-tight shadow-sm border border-white/20`}
-                    style={{ width: layer.width }}
+                    className={`${layer.color} ${layer.textColor} rounded px-3 py-2 text-[10px] font-semibold text-center leading-tight shadow-sm border border-white/20 w-fit`}
+                    style={{ minWidth: layer.width }}
                   >
                     {layer.name.split('\n').map((line, li) => (
                       <div key={li}>{line}</div>
@@ -137,7 +144,7 @@ export default function UNetExplorer() {
                     } : {
                       opacity: 0.4, scale: 0.95,
                     }}
-                    className="text-[10px] font-mono bg-emerald-50 px-3 py-1 rounded border border-emerald-300 cursor-pointer transition-all whitespace-nowrap"
+                    className="text-[10px] font-mono bg-emerald-50 dark:bg-emerald-950/30 px-3 py-1 rounded border border-emerald-300 dark:border-emerald-700 cursor-pointer transition-all whitespace-nowrap"
                   >
                     ⇢ {pair.label}
                   </motion.div>
@@ -148,9 +155,9 @@ export default function UNetExplorer() {
             <motion.div
               animate={isAnimating && animPhase >= ENCODER.length + 1 ? { scale: [1, 1.1, 1], backgroundColor: '#fef3c7' } : {}}
               transition={{ duration: 0.5 }}
-              className="px-4 py-3 bg-red-50 border-2 border-red-400 rounded text-center"
+              className="px-4 py-3 bg-red-50 dark:bg-red-950/30 border-2 border-red-400 rounded text-center"
             >
-              <div className="text-[10px] font-semibold text-red-800">Bottleneck</div>
+              <div className="text-[10px] font-semibold text-red-800 dark:text-red-200">Bottleneck</div>
               <div className="text-[9px] text-gray-600 dark:text-gray-400">Lowest resolution</div>
               <div className="text-[9px] text-gray-600 dark:text-gray-400">Highest semantics</div>
             </motion.div>
@@ -175,8 +182,8 @@ export default function UNetExplorer() {
                   <motion.div
                     animate={isActive ? { opacity: 1, scale: 1, x: 0 } : { opacity: 0.5, scale: 0.9, x: 10 }}
                     transition={{ duration: 0.4, ease: 'easeOut' }}
-                    className={`${layer.color} ${layer.textColor} rounded px-3 py-2 text-[10px] font-semibold text-center leading-tight shadow-sm border border-white/20`}
-                    style={{ width: layer.width }}
+                    className={`${layer.color} ${layer.textColor} rounded px-3 py-2 text-[10px] font-semibold text-center leading-tight shadow-sm border border-white/20 w-fit`}
+                    style={{ minWidth: layer.width }}
                   >
                     {layer.name.split('\n').map((line, li) => (
                       <div key={li}>{line}</div>
@@ -192,7 +199,7 @@ export default function UNetExplorer() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-400"
+            className="p-4 bg-purple-50 dark:bg-purple-950/30 rounded-lg border-l-4 border-purple-400"
           >
             <h3 className="font-semibold text-sm mb-2">Encoder Path</h3>
             <p className="text-xs text-gray-700 dark:text-gray-300">
@@ -205,7 +212,7 @@ export default function UNetExplorer() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-4 bg-red-50 rounded-lg border-l-4 border-red-400"
+            className="p-4 bg-red-50 dark:bg-red-950/30 rounded-lg border-l-4 border-red-400"
           >
             <h3 className="font-semibold text-sm mb-2">Bottleneck</h3>
             <p className="text-xs text-gray-700 dark:text-gray-300">
@@ -218,7 +225,7 @@ export default function UNetExplorer() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-4 bg-emerald-50 rounded-lg border-l-4 border-emerald-400"
+            className="p-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border-l-4 border-emerald-400"
           >
             <h3 className="font-semibold text-sm mb-2">Skip Connections</h3>
             <p className="text-xs text-gray-700 dark:text-gray-300">
@@ -232,15 +239,15 @@ export default function UNetExplorer() {
           <h3 className="font-semibold mb-3 text-sm">Key Design Features</h3>
           <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
             <li className="flex gap-2">
-              <span className="text-blue-600 font-bold">1.</span>
+              <span className="text-blue-600 dark:text-blue-400 font-bold">1.</span>
               <span><strong>Symmetric U-Shape:</strong> The contracting and expanding paths form a symmetric "U", giving U-Net its name.</span>
             </li>
             <li className="flex gap-2">
-              <span className="text-blue-600 font-bold">2.</span>
+              <span className="text-blue-600 dark:text-blue-400 font-bold">2.</span>
               <span><strong>Feature Concatenation:</strong> Skip connections concatenate (not add) features, preserving all spatial information.</span>
             </li>
             <li className="flex gap-2">
-              <span className="text-blue-600 font-bold">3.</span>
+              <span className="text-blue-600 dark:text-blue-400 font-bold">3.</span>
               <span><strong>Valid Convolutions:</strong> Original U-Net uses valid padding, causing spatial size to decrease slightly at each conv.</span>
             </li>
           </ul>
