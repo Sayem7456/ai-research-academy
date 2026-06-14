@@ -1,0 +1,78 @@
+---
+title: "Transformer"
+date: 2025-01-15
+tags:
+  - llm
+  - transformer
+  - architecture
+  - deep-learning
+---
+
+## What Problem Does It Solve?
+
+The Transformer (Vaswani et al., 2017) replaced recurrence with self-attention, enabling full parallelization during training and better capture of long-range dependencies.
+
+## Architecture
+
+The original Transformer has an encoder-decoder structure:
+
+### Encoder
+- Multi-head self-attention
+- Position-wise feed-forward network
+- Residual connections + layer normalization
+
+### Decoder
+- Masked multi-head self-attention
+- Cross-attention to encoder output
+- Position-wise feed-forward network
+
+## Key Components
+
+### Position-wise Feed-Forward Network
+
+Applied independently to each position:
+
+```
+FFN(x) = max(0, xW1 + b1) W2 + b2
+```
+
+Typically the inner dimension is 4x the model dimension.
+
+### Residual Connections + Layer Norm
+
+```
+output = LayerNorm(x + sublayer(x))
+```
+
+Prevents vanishing gradients and stabilizes training.
+
+### Positional Encoding
+
+Since self-attention has no inherent notion of order, positional encodings are added:
+
+```
+PE(pos, 2i) = sin(pos / 10000^(2i/d))
+PE(pos, 2i+1) = cos(pos / 10000^(2i/d))
+```
+
+## Variants
+
+| Model | Architecture | Key Innovation |
+|-------|-------------|----------------|
+| BERT | Encoder only | Bidirectional pretraining |
+| GPT | Decoder only | Autoregressive generation |
+| T5 | Encoder-Decoder | Text-to-text framework |
+| LLaMA | Decoder only | Efficient open-source |
+
+## Complexity
+
+- **Parameters:** O(d^2) per layer (d = model dimension)
+- **Compute:** O(n^2 * d) per layer (n = sequence length)
+- **Memory:** O(n^2) for attention matrices
+
+## Key Takeaways
+
+1. Transformers enable parallel processing of entire sequences
+2. Self-attention captures dependencies regardless of distance
+3. The architecture is modular - same building blocks in encoder and decoder
+4. Modern LLMs are mostly decoder-only Transformers

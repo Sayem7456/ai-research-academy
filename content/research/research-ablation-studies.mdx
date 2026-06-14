@@ -1,0 +1,79 @@
+---
+title: "Ablation Studies"
+date: 2025-01-15
+tags:
+  - research
+  - ablation
+  - methodology
+---
+
+## What Are Ablation Studies?
+
+Ablation studies systematically remove or disable components of a system to understand their individual contributions. They answer: "What actually matters?"
+
+## When to Ablate
+
+- After proposing a new method with multiple components
+- When reviewers ask "which part helps most?"
+- To understand why your method works
+
+## What to Ablate
+
+### Components
+- Remove each module and measure performance drop
+- Test different combinations of components
+
+### Hyperparameters
+- Learning rate, batch size, model size
+- Data augmentation strategies
+- Regularization techniques
+
+### Data
+- Training set size (learning curves)
+- Data quality and diversity
+- Domain-specific vs. general data
+
+## Designing Ablation Experiments
+
+### Single Ablation
+Remove one component at a time:
+
+```
+Full model: 92.3%
+- Component A: 89.1% (-3.2%)
+- Component B: 91.0% (-1.3%)
+- Component C: 92.1% (-0.2%)
+```
+
+### Pairwise Ablation
+Test all combinations of components:
+
+| A | B | Accuracy |
+|---|---|----------|
+| Yes | Yes | 92.3% |
+| Yes | No | 89.1% |
+| No | Yes | 91.0% |
+| No | No | 87.5% |
+
+### Interaction Effects
+Check if components help more together than individually:
+
+```
+A alone: +3.2%
+B alone: +1.3%
+A+B together: +4.8% (synergy!)
+```
+
+## Reporting Ablation Results
+
+1. Present results in a clear table
+2. Explain why each component helps
+3. Discuss which components are most important
+4. Acknowledge components that don't help much
+
+## Key Takeaways
+
+1. Ablation studies explain why your method works
+2. Test both individual and combined component contributions
+3. Report results clearly with explanations
+4. Negative results (components that don't help) are also valuable

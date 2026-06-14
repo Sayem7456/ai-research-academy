@@ -1,0 +1,65 @@
+---
+title: "Attention"
+date: 2025-01-15
+tags:
+  - llm
+  - nlp
+  - attention
+  - transformer
+---
+
+## What Problem Does It Solve?
+
+RNNs process sequences step-by-step, creating a bottleneck for long-range dependencies. Attention allows every position to directly attend to every other position, capturing relationships regardless of distance.
+
+## Scaled Dot-Product Attention
+
+```
+Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) V
+```
+
+Where:
+- **Q (Query):** What am I looking for?
+- **K (Key):** What do I contain?
+- **V (Value):** What do I output?
+- **d_k:** Dimension of keys (scaling factor)
+
+### Why Scale by sqrt(d_k)?
+
+Without scaling, dot products grow with dimension, pushing softmax into regions with tiny gradients. Scaling keeps gradients healthy.
+
+## Multi-Head Attention
+
+Instead of one attention function, use multiple parallel heads:
+
+```
+MultiHead(Q, K, V) = Concat(head_1, ..., head_h) W^O
+head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)
+```
+
+Each head can attend to different types of relationships:
+- Head 1: syntactic relationships
+- Head 2: semantic relationships
+- Head 3: positional patterns
+
+## Types of Attention
+
+### Self-Attention
+Each position attends to all positions in the same sequence. Used in encoder.
+
+### Cross-Attention
+Decoder attends to encoder outputs. Allows generation to reference input.
+
+### Causal (Masked) Attention
+Prevents positions from attending to future positions. Used in GPT-style decoders.
+
+## Complexity
+
+Self-attention has O(n^2) complexity with respect to sequence length n, since every token attends to every other token.
+
+## Key Takeaways
+
+1. Attention enables direct connections between any two positions
+2. Multi-head attention captures different types of relationships
+3. The Query-Key-Value framework is the foundation of Transformer attention
+4. Self-attention is parallelizable, unlike sequential RNN processing

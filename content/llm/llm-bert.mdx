@@ -1,0 +1,63 @@
+---
+title: "BERT"
+date: 2025-01-15
+tags:
+  - llm
+  - nlp
+  - bert
+  - encoder
+---
+
+## What Problem Does It Solve?
+
+Before BERT, NLP models were either unidirectional (GPT) or shallowly bidirectional. BERT introduced deep bidirectional pretraining, achieving state-of-the-art on 11 NLP tasks.
+
+## Architecture
+
+BERT is a multi-layer bidirectional Transformer encoder:
+
+- **BERT-Base:** 12 layers, 768 hidden, 12 heads (110M params)
+- **BERT-Large:** 24 layers, 1024 hidden, 16 heads (340M params)
+
+## Pre-training Objectives
+
+### Masked Language Modeling (MLM)
+
+Randomly mask 15% of tokens and predict them:
+
+```
+Input:  The [MASK] brown fox jumps
+Target: quick
+```
+
+### Next Sentence Prediction (NSP)
+
+Predict whether sentence B follows sentence A:
+
+```
+A: The cat sat on the mat.
+B: It was a fluffy cat.
+Label: IsNext
+```
+
+## Fine-tuning
+
+BERT is fine-tuned by adding a task-specific head:
+
+- **Classification:** [CLS] token output -> linear layer
+- **NER:** Token outputs -> linear layer per token
+- **QA:** Token outputs -> start/end position pointers
+
+## Key Insights
+
+1. Bidirectional context is crucial for understanding
+2. Pre-train on large corpus, fine-tune on small labeled data
+3. The [CLS] token aggregates sequence-level information
+4. Attention patterns reveal syntactic and semantic knowledge
+
+## Key Takeaways
+
+1. BERT showed that bidirectional pretraining is superior to unidirectional
+2. The MLM objective enables deep contextual understanding
+3. Fine-tuning with minimal task-specific parameters works well
+4. BERT variants (RoBERTa, ALBERT, DeBERTa) improved on the original

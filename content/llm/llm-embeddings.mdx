@@ -1,0 +1,60 @@
+---
+title: "Embeddings"
+date: 2025-01-15
+tags:
+  - llm
+  - nlp
+  - embeddings
+  - fundamentals
+---
+
+## What Problem Does It Solve?
+
+Computers work with numbers, not words. Embeddings map discrete tokens to dense, continuous vectors in a continuous space where semantically similar words are close together.
+
+## Word Embeddings
+
+### One-Hot Encoding (Baseline)
+
+Each word is a sparse vector of size vocabulary. **Problem:** No notion of similarity - all words are equidistant.
+
+### Word2Vec (Mikolov et al., 2013)
+
+Learns embeddings by predicting context:
+- **CBOW:** Predict target word from context
+- **Skip-gram:** Predict context words from target
+
+Key insight: **king - man + woman = queen**
+
+### GloVe (Pennington et al., 2014)
+
+Global Vectors based on co-occurrence statistics. Learns from the ratio of co-occurrence probabilities.
+
+## Contextual Embeddings
+
+Static embeddings give the same vector regardless of context. Contextual embeddings change based on surrounding words.
+
+### BERT Embeddings
+
+BERT combines three types of embeddings:
+
+```
+input = Token + Segment + Position
+```
+
+## Cosine Similarity
+
+Measures the angle between two vectors:
+
+```
+sim(A, B) = (A . B) / (||A|| * ||B||)
+```
+
+Ranges from -1 (opposite) to 1 (identical).
+
+## Key Takeaways
+
+1. Embeddings capture semantic relationships as geometric properties
+2. Contextual embeddings (BERT, GPT) outperform static ones (Word2Vec)
+3. Similarity is measured by cosine similarity in the embedding space
+4. Embedding dimension is a key hyperparameter (typically 256-4096)

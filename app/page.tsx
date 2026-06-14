@@ -38,6 +38,22 @@ const NAV_CARDS = [
     borderColor: 'border-purple-200 dark:border-purple-800',
   },
   {
+    href: '/llm',
+    icon: '💬',
+    title: 'LLMs',
+    description: 'Tokenization, embeddings, attention, Transformers, RAG, and agents — interactive visualizations.',
+    color: 'from-amber-500 to-orange-600',
+    borderColor: 'border-amber-200 dark:border-amber-800',
+  },
+  {
+    href: '/research',
+    icon: '📄',
+    title: 'Research Skills',
+    description: 'Read, reproduce, and write AI research papers. Paper library with filtering.',
+    color: 'from-red-500 to-rose-600',
+    borderColor: 'border-red-200 dark:border-red-800',
+  },
+  {
     href: '/notes',
     icon: '📝',
     title: 'Personal Notes',
@@ -59,8 +75,8 @@ const LEARNING_PATH = [
   { step: 1, label: 'Mathematics', icon: '📐', href: '/math', color: 'bg-emerald-500' },
   { step: 2, label: 'Machine Learning', icon: '🤖', href: '/ml', color: 'bg-blue-500' },
   { step: 3, label: 'Computer Vision', icon: '👁️', href: '/cv', color: 'bg-purple-500' },
-  { step: 4, label: 'LLMs', icon: '💬', href: '#', color: 'bg-amber-500', soon: true },
-  { step: 5, label: 'Research', icon: '📄', href: '#', color: 'bg-red-500', soon: true },
+  { step: 4, label: 'LLMs', icon: '💬', href: '/llm', color: 'bg-amber-500' },
+  { step: 5, label: 'Research', icon: '📄', href: '/research', color: 'bg-red-500' },
 ];
 
 export default function HomePage() {
@@ -112,7 +128,7 @@ export default function HomePage() {
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Explore
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {NAV_CARDS.map((card) => (
               <Link
                 key={card.href}
@@ -142,27 +158,15 @@ export default function HomePage() {
             <div className="flex items-center gap-2 overflow-x-auto pb-2">
               {LEARNING_PATH.map((item, idx) => (
                 <React.Fragment key={item.step}>
-                  {item.soon ? (
-                    <div className="flex items-center gap-2 flex-shrink-0 opacity-50">
-                      <div className={`w-10 h-10 rounded-full ${item.color} flex items-center justify-center text-lg text-white`}>
-                        {item.icon}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-400 dark:text-gray-500 whitespace-nowrap">{item.label}</p>
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500">Coming soon</p>
-                      </div>
+                  <Link href={item.href} className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
+                    <div className={`w-10 h-10 rounded-full ${item.color} flex items-center justify-center text-lg text-white shadow-md`}>
+                      {item.icon}
                     </div>
-                  ) : (
-                    <Link href={item.href} className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
-                      <div className={`w-10 h-10 rounded-full ${item.color} flex items-center justify-center text-lg text-white shadow-md`}>
-                        {item.icon}
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">{item.label}</p>
-                        <p className="text-[10px] text-green-600 dark:text-green-400 font-medium">Available now</p>
-                      </div>
-                    </Link>
-                  )}
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">{item.label}</p>
+                      <p className="text-[10px] text-green-600 dark:text-green-400 font-medium">Available now</p>
+                    </div>
+                  </Link>
                   {idx < LEARNING_PATH.length - 1 && (
                     <div className="w-8 h-0.5 bg-gray-200 dark:bg-gray-700 flex-shrink-0 mx-1" />
                   )}

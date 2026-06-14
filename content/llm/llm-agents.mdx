@@ -1,0 +1,73 @@
+---
+title: "Agents"
+date: 2025-01-15
+tags:
+  - llm
+  - agents
+  - tool-use
+  - reasoning
+---
+
+## What Problem Does It Solve?
+
+LLMs are limited to text generation. Agents extend LLMs with the ability to reason, plan, and take actions in the real world using tools.
+
+## Agent Architecture
+
+```
+Perception -> Planning -> Action -> Observation -> Repeat
+```
+
+### Core Components
+
+1. **LLM Brain:** Reasoning and decision-making
+2. **Tools:** Functions the agent can call (search, code, APIs)
+3. **Memory:** Short-term (context) and long-term (storage)
+4. **Planning:** Breaking complex tasks into subtasks
+
+## ReAct Framework
+
+**Re**asoning + **Act**ing: Interleaves thinking with action:
+
+```
+Thought: I need to find the current temperature in Paris.
+Action: search("current temperature Paris")
+Observation: The temperature in Paris is 18C.
+Thought: Now I can answer the question.
+```
+
+## Tool Use
+
+Agents can invoke external tools:
+
+| Tool Type | Examples |
+|-----------|----------|
+| Search | Web search, knowledge base lookup |
+| Code | Execute Python, SQL queries |
+| API | Weather, calculator, file I/O |
+| Memory | Save/retrieve information |
+
+## Planning Strategies
+
+### ReAct
+Thought -> Action -> Observation loop.
+
+### Chain-of-Thought
+Step-by-step reasoning before acting.
+
+### Tree of Search
+Explore multiple reasoning paths, select the best.
+
+## Challenges
+
+- **Error propagation:** Wrong actions compound
+- **Hallucinated tools:** Calling non-existent functions
+- **Infinite loops:** Getting stuck in reasoning cycles
+- **Cost:** Each step requires an LLM call
+
+## Key Takeaways
+
+1. Agents combine LLM reasoning with tool use for complex tasks
+2. The ReAct framework is the foundation for most agent architectures
+3. Memory and planning are essential for multi-step tasks
+4. Agent reliability depends on tool quality and error handling

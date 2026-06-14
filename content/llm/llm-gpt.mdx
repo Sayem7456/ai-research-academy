@@ -1,0 +1,69 @@
+---
+title: "GPT"
+date: 2025-01-15
+tags:
+  - llm
+  - nlp
+  - gpt
+  - decoder
+  - generative
+---
+
+## What Problem Does It Solve?
+
+GPT (Generative Pre-trained Transformer) tackles text generation - producing coherent, contextually appropriate text one token at a time. It uses a decoder-only architecture with causal masking.
+
+## Architecture
+
+GPT is a multi-layer Transformer decoder:
+
+- Causal self-attention (each token can only attend to previous tokens)
+- Pre-norm layer normalization
+- Learned positional embeddings
+
+## Pre-training Objective
+
+**Causal Language Modeling (CLM):** Predict the next token given all previous tokens:
+
+```
+P(token_t | token_1, token_2, ..., token_{t-1})
+```
+
+## Evolution
+
+| Model | Year | Parameters | Key Innovation |
+|-------|------|-----------|----------------|
+| GPT-1 | 2018 | 117M | Transfer learning for NLP |
+| GPT-2 | 2019 | 1.5B | Zero-shot learning |
+| GPT-3 | 2020 | 175B | Few-shot in-context learning |
+| GPT-4 | 2023 | ~1.8T (est.) | Multimodal, improved reasoning |
+
+## In-Context Learning
+
+GPT-3 showed that large models can learn from examples in the prompt:
+
+```
+Translate English to French:
+sea otter => loutre de mer
+peppermint => menthe poivree
+plush girafe => 
+```
+
+No gradient updates needed - the model "learns" from the prompt.
+
+## Scaling Laws
+
+Performance improves predictably with scale:
+
+```
+Loss ~ 1/N^alpha
+```
+
+Where N is the number of parameters and alpha is a scaling exponent.
+
+## Key Takeaways
+
+1. Decoder-only Transformers are effective for text generation
+2. Causal masking prevents information leakage from future tokens
+3. In-context learning emerges at scale without explicit training
+4. Scaling parameters, data, and compute improves performance predictably

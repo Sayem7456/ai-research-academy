@@ -1,0 +1,69 @@
+---
+title: "RAG"
+date: 2025-01-15
+tags:
+  - llm
+  - rag
+  - retrieval
+  - generative
+---
+
+## What Problem Does It Solve?
+
+LLMs have a knowledge cutoff and can hallucinate facts. RAG (Retrieval-Augmented Generation) grounds LLM responses in external knowledge by retrieving relevant documents before generating.
+
+## Pipeline
+
+```
+User Query -> Query Embedding -> Document Retrieval -> Context Assembly -> LLM -> Response
+```
+
+### 1. Query Embedding
+
+Convert the user's question into a dense vector using the same embedding model used for documents.
+
+### 2. Document Retrieval
+
+Find the top-k most similar documents using vector similarity (cosine or inner product).
+
+### 3. Context Assembly
+
+Combine retrieved documents into a context window for the LLM.
+
+### 4. LLM Generation
+
+The LLM generates a response conditioned on both the query and the retrieved context.
+
+## Key Concepts
+
+### Chunking
+
+Documents are split into smaller chunks (typically 256-1024 tokens) for retrieval.
+
+### Vector Store
+
+Database that indexes embeddings for fast similarity search:
+- FAISS (Facebook)
+- Pinecone
+- Weaviate
+- ChromaDB
+
+### Reranking
+
+After initial retrieval, a more powerful model can rerank results for relevance.
+
+## Advantages over Fine-tuning
+
+| Aspect | Fine-tuning | RAG |
+|--------|-------------|-----|
+| Knowledge update | Retrain model | Update documents |
+| Cost | Expensive | Cheap |
+| Attribution | None | Source citations |
+| Freshness | Training cutoff | Real-time |
+
+## Key Takeaways
+
+1. RAG grounds LLM responses in external, up-to-date knowledge
+2. The retrieval quality directly impacts response quality
+3. Chunking strategy is critical for effective retrieval
+4. RAG is more cost-effective than fine-tuning for knowledge-intensive tasks

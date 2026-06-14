@@ -1,0 +1,59 @@
+---
+title: "Reproducing Papers"
+date: 2025-01-15
+tags:
+  - research
+  - reproduction
+  - implementation
+---
+
+## Why Reproduce Papers?
+
+Reproducing results deepens understanding more than just reading. You learn implementation details that papers often omit and discover what actually matters.
+
+## Reproduction Roadmap
+
+### 1. Understand
+
+Before writing code, thoroughly understand the paper:
+- What is the core contribution?
+- What are the key equations?
+- What is the training procedure?
+
+### 2. Reimplement
+
+Build from scratch, not from the authors' code:
+- Start with a simple baseline
+- Add complexity incrementally
+- Verify each component works
+
+### 3. Compare
+
+Compare your results with the paper:
+- Are the numbers close?
+- Where do they differ and why?
+- What implementation details matter?
+
+## Common Pitfalls
+
+| Pitfall | How to Avoid |
+|---------|--------------|
+| Wrong hyperparameters | Check supplementary materials |
+| Different data preprocessing | Follow the paper exactly |
+| Missing regularization | Look for details in code repos |
+| Random seed sensitivity | Report mean and std over multiple runs |
+
+## Best Practices
+
+1. Use the same dataset splits as the paper
+2. Report metrics using the same formulas
+3. Test on the same hardware if possible
+4. Document everything - even failed attempts
+5. Share your code for others to verify
+
+## Key Takeaways
+
+1. Reproduction builds deep understanding
+2. Start simple, add complexity incrementally
+3. Document everything and share your results
+4. Differences from the paper are learning opportunities

@@ -1,0 +1,73 @@
+---
+title: "Tokenization"
+date: 2025-01-15
+tags:
+  - llm
+  - nlp
+  - tokenization
+  - fundamentals
+---
+
+## What Problem Does It Solve?
+
+LLMs cannot process raw text directly. Tokenization converts text into numerical representations that neural networks can understand. The choice of tokenization method affects vocabulary size, handling of unknown words, and model efficiency.
+
+**Key challenges:**
+- How to handle words not seen during training?
+- How to balance vocabulary size with coverage?
+- How to handle different languages and special characters?
+
+## Tokenization Methods
+
+### Word Tokenization
+
+The simplest approach - split on whitespace and punctuation:
+
+```
+"The quick brown fox" -> ["The", "quick", "brown", "fox"]
+```
+
+**Pros:** Simple, interpretable
+**Cons:** Large vocabulary, cannot handle unknown words
+
+### Byte-Pair Encoding (BPE)
+
+Starts with individual characters, then iteratively merges the most frequent pairs:
+
+1. Start: ["l", "o", "w", "e", "r"]
+2. Most frequent pair: l, o -> merge to lo
+3. Repeat until desired vocabulary size reached
+
+**Used by:** GPT-2, GPT-3, RoBERTa
+
+### WordPiece
+
+Greedy longest-match-first approach, used by BERT:
+
+```
+"unhappiness" -> ["un", "##happi", "##ness"]
+```
+
+The `##` prefix marks continuation tokens.
+
+### SentencePiece
+
+Language-agnostic tokenization that works directly on raw text.
+
+**Used by:** T5, LLaMA, mBART
+
+## Special Tokens
+
+| Token | Purpose | Used By |
+|-------|---------|---------|
+| [CLS] | Classification token | BERT |
+| [SEP] | Separator between sentences | BERT |
+| [PAD] | Padding for batch processing | All |
+| [MASK] | Masked token for pretraining | BERT |
+
+## Key Takeaways
+
+1. Tokenization is a critical preprocessing step for all LLMs
+2. Subword methods (BPE, WordPiece) balance vocabulary size and coverage
+3. Different models use different tokenizers - they are not interchangeable
+4. Special tokens encode structural information (start, end, separation)

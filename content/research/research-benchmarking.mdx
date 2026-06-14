@@ -1,0 +1,67 @@
+---
+title: "Benchmarking"
+date: 2025-01-15
+tags:
+  - research
+  - benchmarking
+  - evaluation
+---
+
+## Why Benchmark?
+
+Proper evaluation is essential for comparing methods fairly. Benchmarks provide standardized ways to measure progress.
+
+## Designing Good Experiments
+
+### Fair Comparison
+
+- Use the same dataset splits
+- Use the same preprocessing
+- Report confidence intervals
+- Tune hyperparameters fairly (same budget for all methods)
+
+### Metrics
+
+Choose metrics that match the task:
+
+| Task | Common Metrics |
+|------|---------------|
+| Classification | Accuracy, F1, AUC-ROC |
+| Detection | mAP, IoU |
+| Generation | BLEU, ROUGE, human eval |
+| Ranking | NDCG, MRR |
+
+### Ablation vs. Comparison
+
+- **Comparison:** Method A vs. Method B (which is better?)
+- **Ablation:** Method A with/without component X (what matters?)
+
+## Reporting Results
+
+### Tables
+
+- Report mean and standard deviation
+- Bold the best result
+- Include all baselines
+
+### Statistical Significance
+
+Use appropriate tests:
+- Paired t-test for same-data comparison
+- McNemar's test for classification
+- Bootstrap for non-parametric comparison
+
+## Common Mistakes
+
+1. Cherry-picking results
+2. Not reporting variance
+3. Comparing on different splits
+4. Ignoring computational cost
+5. Overfitting to benchmark metrics
+
+## Key Takeaways
+
+1. Fair comparison requires controlled experiments
+2. Always report variance, not just mean
+3. Choose metrics that match your goals
+4. Statistical significance testing prevents false conclusions
