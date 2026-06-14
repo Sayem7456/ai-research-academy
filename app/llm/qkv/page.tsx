@@ -1,5 +1,17 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { QKVVisualizer } from '@/features/llm/components';
+
+export const metadata: Metadata = {
+  title: 'QKV Visualizer — Query, Key, Value Explained — AI Research Academy',
+  description:
+    'Interactive visualization of how Query, Key, and Value vectors work in Transformer attention. See dot products, softmax, and multi-head splitting in action.',
+  openGraph: {
+    title: 'QKV Visualizer — Query, Key, Value Explained',
+    description:
+      'Interactive visualization of how Query, Key, and Value vectors work in Transformer attention.',
+  },
+};
 
 export default function QKVPage() {
   return (

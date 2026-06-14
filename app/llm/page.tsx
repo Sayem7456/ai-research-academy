@@ -17,6 +17,13 @@ export default function LLMIndex() {
       color: 'bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600',
     },
     {
+      title: 'Embedding Playground',
+      description: 'Advanced deep dive — analogies, nearest neighbors, 2D projections, bias exploration, and more.',
+      href: '/llm/embeddings-playground',
+      icon: '🔬',
+      color: 'bg-violet-50 dark:bg-violet-950/30 border-violet-200 dark:border-violet-800 hover:border-violet-400 dark:hover:border-violet-600',
+    },
+    {
       title: 'Attention Visualizer',
       description: 'Visualize self-attention weights and see how tokens attend to each other.',
       href: '/llm/attention',

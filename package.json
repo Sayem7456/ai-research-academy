@@ -11,6 +11,10 @@
   },
   "dependencies": {
     "@mdx-js/react": "^2.3.0",
+    "@reactflow/background": "^11.3.14",
+    "@reactflow/controls": "^11.2.14",
+    "@reactflow/core": "^11.11.4",
+    "@reactflow/minimap": "^11.7.14",
     "esbuild": "^0.28.0",
     "framer-motion": "^12.40.0",
     "fuse.js": "^6.6.2",
@@ -20,6 +24,7 @@
     "next": "^16.2.7",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "reactflow": "^11.11.4",
     "recharts": "^3.8.1",
     "rehype-highlight": "^7.0.2",
     "rehype-katex": "^7.0.1",
