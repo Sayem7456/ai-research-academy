@@ -45,6 +45,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -62,7 +63,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="format-detection" content="telephone=no" />
       </head>
-      <body className="min-h-full flex flex-col overscroll-none">
+      <body className="min-h-full flex flex-col overscroll-none" suppressHydrationWarning>
         {children}
         <SearchModal />
       </body>
