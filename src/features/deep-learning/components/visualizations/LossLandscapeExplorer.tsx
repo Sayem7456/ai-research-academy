@@ -193,7 +193,53 @@ export default function LossLandscapeExplorer() {
             <button onClick={step} className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors cursor-pointer">
               Step
             </button>
-            <button onClick={() => { for (let i = 0; i < 50; i++) step(); }} className="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-medium hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors cursor-pointer">
+            <button onClick={() => {
+              let nx: number, ny: number;
+              const beta = 0.9;
+              const beta1 = 0.9, beta2 = 0.999, eps = 1e-8;
+              let curX = current.x, curY = current.y;
+              let vxCur = velX, vyCur = velY;
+              let mxCur = mX, myCur = mY;
+              let vxCur2 = vX, vyCur2 = vY;
+              const newPoints: Point[] = [...path];
+              for (let i = 0; i < 50; i++) {
+                const [gdx, gdy] = lossGrad(curX, curY);
+                const t = newPoints.length;
+                switch (optimizer) {
+                  case 'sgd':
+                    nx = curX - lr * gdx;
+                    ny = curY - lr * gdy;
+                    break;
+                  case 'momentum':
+                    vxCur = beta * vxCur + gdx;
+                    vyCur = beta * vyCur + gdy;
+                    nx = curX - lr * vxCur;
+                    ny = curY - lr * vyCur;
+                    break;
+                  case 'adam':
+                    mxCur = beta1 * mxCur + (1 - beta1) * gdx;
+                    myCur = beta1 * myCur + (1 - beta1) * gdy;
+                    vxCur2 = beta2 * vxCur2 + (1 - beta2) * gdx * gdx;
+                    vyCur2 = beta2 * vyCur2 + (1 - beta2) * gdy * gdy;
+                    const mHatX = mxCur / (1 - Math.pow(beta1, t));
+                    const mHatY = myCur / (1 - Math.pow(beta1, t));
+                    const vHatX = vxCur2 / (1 - Math.pow(beta2, t));
+                    const vHatY = vyCur2 / (1 - Math.pow(beta2, t));
+                    nx = curX - lr * mHatX / (Math.sqrt(vHatX) + eps);
+                    ny = curY - lr * mHatY / (Math.sqrt(vHatY) + eps);
+                    break;
+                }
+                nx = Math.max(xMin, Math.min(xMax, nx));
+                ny = Math.max(yMin, Math.min(yMax, ny));
+                curX = nx;
+                curY = ny;
+                newPoints.push({ x: nx, y: ny, z: lossFunc(nx, ny) });
+              }
+              setPath(newPoints);
+              setVelX(vxCur); setVelY(vyCur);
+              setMX(mxCur); setMY(myCur);
+              setVX(vxCur2); setVY(vyCur2);
+            }} className="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-medium hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors cursor-pointer">
               Run 50 Steps
             </button>
             <button onClick={reset} className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer">

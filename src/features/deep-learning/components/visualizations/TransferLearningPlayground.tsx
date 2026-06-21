@@ -77,7 +77,8 @@ export default function TransferLearningPlayground() {
     if (strategy === 'finetune-top') base = datasetSize > 100 ? 88 : 82;
     if (strategy === 'extraction') base = datasetSize > 50 ? 85 : 78;
     const sizeBonus = Math.min(datasetSize / 1000, 15);
-    const noise = (Math.random() - 0.5) * 3;
+    const seed = strategy.length + datasetSize;
+    const noise = ((seed * 9301 + 49297) % 233280 / 233280 - 0.5) * 3;
     return Math.min(98, base + sizeBonus + noise).toFixed(1);
   }, [strategy, datasetSize]);
 

@@ -126,8 +126,8 @@ export default function RegularizationDemo() {
                 <button key={type} onClick={() => setRegType(type)}
                   className={`w-full px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer text-left ${regType === type ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
                   {type === 'none' && 'No Regularization'}
-                  {type === 'dropout' && `Dropout (${(dropoutRate * 100).toFixed(0)}%)`}
-                  {type === 'l2' && `L2 Weight Decay (${l2Lambda.toFixed(2)})`}
+                  {type === 'dropout' && `Data Subsampling (${(dropoutRate * 100).toFixed(0)}%)`}
+                  {type === 'l2' && `L2-like Smoothing (${l2Lambda.toFixed(2)})`}
                   {type === 'both' && 'Dropout + L2'}
                 </button>
               ))}
@@ -175,7 +175,7 @@ export default function RegularizationDemo() {
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm">
         <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-1">Regularization Techniques</h4>
         <p className="text-xs text-blue-700 dark:text-blue-400">
-          <strong>Dropout</strong>: Randomly deactivates neurons during training, forcing the network to learn redundant representations. <strong>L2 Weight Decay</strong>: Penalizes large weights, encouraging smooth functions. Both prevent the model from memorizing noise in training data.
+          <strong>Data Subsampling</strong>: Randomly removes training points, forcing the model to be robust to missing data — an approximation of neural network dropout. <strong>L2-like Smoothing</strong>: Adds points with y=0 to pull the polynomial toward the mean, mimicking weight decay. Both prevent the model from memorizing noise in training data.
         </p>
       </div>
 
@@ -189,7 +189,7 @@ export default function RegularizationDemo() {
           </div>
           <div className="flex items-start gap-2">
             <span className="font-bold text-amber-600 dark:text-amber-300">Dropout</span>
-            <span>→ Like studying with随机 classmates — you can't rely on any single person, so you learn the material yourself.</span>
+            <span>→ Like studying with random classmates — you can't rely on any single person, so you learn the material yourself.</span>
           </div>
           <div className="flex items-start gap-2">
             <span className="font-bold text-amber-600 dark:text-amber-300">L2 Regularization</span>

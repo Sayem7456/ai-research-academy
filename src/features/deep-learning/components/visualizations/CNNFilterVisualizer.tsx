@@ -32,16 +32,18 @@ const FILTERS: Record<FilterType, { name: string; matrix: number[][]; descriptio
   },
 };
 
-function applyFilter(img: number[][], filter: number[][]): number[][] {
+function applyFilter(img: number[][], filter: number[][], stride: number): number[][] {
   const h = img.length;
   const w = img[0].length;
-  const result: number[][] = Array.from({ length: h - 2 }, () => new Array(w - 2).fill(0));
-  for (let i = 0; i < h - 2; i++) {
-    for (let j = 0; j < w - 2; j++) {
+  const outH = Math.floor((h - 3) / stride) + 1;
+  const outW = Math.floor((w - 3) / stride) + 1;
+  const result: number[][] = Array.from({ length: outH }, () => new Array(outW).fill(0));
+  for (let i = 0; i < outH; i++) {
+    for (let j = 0; j < outW; j++) {
       let sum = 0;
       for (let fi = 0; fi < 3; fi++) {
         for (let fj = 0; fj < 3; fj++) {
-          sum += img[i + fi][j + fj] * filter[fi][fj];
+          sum += img[i * stride + fi][j * stride + fj] * filter[fi][fj];
         }
       }
       result[i][j] = Math.max(0, Math.min(255, sum));
@@ -72,7 +74,7 @@ export default function CNNFilterVisualizer() {
   }, []);
 
   const filter = FILTERS[filterType].matrix;
-  const outputImg = useMemo(() => applyFilter(inputImg, filter), [inputImg, filter]);
+  const outputImg = useMemo(() => applyFilter(inputImg, filter, stride), [inputImg, filter, stride]);
 
   const cellSize = 28;
   const gap = 2;
