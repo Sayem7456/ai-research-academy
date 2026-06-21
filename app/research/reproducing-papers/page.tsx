@@ -15,7 +15,7 @@ export default function ReproducingPapersPage() {
         <article className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-10">
           <header className="mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-              Reproducing Papers
+              📄 Reproducing Papers
             </h1>
             <div className="flex flex-wrap gap-2 mt-3">
               {['research', 'reproduction', 'implementation'].map((tag) => (

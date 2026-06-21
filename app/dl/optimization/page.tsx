@@ -15,7 +15,7 @@ export default function OptimizationPage() {
 
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Loss Landscape Explorer</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">🧠 Loss Landscape Explorer</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">Visualize how SGD, Momentum, and Adam navigate a loss surface</p>
           </div>
           <Link

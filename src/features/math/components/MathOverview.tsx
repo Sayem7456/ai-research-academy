@@ -70,7 +70,7 @@ export default function MathOverview() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Mathematics
+              📐 Mathematics
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400">
               Build the mathematical foundations for AI research — from linear algebra and calculus

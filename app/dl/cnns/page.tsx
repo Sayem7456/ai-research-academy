@@ -15,7 +15,7 @@ export default function CNNPage() {
 
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">CNN Filter Visualizer</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">🧠 CNN Filter Visualizer</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">Apply edge, blur, sharpen, and emboss filters to images</p>
           </div>
           <Link

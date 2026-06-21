@@ -9,7 +9,17 @@ const SECTION_LABELS: Record<string, string> = {
   ml: "Machine Learning",
   cv: "Computer Vision",
   llm: "Large Language Models",
+  dl: "Deep Learning",
   research: "Research Skills",
+};
+
+const SECTION_ICONS: Record<string, string> = {
+  math: "📐",
+  ml: "🤖",
+  cv: "👁️",
+  llm: "💬",
+  dl: "🧠",
+  research: "📄",
 };
 
 export default async function Page({ params }: Props) {
@@ -68,7 +78,7 @@ export default async function Page({ params }: Props) {
             {/* Header */}
             <header className="mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
               <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-                {frontmatter?.title || slugTitle}
+                {SECTION_ICONS[section] ? `${SECTION_ICONS[section]} ` : ''}{frontmatter?.title || slugTitle}
               </h1>
               {frontmatter?.tags && (
                 <div className="flex flex-wrap gap-2 mt-3">

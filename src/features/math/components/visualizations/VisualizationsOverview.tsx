@@ -62,7 +62,7 @@ export default function VisualizationsOverview() {
     <div className="max-w-6xl mx-auto py-8 px-4">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-          Interactive Visualizations
+          📐 Interactive Visualizations
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">
           Explore mathematical concepts through interactive simulations. Adjust parameters,

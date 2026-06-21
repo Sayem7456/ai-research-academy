@@ -15,7 +15,7 @@ export default function RNNPage() {
 
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">RNN Sequence Visualizer</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">🧠 RNN Sequence Visualizer</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">Visualize RNN, LSTM, and GRU cells processing sequences with live gate activations and side-by-side comparison</p>
           </div>
           <Link

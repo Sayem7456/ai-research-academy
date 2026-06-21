@@ -64,7 +64,7 @@ export default function EncoderMathPage() {
   return (
     <div className="space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors">
-        <h1 className="text-3xl font-bold mb-2">Transformer Encoder: Math & Code</h1>
+        <h1 className="text-3xl font-bold mb-2">💬 Transformer Encoder: Math & Code</h1>
         <p className="text-gray-600 dark:text-gray-400 mb-6">
           Complete mathematical intuition behind every component of the Transformer encoder,
           with corresponding PyTorch implementations.

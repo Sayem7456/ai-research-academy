@@ -8,6 +8,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { HiAcademicCap } from 'react-icons/hi';
 import { useProgressStore, useNotesStore, useBookmarksStore } from '@/store';
 import { StatsCards, RecentActivity } from '@/features/dashboard/components';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -101,7 +102,8 @@ export default function HomePage() {
             </div>
 
             <div className="relative">
-              <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+              <h1 className="text-3xl sm:text-4xl font-bold mb-3 flex items-center gap-3">
+                <HiAcademicCap className="w-10 h-10" />
                 AI Research Learning Platform
               </h1>
               <p className="text-lg text-blue-100 max-w-2xl mb-6">

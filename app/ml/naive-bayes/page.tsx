@@ -22,7 +22,7 @@ export default function NaiveBayesPage() {
 
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Naive Bayes</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">🤖 Naive Bayes</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">Interactive playground — add points and see how Gaussian Naive Bayes estimates class-conditional distributions</p>
           </div>
           <Link

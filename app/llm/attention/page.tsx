@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     'Interactive visualization of the attention mechanism in Transformers. See how tokens attend to each other with query, key, and value matrices.',
   openGraph: {
-    title: 'Attention Mechanism — AI Research Academy',
+  title: 'Attention Mechanism — AI Research Academy',
     description:
       'Interactive visualization of the attention mechanism in Transformers. Explore Q, K, V matrices and multi-head attention.',
   },

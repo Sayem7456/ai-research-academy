@@ -21,7 +21,7 @@ export default function EmbeddingsPage() {
         </nav>
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Word Embeddings</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">💬 Word Embeddings</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">Interactive playground — select words, visualize vectors, and explore cosine similarity</p>
           </div>
           <Link
