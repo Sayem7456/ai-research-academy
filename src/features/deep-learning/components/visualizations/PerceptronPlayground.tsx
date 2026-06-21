@@ -4,6 +4,12 @@ import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 
 type ActivationFn = 'sigmoid' | 'relu' | 'tanh' | 'step';
 
+const fmt = {
+  param: (v: number) => v.toFixed(2),
+  value: (v: number) => v.toFixed(4),
+  coord: (v: number) => v.toFixed(2),
+};
+
 const ACTIVATIONS: Record<ActivationFn, { label: string; fn: (x: number) => number; derivative: (x: number) => number; color: string }> = {
   sigmoid: { label: 'Sigmoid', fn: (x) => 1 / (1 + Math.exp(-x)), derivative: (x) => { const s = 1 / (1 + Math.exp(-x)); return s * (1 - s); }, color: '#6366F1' },
   relu: { label: 'ReLU', fn: (x) => Math.max(0, x), derivative: (x) => x > 0 ? 1 : 0, color: '#22C55E' },
@@ -216,11 +222,6 @@ export default function PerceptronPlayground() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Perceptron Playground</h2>
-      <p className="text-sm text-gray-600 dark:text-gray-400">
-        A single neuron computes z = w₁·x₁ + w₂·x₂ + b, then applies an activation function. Adjust parameters, load presets, or train automatically to see learning in action.
-      </p>
-
       {/* Fix #8: Preset Gates with guidance */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Preset Logic Gates</h3>
@@ -229,11 +230,13 @@ export default function PerceptronPlayground() {
           {GATES.map(gate => (
             <button key={gate.name} onClick={() => loadPreset(gate)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${activePreset === gate.name ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}>
-              {gate.name} {!gate.solvable && '⚠️'} {gate.recommended && <span className="text-[9px] opacity-60">(start here)</span>}
+              {gate.name}
+              {!gate.solvable && <span className="ml-1 text-[10px]">⚠️</span>}
+              {gate.recommended && <span className="ml-1 text-[9px] opacity-60">(recommended)</span>}
             </button>
           ))}
           <button onClick={clearAll}
-            className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer">
+            className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer">
             Clear
           </button>
         </div>
@@ -253,7 +256,7 @@ export default function PerceptronPlayground() {
               <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Neuron Computation</h3>
               {sp && (
                 <span className="text-[10px] text-gray-400 dark:text-gray-500">
-                  Point ({sp.x.toFixed(2)}, {sp.y.toFixed(2)}) · Class {sp.label}
+                  Point ({fmt.coord(sp.x)}, {fmt.coord(sp.y)}) · Class {sp.label}
                 </span>
               )}
             </div>
@@ -265,14 +268,14 @@ export default function PerceptronPlayground() {
               {/* Input values from selected point */}
               {sp && (
                 <>
-                  <text x={14} y={45} fontSize={9} fill="#9CA3AF">{sp.x.toFixed(2)}</text>
-                  <text x={14} y={115} fontSize={9} fill="#9CA3AF">{sp.y.toFixed(2)}</text>
+                  <text x={14} y={45} fontSize={9} fill="#9CA3AF">{fmt.coord(sp.x)}</text>
+                  <text x={14} y={115} fontSize={9} fill="#9CA3AF">{fmt.coord(sp.y)}</text>
                 </>
               )}
 
               {/* Weight labels on connections */}
-              <text x={80} y={38} fontSize={10} fill="#6366F1" fontWeight="bold">×{w1.toFixed(2)}</text>
-              <text x={80} y={108} fontSize={10} fill="#6366F1" fontWeight="bold">×{w2.toFixed(2)}</text>
+              <text x={80} y={38} fontSize={10} fill="#6366F1" fontWeight="bold">×{fmt.param(w1)}</text>
+              <text x={80} y={108} fontSize={10} fill="#6366F1" fontWeight="bold">×{fmt.param(w2)}</text>
 
               {/* Connections */}
               <line x1={50} y1={40} x2={140} y2={80} stroke="#6366F1" strokeWidth={2} />
@@ -280,12 +283,12 @@ export default function PerceptronPlayground() {
 
               {/* Bias arrow */}
               <line x1={140} y1={140} x2={140} y2={95} stroke="#F59E0B" strokeWidth={1.5} strokeDasharray="4,3" />
-              <text x={148} y={150} fontSize={9} fill="#F59E0B" fontWeight="bold">b={bias.toFixed(2)}</text>
+              <text x={148} y={150} fontSize={9} fill="#F59E0B" fontWeight="bold">b={fmt.param(bias)}</text>
 
               {/* Sum node */}
               <circle cx={160} cy={80} r={22} fill="#EEF2FF" stroke="#6366F1" strokeWidth={2} />
               <text x={160} y={75} textAnchor="middle" fontSize={10} fill="#3730A3" fontWeight="bold">Σ</text>
-              <text x={160} y={90} textAnchor="middle" fontSize={9} fill="#6366F1">z={zSelected.toFixed(2)}</text>
+              <text x={160} y={90} textAnchor="middle" fontSize={9} fill="#6366F1">z={fmt.value(zSelected)}</text>
 
               {/* Arrow to activation */}
               <line x1={182} y1={80} x2={210} y2={80} stroke="#6366F1" strokeWidth={2} markerEnd="url(#arrowhead)" />
@@ -293,7 +296,7 @@ export default function PerceptronPlayground() {
               {/* Activation node */}
               <rect x={212} y={55} width={60} height={50} rx={8} fill="#F0FDF4" stroke="#22C55E" strokeWidth={2} />
               <text x={242} y={75} textAnchor="middle" fontSize={10} fill="#166534" fontWeight="bold">{ACTIVATIONS[activation].label}</text>
-              <text x={242} y={92} textAnchor="middle" fontSize={9} fill="#22C55E">σ={aSelected.toFixed(3)}</text>
+              <text x={242} y={92} textAnchor="middle" fontSize={9} fill="#22C55E">σ={fmt.value(aSelected)}</text>
 
               {/* Arrow to output */}
               <line x1={272} y1={80} x2={310} y2={80} stroke="#22C55E" strokeWidth={2} markerEnd="url(#arrowhead-green)" />
@@ -356,8 +359,8 @@ export default function PerceptronPlayground() {
                     <line x1={px} y1={60} x2={px} y2={py} stroke="#6366F1" strokeWidth={1.5} strokeDasharray="3,3" />
                     <line x1={50} y1={py} x2={px} y2={py} stroke="#6366F1" strokeWidth={1.5} strokeDasharray="3,3" />
                     <circle cx={px} cy={py} r={5} fill="#6366F1" stroke="white" strokeWidth={2} />
-                    <text x={px} y={115} textAnchor="middle" fontSize={8} fill="#6366F1">z={zSelected.toFixed(1)}</text>
-                    <text x={45} y={py + 3} textAnchor="end" fontSize={8} fill="#6366F1">{aSelected.toFixed(2)}</text>
+                    <text x={px} y={115} textAnchor="middle" fontSize={8} fill="#6366F1">z={fmt.value(zSelected)}</text>
+                    <text x={45} y={py + 3} textAnchor="end" fontSize={8} fill="#6366F1">{fmt.value(aSelected)}</text>
                   </>
                 );
               })()}
@@ -497,12 +500,14 @@ export default function PerceptronPlayground() {
             })}
 
             {/* Legend */}
-            <circle cx={15} cy={SVG_H - 30} r={4} fill="#22C55E" />
-            <text x={24} y={SVG_H - 27} fontSize={8} fill="#6B7280">Class 1</text>
-            <circle cx={15} cy={SVG_H - 15} r={4} fill="#EF4444" />
-            <text x={24} y={SVG_H - 12} fontSize={8} fill="#6B7280">Class 0</text>
-            <line x1={70} y1={SVG_H - 30} x2={90} y2={SVG_H - 30} stroke="#6366F1" strokeWidth={2} strokeDasharray="4,3" />
-            <text x={95} y={SVG_H - 27} fontSize={8} fill="#6B7280">Boundary</text>
+            <g transform={`translate(10, ${SVG_H - 45})`}>
+              <circle cx={5} cy={5} r={4} fill="#22C55E" />
+              <text x={14} y={8} fontSize={8} fill="#6B7280">Class 1</text>
+              <circle cx={70} cy={5} r={4} fill="#EF4444" />
+              <text x={79} y={8} fontSize={8} fill="#6B7280">Class 0</text>
+              <line x1={135} y1={5} x2={155} y2={5} stroke="#6366F1" strokeWidth={2} strokeDasharray="4,3" />
+              <text x={160} y={8} fontSize={8} fill="#6B7280">Boundary</text>
+            </g>
           </svg>
 
           <div className="flex gap-2 mt-3">
@@ -523,21 +528,21 @@ export default function PerceptronPlayground() {
             <div className="space-y-3">
               <div>
                 <label className="text-xs text-gray-500 dark:text-gray-400 flex justify-between">
-                  <span>w₁ (input 1 weight)</span><strong>{w1.toFixed(3)}</strong>
+                  <span>w₁ (input 1 weight)</span><strong>{fmt.param(w1)}</strong>
                 </label>
                 <input type="range" min="-3" max="3" step="0.05" value={w1} onChange={(e) => setW1(parseFloat(e.target.value))} className="w-full accent-indigo-500" />
                 <p className="text-[9px] text-gray-400 dark:text-gray-500">Controls tilt of boundary. 0 = vertical line.</p>
               </div>
               <div>
                 <label className="text-xs text-gray-500 dark:text-gray-400 flex justify-between">
-                  <span>w₂ (input 2 weight)</span><strong>{w2.toFixed(3)}</strong>
+                  <span>w₂ (input 2 weight)</span><strong>{fmt.param(w2)}</strong>
                 </label>
                 <input type="range" min="-3" max="3" step="0.05" value={w2} onChange={(e) => setW2(parseFloat(e.target.value))} className="w-full accent-indigo-500" />
                 <p className="text-[9px] text-gray-400 dark:text-gray-500">Controls tilt of boundary. 0 = horizontal line.</p>
               </div>
               <div>
                 <label className="text-xs text-gray-500 dark:text-gray-400 flex justify-between">
-                  <span>b (bias)</span><strong>{bias.toFixed(3)}</strong>
+                  <span>b (bias)</span><strong>{fmt.param(bias)}</strong>
                 </label>
                 <input type="range" min="-3" max="3" step="0.05" value={bias} onChange={(e) => setBias(parseFloat(e.target.value))} className="w-full accent-indigo-500" />
                 <p className="text-[9px] text-gray-400 dark:text-gray-500">Shifts boundary left/right or up/down.</p>
@@ -555,7 +560,7 @@ export default function PerceptronPlayground() {
               </div>
               <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-2 text-center">
                 <span className="text-xs text-red-500 dark:text-red-400 block">Loss</span>
-                <strong className="text-lg text-red-700 dark:text-red-300">{loss.toFixed(4)}</strong>
+                <strong className="text-lg text-red-700 dark:text-red-300">{fmt.value(loss)}</strong>
               </div>
               <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-2 text-center">
                 <span className="text-xs text-indigo-500 dark:text-indigo-400 block">Epoch</span>
@@ -602,70 +607,75 @@ export default function PerceptronPlayground() {
           {/* Training Controls */}
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Training</h3>
-            <div className="flex gap-2 mb-3">
-              {/* Fix #3: Training button with pulse animation */}
-              <button onClick={startTraining}
-                className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${isTraining ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}>
-                {isTraining && (
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                  </span>
-                )}
-                {isTraining ? '⏸ Pause' : '▶ Train'}
-              </button>
-              <button onClick={resetTraining}
-                className="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer">
-                ↺ Reset
-              </button>
-            </div>
-            {/* Fix #2: Speed slider — higher = faster */}
-            <div>
-              <label className="text-xs text-gray-500 dark:text-gray-400 flex justify-between">
-                <span>Speed</span><strong>{trainSpeed}×</strong>
-              </label>
-              <input type="range" min="1" max="10" step="1" value={trainSpeed}
-                onChange={(e) => setTrainSpeed(parseInt(e.target.value))} className="w-full accent-indigo-500" />
-              <p className="text-[9px] text-gray-400 dark:text-gray-500">1× = slow (1 step/sec), 10× = fast</p>
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                {/* Fix #3: Training button with pulse animation */}
+                <button onClick={startTraining}
+                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${isTraining ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}>
+                  {isTraining && (
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                    </span>
+                  )}
+                  {isTraining ? '⏸ Pause' : '▶ Train'}
+                </button>
+                <button onClick={resetTraining}
+                  className="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer">
+                  ↺ Reset
+                </button>
+              </div>
+              {/* Fix #2: Speed slider — higher = faster */}
+              <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
+                <label className="text-xs text-gray-500 dark:text-gray-400 flex justify-between">
+                  <span>Speed</span><strong>{trainSpeed}×</strong>
+                </label>
+                <input type="range" min="1" max="10" step="1" value={trainSpeed}
+                  onChange={(e) => setTrainSpeed(parseInt(e.target.value))} className="w-full accent-indigo-500" />
+                <p className="text-[9px] text-gray-400 dark:text-gray-500">1× = slow (1 step/sec), 10× = fast</p>
+              </div>
             </div>
           </div>
 
           {/* Formula */}
           <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 text-xs font-mono text-gray-600 dark:text-gray-400 space-y-1">
-            <p>z = <span className="text-indigo-600 dark:text-indigo-400">{w1.toFixed(2)}</span>·x₁ + <span className="text-indigo-600 dark:text-indigo-400">{w2.toFixed(2)}</span>·x₂ + <span className="text-amber-600 dark:text-amber-400">{bias.toFixed(2)}</span></p>
-            <p>a = {ACTIVATIONS[activation].label}(z) = <span className="text-green-600 dark:text-green-400">{aSelected.toFixed(4)}</span></p>
+            <p>z = <span className="text-indigo-600 dark:text-indigo-400">{fmt.param(w1)}</span>·x₁ + <span className="text-indigo-600 dark:text-indigo-400">{fmt.param(w2)}</span>·x₂ + <span className="text-amber-600 dark:text-amber-400">{fmt.param(bias)}</span></p>
+            <p>a = {ACTIVATIONS[activation].label}(z) = <span className="text-green-600 dark:text-green-400">{fmt.value(aSelected)}</span></p>
             <p>ŷ = a ≥ 0.5 ? 1 : 0 = <span className={`font-bold ${aSelected >= 0.5 ? 'text-green-600' : 'text-red-600'}`}>{aSelected >= 0.5 ? 1 : 0}</span></p>
           </div>
         </div>
       </div>
 
-      {/* Educational */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm">
-        <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-1">How It Works</h4>
-        <p className="text-xs text-blue-700 dark:text-blue-400">
-          The perceptron computes a weighted sum of inputs plus a bias: z = w₁x₁ + w₂x₂ + b. This is passed through an activation function to produce the output. The decision boundary is the line where z = 0. Points on one side are classified as class 0, the other as class 1. Try the XOR preset — you'll see no single line can separate the classes!
-        </p>
-      </div>
+      {/* Educational - Two Column Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* How It Works */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm">
+          <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-1">How It Works</h4>
+          <p className="text-xs text-blue-700 dark:text-blue-400">
+            The perceptron computes a weighted sum of inputs plus a bias: z = w₁x₁ + w₂x₂ + b. This is passed through an activation function to produce the output. The decision boundary is the line where z = 0. Points on one side are classified as class 0, the other as class 1. Try the XOR preset — you'll see no single line can separate the classes!
+          </p>
+        </div>
 
-      {/* AI/ML Analogy */}
-      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm">
-        <h4 className="font-semibold text-amber-900 dark:text-amber-300 mb-2">AI/ML Analogy</h4>
-        <div className="space-y-2 text-xs text-amber-700 dark:text-amber-400">
-          <div className="flex items-start gap-2">
-            <span className="font-bold text-amber-600 dark:text-amber-300">Perceptron</span>
-            <span>→ A single neuron in any neural network. The simplest unit that can learn.</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <span className="font-bold text-amber-600 dark:text-amber-300">Weights</span>
-            <span>→ The knobs the network turns during training. Each weight controls how important one input is.</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <span className="font-bold text-amber-600 dark:text-amber-300">Activation</span>
-            <span>→ The decision maker. Without it, the network is just a linear model. ReLU is the standard for hidden layers.</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <span className="font-bold text-amber-600 dark:text-amber-300">XOR Problem</span>
-            <span>→ A single perceptron can't solve XOR. This limitation led to multi-layer networks — the birth of deep learning.</span>
+        {/* AI/ML Analogy */}
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm">
+          <h4 className="font-semibold text-amber-900 dark:text-amber-300 mb-2">AI/ML Analogy</h4>
+          <div className="space-y-2 text-xs text-amber-700 dark:text-amber-400">
+            <div className="flex items-start gap-2">
+              <span className="font-bold text-amber-600 dark:text-amber-300">Perceptron</span>
+              <span>→ A single neuron in any neural network.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="font-bold text-amber-600 dark:text-amber-300">Weights</span>
+              <span>→ The knobs the network turns during training.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="font-bold text-amber-600 dark:text-amber-300">Activation</span>
+              <span>→ The decision maker. Without it, just a linear model.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="font-bold text-amber-600 dark:text-amber-300">XOR Problem</span>
+              <span>→ Led to multi-layer networks — birth of deep learning.</span>
+            </div>
           </div>
         </div>
       </div>

@@ -20,6 +20,13 @@ const STEPS: { id: Step; label: string; desc: string }[] = [
 
 interface Sample { x: number; y: number }
 
+const fmt = {
+  param: (v: number) => v.toFixed(2),
+  value: (v: number) => v.toFixed(4),
+  loss: (v: number) => v.toFixed(6),
+  grad: (v: number) => v.toFixed(4),
+};
+
 function bceLoss(a: number, y: number): number {
   const p = Math.max(1e-7, Math.min(1 - 1e-7, a));
   return -(y * Math.log(p) + (1 - y) * Math.log(1 - p));
@@ -198,12 +205,12 @@ export default function BackpropVisualizer() {
 
   // Fix #1: Truncate labels to fit in nodes
   const nodeLabels = [
-    { nx: 40, ny: 60, text: `x=${x.toFixed(1)}`, fill: '#6B7280' },
-    { nx: 40, ny: 140, text: `w=${w.toFixed(2)}`, fill: '#6366F1' },
-    { nx: 40, ny: 220, text: `b=${b.toFixed(2)}`, fill: '#F59E0B' },
-    { nx: 140, ny: 120, text: `z=${z.toFixed(2)}`, fill: '#6366F1' },
-    { nx: 240, ny: 120, text: `a=${a.toFixed(2)}`, fill: stepIndex >= 1 ? ACTIVATIONS[activation].color : '#D1D5DB' },
-    { nx: 340, ny: 120, text: `L=${loss.toFixed(3)}`, fill: stepIndex >= 1 ? '#EF4444' : '#D1D5DB' },
+    { nx: 40, ny: 60, text: `x=${fmt.param(x)}`, fill: '#6B7280' },
+    { nx: 40, ny: 140, text: `w=${fmt.param(w)}`, fill: '#6366F1' },
+    { nx: 40, ny: 220, text: `b=${fmt.param(b)}`, fill: '#F59E0B' },
+    { nx: 140, ny: 120, text: `z=${fmt.value(z)}`, fill: '#6366F1' },
+    { nx: 240, ny: 120, text: `a=${fmt.value(a)}`, fill: stepIndex >= 1 ? ACTIVATIONS[activation].color : '#D1D5DB' },
+    { nx: 340, ny: 120, text: `L=${fmt.loss(loss)}`, fill: stepIndex >= 1 ? '#EF4444' : '#D1D5DB' },
   ];
 
   // Fix #7: Loss landscape path includes current position
@@ -218,11 +225,6 @@ export default function BackpropVisualizer() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Backpropagation Visualizer</h2>
-      <p className="text-sm text-gray-600 dark:text-gray-400">
-        Step through forward pass, loss, chain rule backward pass, and weight update. See exactly how gradients flow and how a neuron learns.
-      </p>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ========== LEFT: Computation Graph + Gradient Vanishing ========== */}
         <div className="space-y-4">
@@ -256,10 +258,10 @@ export default function BackpropVisualizer() {
                     <animate attributeName="stroke-dashoffset" from="20" to="0" dur="0.8s" repeatCount="indefinite" />
                   </line>
 
-                  <text x={290} y={128} fontSize={8} fill="#EF4444" fontWeight="bold">dL/da={dLda.toFixed(3)}</text>
-                  <text x={210} y={128} fontSize={8} fill="#F59E0B" fontWeight="bold">da/dz={daDz.toFixed(3)}</text>
-                  <text x={78} y={138} fontSize={8} fill="#6366F1" fontWeight="bold">dz/dw={dzDw.toFixed(1)}</text>
-                  <text x={78} y={208} fontSize={8} fill="#6366F1" fontWeight="bold">dz/db={dzDb.toFixed(1)}</text>
+                  <text x={290} y={128} fontSize={8} fill="#EF4444" fontWeight="bold">dL/da={fmt.grad(dLda)}</text>
+                  <text x={210} y={128} fontSize={8} fill="#F59E0B" fontWeight="bold">da/dz={fmt.grad(daDz)}</text>
+                  <text x={78} y={138} fontSize={8} fill="#6366F1" fontWeight="bold">dz/dw={fmt.param(dzDw)}</text>
+                  <text x={78} y={208} fontSize={8} fill="#6366F1" fontWeight="bold">dz/db={fmt.param(dzDb)}</text>
                   <text x={200} y={28} textAnchor="middle" fontSize={10} fill="#EF4444" fontWeight="bold">← Gradient Flow →</text>
                 </g>
               )}
@@ -283,9 +285,9 @@ export default function BackpropVisualizer() {
               {stepIndex >= 2 && (
                 <>
                   <rect x={110} y={195} width={60} height={24} rx={5} fill="#EF4444" stroke="white" strokeWidth={1.5} />
-                  <text x={140} y={211} textAnchor="middle" fontSize={9} fill="white" fontWeight="bold">dw={currentDw.toFixed(4)}</text>
+                  <text x={140} y={211} textAnchor="middle" fontSize={9} fill="white" fontWeight="bold">dw={fmt.grad(currentDw)}</text>
                   <rect x={210} y={195} width={60} height={24} rx={5} fill="#EF4444" stroke="white" strokeWidth={1.5} />
-                  <text x={240} y={211} textAnchor="middle" fontSize={9} fill="white" fontWeight="bold">db={currentDb.toFixed(4)}</text>
+                  <text x={240} y={211} textAnchor="middle" fontSize={9} fill="white" fontWeight="bold">db={fmt.grad(currentDb)}</text>
                 </>
               )}
 
@@ -365,9 +367,9 @@ export default function BackpropVisualizer() {
                   <div className="space-y-1">
                     <p className="text-gray-600 dark:text-gray-400">dL/dw = dL/da × da/dz × dz/dw</p>
                     <p className="text-gray-600 dark:text-gray-400">= <span className="text-red-500">(â - y)</span> × <span className="text-amber-500">σ'(z)</span> × <span className="text-indigo-500">x</span></p>
-                    <p className="text-gray-600 dark:text-gray-400">= <span className="text-red-500">({a.toFixed(3)} - {y})</span> × <span className="text-amber-500">{daDz.toFixed(4)}</span> × <span className="text-indigo-500">{x}</span></p>
-                    <p className="text-gray-600 dark:text-gray-400">= <span className="text-red-500">{dLda.toFixed(4)}</span> × <span className="text-amber-500">{daDz.toFixed(4)}</span> × <span className="text-indigo-500">{x}</span></p>
-                    <p className="text-gray-900 dark:text-gray-100 font-bold">= {currentDw.toFixed(6)}</p>
+                    <p className="text-gray-600 dark:text-gray-400">= <span className="text-red-500">({fmt.value(a)} - {y})</span> × <span className="text-amber-500">{fmt.grad(daDz)}</span> × <span className="text-indigo-500">{x}</span></p>
+                    <p className="text-gray-600 dark:text-gray-400">= <span className="text-red-500">{fmt.grad(dLda)}</span> × <span className="text-amber-500">{fmt.grad(daDz)}</span> × <span className="text-indigo-500">{x}</span></p>
+                    <p className="text-gray-900 dark:text-gray-100 font-bold">= {fmt.loss(currentDw)}</p>
                   </div>
                 </div>
 
@@ -375,8 +377,8 @@ export default function BackpropVisualizer() {
                   <p className="text-gray-700 dark:text-gray-300 font-bold mb-2">dL/db (gradient for bias)</p>
                   <div className="space-y-1">
                     <p className="text-gray-600 dark:text-gray-400">dL/db = dL/da × da/dz × dz/db</p>
-                    <p className="text-gray-600 dark:text-gray-400">= <span className="text-red-500">({a.toFixed(3)} - {y})</span> × <span className="text-amber-500">{daDz.toFixed(4)}</span> × <span className="text-indigo-500">1</span></p>
-                    <p className="text-gray-900 dark:text-gray-100 font-bold">= {currentDb.toFixed(6)}</p>
+                    <p className="text-gray-600 dark:text-gray-400">= <span className="text-red-500">({fmt.value(a)} - {y})</span> × <span className="text-amber-500">{fmt.grad(daDz)}</span> × <span className="text-indigo-500">1</span></p>
+                    <p className="text-gray-900 dark:text-gray-100 font-bold">= {fmt.loss(currentDb)}</p>
                   </div>
                 </div>
 
@@ -385,8 +387,8 @@ export default function BackpropVisualizer() {
                     <p className="text-green-700 dark:text-green-300 font-bold mb-2">Weight Update</p>
                     <div className="space-y-1">
                       <p className="text-green-600 dark:text-green-400">w_new = w - η × dL/dw</p>
-                      <p className="text-green-600 dark:text-green-400">= {w.toFixed(4)} - {lr} × {currentDw.toFixed(6)}</p>
-                      <p className="text-green-900 dark:text-green-100 font-bold">= {(w - lr * currentDw).toFixed(6)}</p>
+                      <p className="text-green-600 dark:text-green-400">= {fmt.value(w)} - {fmt.param(lr)} × {fmt.loss(currentDw)}</p>
+                      <p className="text-green-900 dark:text-green-100 font-bold">= {fmt.loss(w - lr * currentDw)}</p>
                     </div>
                   </div>
                 )}
@@ -405,8 +407,8 @@ export default function BackpropVisualizer() {
               </defs>
               <g clipPath={`url(#${uid}-ls-clip)`}>{lsContours}</g>
 
-              <text x={25 + lsSvgW / 2} y={lsSvgH + 14} textAnchor="middle" fontSize={8} fill="#9CA3AF">w →</text>
-              <text x={8} y={lsSvgH / 2} textAnchor="middle" fontSize={8} fill="#9CA3AF" transform={`rotate(-90, 8, ${lsSvgH / 2})`}>b →</text>
+              <text x={25 + lsSvgW / 2} y={lsSvgH + 14} textAnchor="middle" fontSize={8} fill="#9CA3AF">weight (w) →</text>
+              <text x={8} y={lsSvgH / 2} textAnchor="middle" fontSize={8} fill="#9CA3AF" transform={`rotate(-90, 8, ${lsSvgH / 2})`}>bias (b) →</text>
               <text x={25} y={lsSvgH + 14} textAnchor="middle" fontSize={7} fill="#9CA3AF">{lsWMin}</text>
               <text x={25 + lsSvgW} y={lsSvgH + 14} textAnchor="middle" fontSize={7} fill="#9CA3AF">{lsWMax}</text>
               <text x={22} y={4} textAnchor="end" fontSize={7} fill="#9CA3AF">{lsBMax}</text>
@@ -418,7 +420,7 @@ export default function BackpropVisualizer() {
 
               <circle cx={lsToX(w) + 25} cy={lsToY(b)} r={5} fill="#EF4444" stroke="white" strokeWidth={2} />
               <text x={lsToX(w) + 25 + 8} y={lsToY(b) - 6} fontSize={8} fill="#EF4444" fontWeight="bold">
-                ({w.toFixed(2)}, {b.toFixed(2)})
+                ({fmt.param(w)}, {fmt.param(b)})
               </text>
 
               <circle cx={lsToX(0) + 25} cy={lsToY(0)} r={3} fill="#22C55E" stroke="white" strokeWidth={1.5} />
@@ -492,7 +494,7 @@ export default function BackpropVisualizer() {
             <div className="space-y-3">
               <div>
                 <label className="text-xs text-gray-500 dark:text-gray-400 flex justify-between">
-                  <span>x (input)</span><strong>{inputX.toFixed(2)}</strong>
+                  <span>x (input)</span><strong>{fmt.param(inputX)}</strong>
                 </label>
                 <input type="range" min={-5} max={5} step={0.1} value={inputX} onChange={e => setInputX(parseFloat(e.target.value))} className="w-full accent-indigo-500" />
               </div>
@@ -511,7 +513,7 @@ export default function BackpropVisualizer() {
             <div className="space-y-3">
               <div>
                 <label className="text-xs text-gray-500 dark:text-gray-400 flex justify-between">
-                  <span>Learning Rate (η)</span><strong>{lr.toFixed(2)}</strong>
+                  <span>Learning Rate (η)</span><strong>{fmt.param(lr)}</strong>
                 </label>
                 <input type="range" min={0.01} max={2} step={0.01} value={lr} onChange={e => setLr(parseFloat(e.target.value))} className="w-full accent-indigo-500" />
               </div>
@@ -527,9 +529,10 @@ export default function BackpropVisualizer() {
                   ))}
                 </div>
               </div>
-              <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+              <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 cursor-pointer group">
                 <input type="checkbox" checked={batchMode} onChange={() => setBatchMode(!batchMode)} className="rounded" />
-                Batch mode (4 samples)
+                <span>Batch mode</span>
+                <span className="text-[10px] text-gray-400 dark:text-gray-500">(averages gradients over 4 samples)</span>
               </label>
             </div>
           </div>
@@ -537,31 +540,33 @@ export default function BackpropVisualizer() {
           {/* Training Controls */}
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Training</h3>
-            <div className="flex gap-2 mb-3">
-              <button onClick={runStep}
-                className="flex-1 px-3 py-2 bg-indigo-600 text-white rounded-lg text-xs font-medium hover:bg-indigo-700 transition-colors cursor-pointer">
-                {stepIndex === 3 ? 'Next Epoch' : 'Next Step →'}
-              </button>
-              <button onClick={toggleAutoTrain}
-                className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${autoTrain ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-green-600 text-white hover:bg-green-700'}`}>
-                {autoTrain && (
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                  </span>
-                )}
-                {autoTrain ? '⏸ Stop' : '▶ Auto-Train'}
-              </button>
-              <button onClick={reset}
-                className="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer">
-                ↺
-              </button>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 dark:text-gray-400 flex justify-between">
-                <span>Speed</span><strong>{trainSpeed}×</strong>
-              </label>
-              <input type="range" min={1} max={10} step={1} value={trainSpeed} onChange={e => setTrainSpeed(parseInt(e.target.value))} className="w-full accent-indigo-500" />
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <button onClick={runStep}
+                  className="flex-1 px-3 py-2 bg-indigo-600 text-white rounded-lg text-xs font-medium hover:bg-indigo-700 transition-colors cursor-pointer">
+                  {stepIndex === 3 ? 'Next Epoch' : 'Next Step →'}
+                </button>
+                <button onClick={toggleAutoTrain}
+                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${autoTrain ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-green-600 text-white hover:bg-green-700'}`}>
+                  {autoTrain && (
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                    </span>
+                  )}
+                  {autoTrain ? '⏸ Stop' : '▶ Auto-Train'}
+                </button>
+                <button onClick={reset}
+                  className="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer">
+                  ↺
+                </button>
+              </div>
+              <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
+                <label className="text-xs text-gray-500 dark:text-gray-400 flex justify-between">
+                  <span>Speed</span><strong>{trainSpeed}×</strong>
+                </label>
+                <input type="range" min={1} max={10} step={1} value={trainSpeed} onChange={e => setTrainSpeed(parseInt(e.target.value))} className="w-full accent-indigo-500" />
+              </div>
             </div>
           </div>
 
@@ -571,15 +576,15 @@ export default function BackpropVisualizer() {
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 text-center">
                 <span className="text-[10px] text-gray-500 dark:text-gray-400 block">z = wx + b</span>
-                <strong className="text-gray-900 dark:text-gray-100">{z.toFixed(4)}</strong>
+                <strong className="text-gray-900 dark:text-gray-100">{fmt.value(z)}</strong>
               </div>
               <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 text-center">
                 <span className="text-[10px] text-gray-500 dark:text-gray-400 block">a = {activationLabel}(z)</span>
-                <strong className="text-gray-900 dark:text-gray-100">{a.toFixed(4)}</strong>
+                <strong className="text-gray-900 dark:text-gray-100">{fmt.value(a)}</strong>
               </div>
               <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 text-center">
                 <span className="text-[10px] text-gray-500 dark:text-gray-400 block">Loss</span>
-                <strong className="text-red-600 dark:text-red-400">{loss.toFixed(6)}</strong>
+                <strong className="text-red-600 dark:text-red-400">{fmt.loss(loss)}</strong>
               </div>
               <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 text-center">
                 <span className="text-[10px] text-gray-500 dark:text-gray-400 block">Accuracy</span>
@@ -593,48 +598,51 @@ export default function BackpropVisualizer() {
               </div>
               <div>
                 <span className="text-[9px] text-gray-400 block">w</span>
-                <strong className="text-xs text-indigo-600 dark:text-indigo-400">{w.toFixed(3)}</strong>
+                <strong className="text-xs text-indigo-600 dark:text-indigo-400">{fmt.param(w)}</strong>
               </div>
               <div>
                 <span className="text-[9px] text-gray-400 block">b</span>
-                <strong className="text-xs text-amber-600 dark:text-amber-400">{b.toFixed(3)}</strong>
+                <strong className="text-xs text-amber-600 dark:text-amber-400">{fmt.param(b)}</strong>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Educational */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm">
-        <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-1">Chain Rule — The Heart of Backpropagation</h4>
-        <p className="text-xs text-blue-700 dark:text-blue-400">
-          Backpropagation applies the chain rule: <code>dL/dw = dL/da · da/dz · dz/dw</code>. Each operation stores its local gradient, and we multiply them together going backwards. The "Backward" step above shows exactly this multiplication — each factor is color-coded so you can trace where the gradient comes from.
-        </p>
-      </div>
+      {/* Educational - Two Column Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Chain Rule Explanation */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm">
+          <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-1">Chain Rule — The Heart of Backpropagation</h4>
+          <p className="text-xs text-blue-700 dark:text-blue-400">
+            Backpropagation applies the chain rule: <code>dL/dw = dL/da · da/dz · dz/dw</code>. Each operation stores its local gradient, and we multiply them together going backwards. The "Backward" step above shows exactly this multiplication — each factor is color-coded so you can trace where the gradient comes from.
+          </p>
+        </div>
 
-      {/* AI/ML Analogy */}
-      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm">
-        <h4 className="font-semibold text-amber-900 dark:text-amber-300 mb-2">AI/ML Analogy</h4>
-        <div className="space-y-2 text-xs text-amber-700 dark:text-amber-400">
-          <div className="flex items-start gap-2">
-            <span className="font-bold text-amber-600 dark:text-amber-300">Forward</span>
-            <span>→ The model makes a prediction. Like a student answering a question.</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <span className="font-bold text-amber-600 dark:text-amber-300">Loss</span>
-            <span>→ Measures how wrong the answer was. Like grading the test.</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <span className="font-bold text-amber-600 dark:text-amber-300">Backward</span>
-            <span>→ Traces the error back to its source. Like a teacher showing which step in the solution was wrong and by how much.</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <span className="font-bold text-amber-600 dark:text-amber-300">Update</span>
-            <span>→ Adjusts weights to reduce the error. Like the student practicing the specific skill they got wrong.</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <span className="font-bold text-amber-600 dark:text-amber-300">Vanishing Gradients</span>
-            <span>→ Like a game of telephone — by the time the message reaches the early layers, it&apos;s too faint to act on. ReLU fixes this by keeping the message strong.</span>
+        {/* AI/ML Analogy */}
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm">
+          <h4 className="font-semibold text-amber-900 dark:text-amber-300 mb-2">AI/ML Analogy</h4>
+          <div className="space-y-2 text-xs text-amber-700 dark:text-amber-400">
+            <div className="flex items-start gap-2">
+              <span className="font-bold text-amber-600 dark:text-amber-300">Forward</span>
+              <span>→ Like a student answering a question.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="font-bold text-amber-600 dark:text-amber-300">Loss</span>
+              <span>→ Like grading the test.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="font-bold text-amber-600 dark:text-amber-300">Backward</span>
+              <span>→ Like a teacher showing which step was wrong.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="font-bold text-amber-600 dark:text-amber-300">Update</span>
+              <span>→ Like practicing the skill they got wrong.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="font-bold text-amber-600 dark:text-amber-300">Vanishing</span>
+              <span>→ Like telephone — message fades in early layers.</span>
+            </div>
           </div>
         </div>
       </div>

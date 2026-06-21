@@ -16,7 +16,7 @@ export default function RegularizationPage() {
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Regularization Demo</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">See how dropout, L2 weight decay, and augmentation prevent overfitting</p>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">See how L1, L2, and dropout regularization shrink model weights to prevent overfitting</p>
           </div>
           <Link
             href="/content/dl/dl-regularization"
