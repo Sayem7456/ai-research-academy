@@ -1,0 +1,237 @@
+---
+title: "Recurrent Neural Networks"
+date: 2025-01-22
+tags:
+  - deep-learning
+  - rnn
+  - lstm
+  - sequences
+  - nlp
+---
+
+<Callout type="info">RNNs process sequences step-by-step, maintaining a hidden state that captures information from previous time steps. LSTMs solve the vanishing gradient problem, enabling learning of long-range dependencies.</Callout>
+
+## What Problem Does It Solve?
+
+Processing variable-length sequences (text, time series, audio) requires models that can handle different input sizes and capture temporal dependencies. RNNs process one element at a time, carrying a "memory" of what they've seen.
+
+**Key insight:** The same weights process every time step, making RNNs naturally handle sequences of any length.
+
+## Mathematical Intuition
+
+### Vanilla RNN
+
+$$
+h_t = \tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h)
+$$
+$$
+y_t = W_{hy} h_t + b_y
+$$
+
+- $h_t$: hidden state at time $t$
+- $x_t$: input at time $t$
+- $W_{hh}$: hidden-to-hidden weights
+- $W_{xh}$: input-to-hidden weights
+
+### Problem: Vanishing Gradients
+
+Backpropagation through time (BPTT) requires multiplying gradients by $W_{hh}$ repeatedly:
+
+$$
+\frac{\partial h_t}{\partial h_1} = \prod_{k=2}^{t} \frac{\partial h_k}{\partial h_{k-1}}
+$$
+
+If eigenvalues of $W_{hh}$ are $< 1$, gradients vanish. If $> 1$, they explode.
+
+### LSTM (Long Short-Term Memory)
+
+LSTMs introduce a cell state $c_t$ and three gates:
+
+**Forget gate:**
+$$
+f_t = \sigma(W_f [h_{t-1}, x_t] + b_f)
+$$
+
+**Input gate:**
+$$
+i_t = \sigma(W_i [h_{t-1}, x_t] + b_i)
+$$
+$$
+\tilde{c}_t = \tanh(W_c [h_{t-1}, x_t] + b_c)
+$$
+
+**Cell state update:**
+$$
+c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t
+$$
+
+**Output gate:**
+$$
+o_t = \sigma(W_o [h_{t-1}, x_t] + b_o)
+$$
+$$
+h_t = o_t \odot \tanh(c_t)
+$$
+
+- Gates control information flow (add/remove from cell state)
+- Cell state enables long-range gradient flow
+- $f_t$ forgets, $i_t$ adds new information, $o_t$ outputs
+
+### GRU (Gated Recurrent Unit)
+
+Simplified LSTM with two gates:
+
+$z_t$ = Update gate, $r_t$ = Reset gate
+
+$$
+z_t = \sigma(W_z [h_{t-1}, x_t])
+$$
+$$
+r_t = \sigma(W_r [h_{t-1}, x_t])
+$$
+$$
+\tilde{h}_t = \tanh(W_h [r_t \odot h_{t-1}, x_t])
+$$
+$$
+h_t = (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t
+$$
+
+Fewer parameters than LSTM, often similar performance.
+
+## PyTorch Implementation
+
+### Basic RNN
+
+```python
+import torch
+import torch.nn as nn
+
+# Simple RNN
+rnn = nn.RNN(
+    input_size=10,     # Features per time step
+    hidden_size=64,    # Hidden state size
+    num_layers=2,      # Stacked RNN layers
+    batch_first=True,  # Input shape: (batch, seq_len, features)
+    dropout=0.2        # Dropout between layers
+)
+
+# Input: (batch, seq_len, features)
+x = torch.randn(32, 50, 10)  # 32 samples, 50 time steps, 10 features
+output, h_n = rnn(x)
+
+print(f"Output shape: {output.shape}")  # (32, 50, 64) - all hidden states
+print(f"Final hidden: {h_n.shape}")     # (2, 32, 64) - last hidden per layer
+```
+
+### LSTM
+
+```python
+lstm = nn.LSTM(
+    input_size=100,    # Word embedding dimension
+    hidden_size=256,   # Hidden state size
+    num_layers=2,
+    batch_first=True,
+    dropout=0.3,
+    bidirectional=True  # Process sequence in both directions
+)
+
+x = torch.randn(32, 30, 100)  # 32 sentences, 30 words, 100-dim embeddings
+output, (h_n, c_n) = lstm(x)
+
+print(f"Output shape: {output.shape}")   # (32, 30, 512) - bidirectional doubles size
+print(f"Cell state: {c_n.shape}")        # (4, 32, 256) - 4 = 2 layers * 2 directions
+```
+
+### GRU
+
+```python
+gru = nn.GRU(
+    input_size=10,
+    hidden_size=64,
+    num_layers=1,
+    batch_first=True
+)
+
+x = torch.randn(32, 20, 10)
+output, h_n = gru(x)
+```
+
+### Sequence Classification
+
+```python
+class TextClassifier(nn.Module):
+    def __init__(self, vocab_size, embed_dim, hidden_dim, num_classes):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        self.lstm = nn.LSTM(embed_dim, hidden_dim, batch_first=True, bidirectional=True)
+        self.fc = nn.Linear(hidden_dim * 2, num_classes)  # *2 for bidirectional
+    
+    def forward(self, x):
+        # x: (batch, seq_len) - token indices
+        embeds = self.embedding(x)            # (batch, seq_len, embed_dim)
+        output, (h_n, c_n) = self.lstm(embeds)
+        
+        # Concatenate final hidden states from both directions
+        hidden = torch.cat((h_n[-2], h_n[-1]), dim=1)
+        
+        return self.fc(hidden)
+
+model = TextClassifier(vocab_size=10000, embed_dim=128, hidden_dim=256, num_classes=5)
+```
+
+### Sequence-to-Sequence
+
+```python
+class Seq2Seq(nn.Module):
+    def __init__(self, src_vocab, tgt_vocab, embed_dim, hidden_dim):
+        super().__init__()
+        self.encoder = nn.LSTM(embed_dim, hidden_dim, batch_first=True)
+        self.decoder = nn.LSTM(embed_dim, hidden_dim, batch_first=True)
+        self.fc = nn.Linear(hidden_dim, tgt_vocab)
+    
+    def forward(self, src, tgt):
+        # Encode
+        _, (h, c) = self.encoder(src)
+        
+        # Decode
+        output, _ = self.decoder(tgt, (h, c))
+        return self.fc(output)
+```
+
+## Hyperparameters
+
+### Hidden Size
+- Small (64-128): simple patterns, fast training
+- Large (256-512): complex patterns, slow training
+- Start with 128, increase if underfitting
+
+### Number of Layers
+- 1-2: most tasks
+- 3+: very complex patterns, risk of overfitting
+
+### Dropout
+- 0.2-0.5 between layers
+- Don't dropout input or output connections
+
+## When to Use
+
+**Good for:**
+- Text classification
+- Sentiment analysis
+- Time series forecasting
+- Speech recognition
+- Music generation
+
+**Avoid for:**
+- Long sequences (>500 steps) — use Transformers
+- Tasks needing global context — use Transformers
+- Parallel processing needed — use Transformers
+
+## Key Takeaways
+
+1. RNNs process sequences step-by-step with a hidden state
+2. LSTMs use gates to control information flow and enable long-range learning
+3. GRUs are simpler alternatives to LSTMs with similar performance
+4. Bidirectional RNNs process sequences in both directions
+5. For classification, use the final hidden state; for generation, use all outputs
+6. Transformers have largely replaced RNNs for most sequence tasks

@@ -1,0 +1,278 @@
+---
+title: "Regularization"
+date: 2025-01-22
+tags:
+  - deep-learning
+  - regularization
+  - dropout
+  - batch-normalization
+  - overfitting
+---
+
+<Callout type="info">Regularization techniques prevent neural networks from overfitting — memorizing training data instead of learning generalizable patterns. Deep learning uses many regularization methods beyond traditional L1/L2.</Callout>
+
+## What Problem Does It Solve?
+
+Neural networks with millions of parameters can easily memorize training data. Regularization constrains the model's capacity or adds noise to prevent overfitting, improving generalization to unseen data.
+
+**Key insight:** Regularization is the difference between a model that "knows" the training data and one that "understands" the underlying patterns.
+
+## Types of Overfitting
+
+### Underfitting
+- Training loss: high
+- Validation loss: high
+- Fix: more capacity, longer training
+
+### Overfitting
+- Training loss: low
+- Validation loss: high (diverging)
+- Fix: regularization, more data, early stopping
+
+### Good Fit
+- Training loss: low
+- Validation loss: close to training loss
+- Goal: minimize generalization gap
+
+## Regularization Techniques
+
+### L2 Regularization (Weight Decay)
+
+$$
+L_{total} = L_{task} + \lambda \sum_{i} w_i^2
+$$
+
+- Penalizes large weights
+- Encourages smooth, simple functions
+- $\lambda$ controls regularization strength
+
+### Dropout
+
+During training, randomly set activations to zero with probability $p$:
+
+$$
+\text{drop}(x) = \begin{cases} 0 & \text{with probability } p \\ x/(1-p) & \text{with probability } 1-p \end{cases}
+$$
+
+- Forces network to learn redundant representations
+- Prevents co-adaptation of neurons
+- Only active during training, not inference
+
+### Batch Normalization
+
+Normalize activations across the batch:
+
+$$
+\hat{x}_i = \frac{x_i - \mu_B}{\sqrt{\sigma_B^2 + \epsilon}}
+$$
+$$
+y_i = \gamma \hat{x}_i + \beta
+$$
+
+- Stabilizes training
+- Allows higher learning rates
+- Reduces sensitivity to initialization
+
+### Data Augmentation
+
+Apply random transformations to training data:
+- Images: rotation, flip, crop, color jitter
+- Text: back-translation, synonym replacement
+- Audio: time stretching, pitch shifting
+
+### Early Stopping
+
+Stop training when validation loss stops improving:
+
+$$
+\text{Stop when } L_{val}(t) > L_{val}(t-k) \text{ for } k \text{ epochs}
+$$
+
+### Label Smoothing
+
+Replace hard labels with soft targets:
+
+$$
+y_{smooth} = (1-\epsilon) \cdot y_{onehot} + \epsilon/K
+$$
+
+- $\epsilon = 0.1$ typical
+- Prevents overconfident predictions
+
+## PyTorch Implementation
+
+### Dropout
+
+```python
+import torch.nn as nn
+
+class Classifier(nn.Module):
+    def __init__(self, input_size, hidden_size, num_classes, dropout_rate=0.5):
+        super().__init__()
+        self.layers = nn.Sequential(
+            nn.Linear(input_size, hidden_size),
+            nn.ReLU(),
+            nn.Dropout(p=dropout_rate),          # Dropout after activation
+            nn.Linear(hidden_size, hidden_size),
+            nn.ReLU(),
+            nn.Dropout(p=dropout_rate),
+            nn.Linear(hidden_size, num_classes)
+        )
+    
+    def forward(self, x):
+        return self.layers(x)
+
+model = Classifier(784, 256, 10, dropout_rate=0.3)
+
+# Training mode (dropout active)
+model.train()
+output_train = model(x)
+
+# Evaluation mode (dropout disabled)
+model.eval()
+output_eval = model(x)
+```
+
+### Batch Normalization
+
+```python
+class ClassifierWithBN(nn.Module):
+    def __init__(self, input_size, hidden_size, num_classes):
+        super().__init__()
+        self.layers = nn.Sequential(
+            nn.Linear(input_size, hidden_size),
+            nn.BatchNorm1d(hidden_size),         # Batch norm after linear
+            nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size),
+            nn.BatchNorm1d(hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, num_classes)
+        )
+    
+    def forward(self, x):
+        return self.layers(x)
+```
+
+### Weight Decay (L2 Regularization)
+
+```python
+# AdamW with decoupled weight decay
+optimizer = torch.optim.AdamW(
+    model.parameters(),
+    lr=0.001,
+    weight_decay=0.01    # L2 penalty
+)
+
+# Or use L2 directly in loss
+l2_lambda = 0.001
+l2_reg = sum(p.pow(2).sum() for p in model.parameters())
+loss = task_loss + l2_lambda * l2_reg
+```
+
+### Early Stopping
+
+```python
+class EarlyStopping:
+    def __init__(self, patience=10, min_delta=0):
+        self.patience = patience
+        self.min_delta = min_delta
+        self.counter = 0
+        self.best_loss = None
+        self.should_stop = False
+    
+    def __call__(self, val_loss):
+        if self.best_loss is None:
+            self.best_loss = val_loss
+        elif val_loss > self.best_loss - self.min_delta:
+            self.counter += 1
+            if self.counter >= self.patience:
+                self.should_stop = True
+        else:
+            self.best_loss = val_loss
+            self.counter = 0
+        return self.should_stop
+
+# Usage
+early_stop = EarlyStopping(patience=10)
+for epoch in range(1000):
+    train_loss = train(model, train_loader)
+    val_loss = validate(model, val_loader)
+    if early_stop(val_loss):
+        print(f"Early stopping at epoch {epoch}")
+        break
+```
+
+### Data Augmentation (Images)
+
+```python
+from torchvision import transforms
+
+train_transform = transforms.Compose([
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomRotation(10),
+    transforms.RandomCrop(32, padding=4),
+    transforms.ColorJitter(brightness=0.2, contrast=0.2),
+    transforms.ToTensor(),
+    transforms.Normalize((0.5,), (0.5,))
+])
+
+# No augmentation for test set
+test_transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.5,), (0.5,))
+])
+```
+
+### Label Smoothing
+
+```python
+# PyTorch built-in
+criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
+
+# Manual implementation
+def label_smoothing_loss(logits, targets, smoothing=0.1):
+    num_classes = logits.size(-1)
+    confidence = 1.0 - smoothing
+    smooth_val = smoothing / (num_classes - 1)
+    
+    true_dist = torch.full_like(logits, smooth_val)
+    true_dist.scatter_(1, targets.unsqueeze(1), confidence)
+    
+    log_probs = torch.log_softmax(logits, dim=-1)
+    return torch.mean(torch.sum(-true_dist * log_probs, dim=-1))
+```
+
+## Hyperparameters
+
+| Technique | Typical Values | When to Adjust |
+|-----------|----------------|----------------|
+| Dropout | 0.1 - 0.5 | If overfitting, increase; if underfitting, decrease |
+| Weight Decay | 1e-4 - 1e-2 | If overfitting, increase |
+| Batch Norm | Usually sufficient | Rarely needs tuning |
+| Label Smoothing | 0.05 - 0.2 | If model is overconfident |
+
+## When to Use
+
+**Always use:**
+- Batch normalization (except for small batches)
+- Data augmentation (when applicable)
+- Early stopping
+
+**Use when overfitting:**
+- Dropout (0.1-0.5)
+- Weight decay (1e-4 to 1e-2)
+- Label smoothing (0.1)
+
+**Use for large models:**
+- Dropout in later layers
+- Stronger weight decay
+- More aggressive augmentation
+
+## Key Takeaways
+
+1. Dropout is the most common regularization in deep learning
+2. Batch normalization stabilizes training and acts as mild regularization
+3. Data augmentation is the most effective regularization when applicable
+4. Early stopping is simple and always worth trying
+5. Combine multiple regularization techniques for best results
+6. Always use `model.eval()` during inference to disable dropout

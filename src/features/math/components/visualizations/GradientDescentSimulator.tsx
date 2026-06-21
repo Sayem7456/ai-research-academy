@@ -208,6 +208,7 @@ export default function GradientDescentSimulator() {
 
             {/* Current position */}
             <motion.circle
+              cx={toSvgX(currentPos[0])} cy={toSvgY(currentPos[1])}
               animate={{ cx: toSvgX(currentPos[0]), cy: toSvgY(currentPos[1]) }}
               r="6" fill="white" stroke="#8B5CF6" strokeWidth="2.5"
             />
@@ -231,7 +232,7 @@ export default function GradientDescentSimulator() {
           <div className="flex flex-wrap gap-2">
             {SURFACES.map((s) => (
               <button key={s.id} onClick={() => { setSurface(s.id); setAnimStep(0); setIsRunning(false); }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${surface === s.id ? 'bg-purple-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${surface === s.id ? 'bg-purple-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
                 {s.name}
               </button>
             ))}
@@ -279,7 +280,7 @@ export default function GradientDescentSimulator() {
 
           {/* Run button */}
           <button onClick={startAnim}
-            className="w-full px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors">
+            className="w-full px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors cursor-pointer">
             {isRunning ? 'Running...' : 'Run Gradient Descent'}
           </button>
 
@@ -322,6 +323,39 @@ export default function GradientDescentSimulator() {
               <li>Saddle point: gradient is zero at center but it&apos;s NOT a minimum — watch the loss go negative (diverging, not converging!)</li>
               <li>Yellow arrow shows the negative gradient direction (descent)</li>
             </ul>
+          </div>
+
+          {/* AI/ML Analogy */}
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm">
+            <h4 className="font-semibold text-amber-900 dark:text-amber-300 mb-2">AI/ML Analogy</h4>
+            <p className="text-amber-800 dark:text-amber-300 text-xs mb-3">
+              Training a neural network = rolling a ball downhill on a loss landscape. The ball&apos;s position = your model&apos;s weights.
+            </p>
+            <div className="space-y-2 text-xs text-amber-700 dark:text-amber-400">
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Learning Rate</span>
+                <span>→ Step size. Too big = overshoot the minimum. Too small = takes forever. Sweet spot = fast convergence.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Momentum</span>
+                <span>→ Like a heavy ball that builds speed. Smooths out noisy gradients and escapes shallow local minima.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Saddle Point</span>
+                <span>→ Looks flat but isn&apos;t a minimum. Common in high dimensions. Adam optimizer handles these better than basic GD.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Loss Landscape</span>
+                <span>→ The terrain your optimizer navigates. Flat = easy. Rugged with many valleys = hard. Visualize with t-SNE.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Convergence</span>
+                <span>→ When the ball stops moving. In practice, monitor validation loss — if it stops decreasing, you&apos;re done.</span>
+              </div>
+            </div>
+            <p className="text-amber-600 dark:text-amber-500 text-xs mt-3 font-medium">
+              Every deep learning framework (PyTorch, TensorFlow) uses this exact algorithm under the hood to train your models.
+            </p>
           </div>
         </div>
       </div>

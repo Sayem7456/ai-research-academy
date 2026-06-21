@@ -139,14 +139,15 @@ export default function EigenvectorVisualizer() {
               return (
                 <g key={i}>
                   <motion.line
+                    x1={CENTER} y1={CENTER}
                     animate={{
-                      x1: CENTER, y1: CENTER,
                       x2: sx, y2: sy,
                     }}
                     transition={{ duration: 0.3 }}
                     stroke={color} strokeWidth="3"
                   />
                   <motion.circle
+                    cx={sx} cy={sy}
                     animate={{ cx: sx, cy: sy }}
                     transition={{ duration: 0.3 }}
                     r="5" fill={color}
@@ -241,6 +242,39 @@ export default function EigenvectorVisualizer() {
               <li>λ = 0: collapses to lower dimension</li>
               <li>Complex λ: matrix involves rotation (no real eigenvectors)</li>
             </ul>
+          </div>
+
+          {/* AI/ML Analogy */}
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm">
+            <h4 className="font-semibold text-amber-900 dark:text-amber-300 mb-2">AI/ML Analogy</h4>
+            <p className="text-amber-800 dark:text-amber-300 text-xs mb-3">
+              Eigenvectors reveal the &quot;skeleton&quot; of a transformation — the fundamental directions that define how data spreads.
+            </p>
+            <div className="space-y-2 text-xs text-amber-700 dark:text-amber-400">
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Eigenvectors</span>
+                <span>→ Like principal components in PCA. They point in the directions where your data varies the most.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Eigenvalues</span>
+                <span>→ Tell you how important each direction is. Large λ = that direction matters a lot for your model.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Stretch (|λ|&gt;1)</span>
+                <span>→ Like amplifying a feature. The model pays more attention to this direction.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Compress (|λ|&lt;1)</span>
+                <span>→ Like ignoring noise. The model shrinks irrelevant features toward zero.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">PCA</span>
+                <span>→ Finds eigenvectors of the covariance matrix. Keeps directions with large eigenvalues, discards the rest.</span>
+              </div>
+            </div>
+            <p className="text-amber-600 dark:text-amber-500 text-xs mt-3 font-medium">
+              Eigendecomposition is the math behind PCA, spectral clustering, and understanding what your model actually learned.
+            </p>
           </div>
         </div>
       </div>

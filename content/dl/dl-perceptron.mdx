@@ -1,0 +1,185 @@
+---
+title: "Perceptron & Activation Functions"
+date: 2025-01-22
+tags:
+  - deep-learning
+  - neural-networks
+  - activation-functions
+---
+
+<Callout type="info">A perceptron is the simplest neural network — a single neuron that computes a weighted sum of inputs, adds a bias, and passes the result through an activation function. It's the building block of all deep learning.</Callout>
+
+## What Problem Does It Solve?
+
+Classification and regression with linear boundaries. A single perceptron can learn logical AND, OR, and NAND operations. Stacking perceptrons creates multi-layer networks that learn non-linear patterns.
+
+**Key insight:** Without activation functions, stacking layers is just matrix multiplication — still linear. Activation functions introduce non-linearity, enabling neural networks to learn complex patterns.
+
+## Mathematical Intuition
+
+### Single Perceptron
+
+$$
+z = \mathbf{w}^T \mathbf{x} + b
+$$
+$$
+a = \sigma(z)
+$$
+
+Where:
+- $\mathbf{x}$: input vector
+- $\mathbf{w}$: weight vector
+- $b$: bias (shifts the decision boundary)
+- $\sigma$: activation function
+- $a$: output activation
+
+### Decision Boundary
+
+For binary classification, the decision boundary is:
+$$
+\mathbf{w}^T \mathbf{x} + b = 0
+$$
+
+This is a hyperplane in input space. Points on one side are class 0, the other side class 1.
+
+## Activation Functions
+
+### Sigmoid
+
+$$
+\sigma(z) = \frac{1}{1 + e^{-z}}
+$$
+
+- Output range: $(0, 1)$
+- Good for: binary classification output layer
+- Problem: vanishing gradients for large $|z|$
+
+### Tanh
+
+$$
+\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}
+$$
+
+- Output range: $(-1, 1)$
+- Zero-centered (better than sigmoid)
+- Problem: still vanishing gradients
+
+### ReLU (Rectified Linear Unit)
+
+$$
+\text{ReLU}(z) = \max(0, z)
+$$
+
+- Output range: $[0, \infty)$
+- Computationally efficient
+- Default choice for hidden layers
+- Problem: "dying ReLU" — neurons can output 0 forever
+
+### Leaky ReLU
+
+$$
+\text{LeakyReLU}(z) = \begin{cases} z & \text{if } z > 0 \\ \alpha z & \text{if } z \leq 0 \end{cases}
+$$
+
+- Usually $\alpha = 0.01$
+- Fixes dying ReLU problem
+
+### Softmax (Output Layer)
+
+$$
+\text{softmax}(z_i) = \frac{e^{z_i}}{\sum_{j} e^{z_j}}
+$$
+
+- Converts logits to probabilities
+- Sum of outputs = 1
+- Used for multi-class classification
+
+## PyTorch Implementation
+
+### Manual Perceptron
+
+```python
+import torch
+import torch.nn as nn
+
+# Single perceptron with sigmoid output
+class Perceptron(nn.Module):
+    def __init__(self, input_size):
+        super().__init__()
+        self.linear = nn.Linear(input_size, 1)
+    
+    def forward(self, x):
+        return torch.sigmoid(self.linear(x))
+
+# Create model
+model = Perceptron(input_size=2)
+
+# Forward pass
+x = torch.tensor([[1.0, 2.0]])
+output = model(x)  # tensor([[0.8907]])
+```
+
+### Multi-Layer Network
+
+```python
+class SimpleNN(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super().__init__()
+        self.hidden = nn.Linear(input_size, hidden_size)
+        self.output = nn.Linear(hidden_size, output_size)
+    
+    def forward(self, x):
+        x = torch.relu(self.hidden(x))  # Hidden layer with ReLU
+        x = self.output(x)              # Output layer (raw logits)
+        return x
+
+model = SimpleNN(input_size=2, hidden_size=16, output_size=3)
+```
+
+### Activation Functions in PyTorch
+
+```python
+# All common activations
+relu = nn.ReLU()
+sigmoid = nn.Sigmoid()
+tanh = nn.Tanh()
+softmax = nn.Softmax(dim=1)
+leaky_relu = nn.LeakyReLU(negative_slope=0.01)
+
+# Apply to tensor
+x = torch.tensor([-2.0, -1.0, 0.0, 1.0, 2.0])
+print(relu(x))      # tensor([0., 0., 0., 1., 2.])
+print(sigmoid(x))   # tensor([0.1192, 0.2689, 0.5000, 0.7311, 0.8808])
+print(tanh(x))      # tensor([-0.9640, -0.7616, 0.0000, 0.7616, 0.9640])
+```
+
+## Hyperparameters
+
+### Hidden Layer Size
+- Small: underfitting, can't capture complexity
+- Large: overfitting, slow training
+- Start with 2x input features, adjust based on validation loss
+
+### Number of Layers
+- 1 hidden layer: universal approximator (with enough neurons)
+- 2-3 layers: good for most tabular data
+- More layers: needed for complex patterns (images, text)
+
+## When to Use
+
+**Good for:**
+- Binary/multi-class classification
+- Regression
+- Feature extraction (penultimate layer as embeddings)
+
+**Avoid for:**
+- Very large datasets without GPU
+- When interpretability is critical (use linear models)
+
+## Key Takeaways
+
+1. A perceptron is a single neuron: weighted sum + bias + activation
+2. Without non-linear activation functions, multiple layers collapse to a single linear transformation
+3. ReLU is the default choice for hidden layers
+4. Softmax is used for multi-class output probabilities
+5. The output layer activation depends on the task (sigmoid for binary, softmax for multi-class, none for regression)

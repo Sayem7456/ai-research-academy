@@ -30,6 +30,14 @@ const NAV_CARDS = [
     borderColor: 'border-cyan-200 dark:border-cyan-800',
   },
   {
+    href: '/dl',
+    icon: '🧠',
+    title: 'Deep Learning',
+    description: 'Neural networks from perceptrons to generative models — interactive visualizations.',
+    color: 'from-violet-500 to-purple-600',
+    borderColor: 'border-violet-200 dark:border-violet-800',
+  },
+  {
     href: '/cv',
     icon: '👁️',
     title: 'Computer Vision',
@@ -54,14 +62,6 @@ const NAV_CARDS = [
     borderColor: 'border-red-200 dark:border-red-800',
   },
   {
-    href: '/notes',
-    icon: '📝',
-    title: 'Personal Notes',
-    description: 'Your learning journal — create, search, and organize notes. Stored locally, works offline.',
-    color: 'from-purple-500 to-violet-600',
-    borderColor: 'border-purple-200 dark:border-purple-800',
-  },
-  {
     href: '/dashboard',
     icon: '📊',
     title: 'Full Dashboard',
@@ -74,9 +74,10 @@ const NAV_CARDS = [
 const LEARNING_PATH = [
   { step: 1, label: 'Mathematics', icon: '📐', href: '/math', color: 'bg-emerald-500' },
   { step: 2, label: 'Machine Learning', icon: '🤖', href: '/ml', color: 'bg-blue-500' },
-  { step: 3, label: 'Computer Vision', icon: '👁️', href: '/cv', color: 'bg-purple-500' },
-  { step: 4, label: 'LLMs', icon: '💬', href: '/llm', color: 'bg-amber-500' },
-  { step: 5, label: 'Research', icon: '📄', href: '/research', color: 'bg-red-500' },
+  { step: 3, label: 'Deep Learning', icon: '🧠', href: '/dl', color: 'bg-violet-500' },
+  { step: 4, label: 'Computer Vision', icon: '👁️', href: '/cv', color: 'bg-purple-500' },
+  { step: 5, label: 'LLMs', icon: '💬', href: '/llm', color: 'bg-amber-500' },
+  { step: 6, label: 'Research', icon: '📄', href: '/research', color: 'bg-red-500' },
 ];
 
 export default function HomePage() {

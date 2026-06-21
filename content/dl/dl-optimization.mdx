@@ -1,0 +1,237 @@
+---
+title: "Loss Functions & Optimization"
+date: 2025-01-22
+tags:
+  - deep-learning
+  - optimization
+  - sgd
+  - adam
+  - learning-rate
+---
+
+<Callout type="info">Optimization is how neural networks learn. The loss function measures how wrong your model is, and the optimizer adjusts weights to minimize that loss. Choosing the right loss and optimizer is critical for training success.</Callout>
+
+## What Problem Does It Solve?
+
+Neural networks need to find weights that minimize a loss function. This is a non-convex optimization problem with millions of parameters. Gradient descent and its variants navigate this high-dimensional landscape.
+
+**Key insight:** The learning rate is the most important hyperparameter. Too high: diverges. Too low: converges slowly or gets stuck.
+
+## Mathematical Intuition
+
+### Gradient Descent
+
+$$
+\theta_{t+1} = \theta_t - \eta \nabla_\theta L(\theta_t)
+$$
+
+### Stochastic Gradient Descent (SGD)
+
+$$
+\theta_{t+1} = \theta_t - \eta \nabla_\theta L(\theta_t; x_i, y_i)
+$$
+
+- Updates on mini-batches, not full dataset
+- Noisier but faster convergence
+- Can escape local minima
+
+### SGD with Momentum
+
+$$
+v_t = \beta v_{t-1} + \nabla_\theta L(\theta_t)
+$$
+$$
+\theta_{t+1} = \theta_t - \eta v_t
+$$
+
+- $\beta = 0.9$: smooths gradient updates
+- Accelerates in consistent gradient directions
+- Dampens oscillations
+
+### Adam (Adaptive Moment Estimation)
+
+$$
+m_t = \beta_1 m_{t-1} + (1-\beta_1) \nabla_\theta L(\theta_t)
+$$
+$$
+v_t = \beta_2 v_{t-1} + (1-\beta_2) (\nabla_\theta L(\theta_t))^2
+$$
+$$
+\hat{m}_t = \frac{m_t}{1 - \beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t}
+$$
+$$
+\theta_{t+1} = \theta_t - \eta \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
+$$
+
+- Combines momentum (first moment) and RMSprop (second moment)
+- Adaptive learning rates per parameter
+- Default choice for most problems
+
+## Common Loss Functions
+
+### Binary Cross-Entropy
+
+$$
+L = -\frac{1}{N}\sum_{i=1}^{N} [y_i \log(\hat{y}_i) + (1-y_i) \log(1-\hat{y}_i)]
+$$
+
+For binary classification with sigmoid output.
+
+### Categorical Cross-Entropy
+
+$$
+L = -\frac{1}{N}\sum_{i=1}^{N}\sum_{c=1}^{C} y_{i,c} \log(\hat{y}_{i,c})
+$$
+
+For multi-class classification with softmax output.
+
+### Mean Squared Error (MSE)
+
+$$
+L = \frac{1}{N}\sum_{i=1}^{N} (y_i - \hat{y}_i)^2
+$$
+
+For regression tasks.
+
+### Huber Loss
+
+$$
+L_\delta = \begin{cases} \frac{1}{2}(y - \hat{y})^2 & \text{if } |y - \hat{y}| \leq \delta \\ \delta|y - \hat{y}| - \frac{1}{2}\delta^2 & \text{otherwise} \end{cases}
+$$
+
+Robust to outliers. Combines MSE (small errors) and MAE (large errors).
+
+## PyTorch Implementation
+
+### Loss Functions
+
+```python
+import torch.nn as nn
+
+# Classification losses
+bce_loss = nn.BCELoss()                          # Binary cross-entropy
+bce_logits = nn.BCEWithLogitsLoss()              # More numerically stable
+ce_loss = nn.CrossEntropyLoss()                  # Multi-class (includes softmax)
+
+# Regression losses
+mse_loss = nn.MSELoss()                          # Mean squared error
+mae_loss = nn.L1Loss()                           # Mean absolute error
+huber_loss = nn.HuberLoss(delta=1.0)             # Robust to outliers
+
+# Usage
+logits = torch.randn(8, 3)                       # 8 samples, 3 classes
+targets = torch.randint(0, 3, (8,))              # Class labels 0, 1, 2
+loss = ce_loss(logits, targets)                  # No need to apply softmax first!
+```
+
+### SGD Optimizer
+
+```python
+model = nn.Linear(10, 1)
+
+# Basic SGD
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+
+# SGD with momentum
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+
+# SGD with momentum and weight decay (L2 regularization)
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-4)
+```
+
+### Adam Optimizer
+
+```python
+# Adam (most common)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+# AdamW (Adam with decoupled weight decay — recommended)
+optimizer = torch.optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.01)
+```
+
+### Learning Rate Scheduling
+
+```python
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+# Step decay
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
+
+# Cosine annealing (popular for transformers)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100)
+
+# Reduce on plateau (adaptive)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+    optimizer, mode='min', factor=0.1, patience=10
+)
+
+# Training loop
+for epoch in range(100):
+    train_loss = train_one_epoch(model, optimizer)
+    val_loss = validate(model)
+    scheduler.step(val_loss)  # For ReduceLROnPlateau
+    # scheduler.step()        # For other schedulers
+```
+
+### Full Training Loop
+
+```python
+import torch
+import torch.nn as nn
+
+model = nn.Sequential(
+    nn.Linear(10, 64),
+    nn.ReLU(),
+    nn.Linear(64, 32),
+    nn.ReLU(),
+    nn.Linear(32, 1)
+)
+
+optimizer = torch.optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.01)
+criterion = nn.MSELoss()
+
+for epoch in range(100):
+    model.train()
+    for x_batch, y_batch in train_loader:
+        optimizer.zero_grad()           # Reset gradients
+        y_pred = model(x_batch)         # Forward pass
+        loss = criterion(y_pred, y_batch)  # Compute loss
+        loss.backward()                 # Backward pass
+        optimizer.step()                # Update weights
+```
+
+## Hyperparameters
+
+### Learning Rate
+- Too high: loss oscillates or diverges
+- Too low: slow convergence, may get stuck
+- Start with $10^{-3}$ for Adam, $10^{-2}$ for SGD
+- Use learning rate finder or scheduler
+
+### Batch Size
+- Small (32-64): noisy gradients, better generalization
+- Large (256+): faster training, may generalize worse
+- Use largest batch that fits in GPU memory
+
+### Weight Decay
+- L2 regularization term
+- Prevents overfitting by penalizing large weights
+- Typical values: $10^{-4}$ to $10^{-2}$
+
+## When to Use
+
+| Optimizer | Use Case |
+|-----------|----------|
+| Adam/AdamW | Default choice, fast convergence |
+| SGD + Momentum | When you have time to tune, often better generalization |
+| Adagrad | Sparse data, NLP |
+| LAMB | Very large batch training |
+
+## Key Takeaways
+
+1. Adam/AdamW is the default optimizer for most problems
+2. Learning rate is the most important hyperparameter
+3. Use `BCEWithLogitsLoss` instead of sigmoid + BCELoss
+4. `CrossEntropyLoss` includes softmax — don't apply it separately
+5. Learning rate schedulers improve convergence
+6. Weight decay (L2 regularization) helps prevent overfitting

@@ -181,25 +181,25 @@ export default function BayesianUpdateSimulator() {
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Observe coin flips:</label>
             <div className="flex flex-wrap gap-2">
               <button onClick={() => addObservation(1)}
-                className="px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg font-medium hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors">
+                className="px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg font-medium hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors cursor-pointer">
                 Heads (1)
               </button>
               <button onClick={() => addObservation(0)}
-                className="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg font-medium hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">
+                className="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg font-medium hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors cursor-pointer">
                 Tails (0)
               </button>
               <button onClick={addRandomObservation}
-                className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg font-medium hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">
+                className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg font-medium hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors cursor-pointer">
                 Random Flip
               </button>
             </div>
             <div className="flex gap-2 mt-2">
               <button onClick={() => addBatch(10)}
-                className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">+10 random</button>
+                className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer">+10 random</button>
               <button onClick={() => addBatch(50)}
-                className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">+50 random</button>
+                className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer">+50 random</button>
               <button onClick={reset}
-                className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">Reset</button>
+                className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer">Reset</button>
             </div>
           </div>
 
@@ -220,7 +220,7 @@ export default function BayesianUpdateSimulator() {
             <div className="flex flex-wrap gap-2">
               {PRIOR_PRESETS.map((p) => (
                 <button key={p.name} onClick={() => setPrior(p)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                     priorAlpha === p.alpha && priorBeta === p.beta
                       ? 'bg-gray-700 text-white dark:bg-gray-300 dark:text-gray-900'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
@@ -276,6 +276,39 @@ export default function BayesianUpdateSimulator() {
               The posterior mean is a weighted average of the prior mean and the MLE.
               With more data, the posterior concentrates around the true value and the prior matters less.
               Notice how the posterior (indigo) moves from the prior (gray) toward the MLE (red) and eventually converges on the true value (green).
+            </p>
+          </div>
+
+          {/* AI/ML Analogy */}
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm">
+            <h4 className="font-semibold text-amber-900 dark:text-amber-300 mb-2">AI/ML Analogy</h4>
+            <p className="text-amber-800 dark:text-amber-300 text-xs mb-3">
+              Bayesian updating is how a model learns from evidence — start with a guess, see data, update your belief.
+            </p>
+            <div className="space-y-2 text-xs text-amber-700 dark:text-amber-400">
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Prior</span>
+                <span>→ Your initial belief before seeing data. Like pre-training knowledge or domain expertise injected into a model.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Likelihood</span>
+                <span>→ How well the data explains different parameter values. Like the loss function measuring fit.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Posterior</span>
+                <span>→ Updated belief after seeing data. The model&apos;s best guess combining prior knowledge + evidence.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">MAP vs MLE</span>
+                <span>→ MAP = posterior mode (uses prior). MLE = just data. With lots of data, they converge. With little data, prior helps.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Regularization</span>
+                <span>→ L2 regularization = Gaussian prior on weights. L1 = Laplace prior. Bayesian view explains why regularization works!</span>
+              </div>
+            </div>
+            <p className="text-amber-600 dark:text-amber-500 text-xs mt-3 font-medium">
+              Bayesian methods are the foundation of active learning, uncertainty estimation, and probabilistic ML models.
             </p>
           </div>
         </div>

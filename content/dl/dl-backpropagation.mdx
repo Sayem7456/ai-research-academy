@@ -1,0 +1,194 @@
+---
+title: "Forward & Backward Propagation"
+date: 2025-01-22
+tags:
+  - deep-learning
+  - backpropagation
+  - gradients
+  - autograd
+---
+
+<Callout type="info">Backpropagation is the algorithm that makes neural networks learn. It computes how much each weight contributed to the error, enabling gradient descent to update weights in the right direction.</Callout>
+
+## What Problem Does It Solve?
+
+Training neural networks requires computing gradients of the loss with respect to every weight. Backpropagation does this efficiently by applying the chain rule layer by layer, from output back to input.
+
+**Key insight:** Forward pass computes predictions, backward pass computes gradients. Together they form one training step.
+
+## Mathematical Intuition
+
+### Forward Pass
+
+Data flows through the network:
+
+$$
+z^{(1)} = W^{(1)} x + b^{(1)}
+$$
+$$
+a^{(1)} = \sigma(z^{(1)})
+$$
+$$
+z^{(2)} = W^{(2)} a^{(1)} + b^{(2)}
+$$
+$$
+\hat{y} = \sigma(z^{(2)})
+$$
+
+### Loss Computation
+
+For binary cross-entropy:
+$$
+L = -[y \log(\hat{y}) + (1-y) \log(1-\hat{y})]
+$$
+
+### Backward Pass (Chain Rule)
+
+Starting from the loss, compute gradients layer by layer:
+
+$$
+\frac{\partial L}{\partial \hat{y}} = \frac{\hat{y} - y}{\hat{y}(1-\hat{y})}
+$$
+
+$$
+\frac{\partial L}{\partial W^{(2)}} = \frac{\partial L}{\partial \hat{y}} \cdot \frac{\partial \hat{y}}{\partial z^{(2)}} \cdot \frac{\partial z^{(2)}}{\partial W^{(2)}}
+$$
+
+$$
+\frac{\partial L}{\partial W^{(1)}} = \frac{\partial L}{\partial z^{(2)}} \cdot W^{(2)} \cdot \frac{\partial a^{(1)}}{\partial z^{(1)}} \cdot \frac{\partial z^{(1)}}{\partial W^{(1)}}
+$$
+
+### Gradient Update
+
+$$
+W \leftarrow W - \eta \frac{\partial L}{\partial W}
+$$
+
+Where $\eta$ is the learning rate.
+
+## Computational Graph
+
+Neural network training forms a directed acyclic graph (DAG):
+
+1. **Forward:** inputs → linear → activation → linear → activation → loss
+2. **Backward:** loss → activation gradient → linear gradient → activation gradient → linear gradient
+
+Each operation stores its local gradient for the backward pass.
+
+## PyTorch Implementation
+
+### Manual Backpropagation
+
+```python
+import torch
+
+# Simple 2-layer network
+x = torch.tensor([1.0, 2.0])
+y = torch.tensor([1.0])
+
+W1 = torch.randn(2, 4, requires_grad=True)
+b1 = torch.zeros(4, requires_grad=True)
+W2 = torch.randn(4, 1, requires_grad=True)
+b2 = torch.zeros(1, requires_grad=True)
+
+# Forward pass
+z1 = x @ W1 + b1
+a1 = torch.relu(z1)
+z2 = a1 @ W2 + b2
+y_pred = torch.sigmoid(z2)
+
+# Loss
+loss = -(y * torch.log(y_pred) + (1 - y) * torch.log(1 - y_pred))
+
+# Backward pass
+loss.backward()
+
+print(f"dW1 shape: {W1.grad.shape}")  # (2, 4)
+print(f"dW2 shape: {W2.grad.shape}")  # (4, 1)
+```
+
+### Using autograd.grad
+
+```python
+x = torch.tensor([1.0, 2.0], requires_grad=True)
+y = x ** 2  # y = x^2
+
+# Compute gradient dy/dx
+grad = torch.autograd.grad(y, x, grad_outputs=torch.ones_like(x))
+print(grad[0])  # tensor([2., 4.]) — derivative of x^2 is 2x
+```
+
+### With nn.Module (Recommended)
+
+```python
+import torch.nn as nn
+
+class SimpleNN(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.layers = nn.Sequential(
+            nn.Linear(2, 16),
+            nn.ReLU(),
+            nn.Linear(16, 1),
+            nn.Sigmoid()
+        )
+    
+    def forward(self, x):
+        return self.layers(x)
+
+model = SimpleNN()
+x = torch.randn(32, 2)  # batch of 32
+y = torch.randint(0, 2, (32, 1)).float()
+
+# Forward
+y_pred = model(x)
+loss = nn.BCELoss()(y_pred, y)
+
+# Backward — gradients computed automatically
+loss.backward()
+
+# Access gradients
+for name, param in model.named_parameters():
+    if param.grad is not None:
+        print(f"{name}: {param.grad.shape}")
+```
+
+### Gradient Clipping
+
+```python
+# Prevent exploding gradients
+torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+# Or clip by value
+torch.nn.utils.clip_grad_value_(model.parameters(), clip_value=0.5)
+```
+
+## Vanishing & Exploding Gradients
+
+### Vanishing Gradients
+- Gradients shrink exponentially through layers
+- Early layers learn very slowly
+- Common with sigmoid/tanh activations
+- **Fix:** Use ReLU, batch normalization, skip connections
+
+### Exploding Gradients
+- Gradients grow exponentially through layers
+- Training becomes unstable
+- Common in RNNs
+- **Fix:** Gradient clipping, weight normalization
+
+## When to Use
+
+Backpropagation is used for:
+- Training any differentiable neural network
+- Fine-tuning pre-trained models
+- Any task requiring gradient-based optimization
+
+## Key Takeaways
+
+1. Forward pass computes predictions and loss
+2. Backward pass computes gradients using the chain rule
+3. `loss.backward()` triggers autograd in PyTorch
+4. Gradients accumulate by default — call `optimizer.zero_grad()` before each step
+5. Gradient clipping prevents exploding gradients
+6. ReLU helps with vanishing gradients compared to sigmoid/tanh

@@ -40,7 +40,7 @@ export default function MathOverview() {
           </nav>
           <button
             onClick={() => setView('curriculum')}
-            className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4 transition-colors"
+            className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4 transition-colors cursor-pointer"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -79,7 +79,7 @@ export default function MathOverview() {
           </div>
           <button
             onClick={() => setView('visualizations')}
-            className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md"
+            className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -91,7 +91,7 @@ export default function MathOverview() {
         {/* Mobile visualizations button */}
         <button
           onClick={() => setView('visualizations')}
-          className="sm:hidden flex items-center gap-2 w-full px-5 py-2.5 mt-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium"
+          className="sm:hidden flex items-center gap-2 w-full px-5 py-2.5 mt-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium cursor-pointer"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -110,61 +110,26 @@ export default function MathOverview() {
           {/* Quick Start Card */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
             <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">
-              Getting Started
+              {overallProgress.completedLessons === 0 ? 'Start Here' : 'Continue Learning'}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Begin with Linear Algebra to build the foundations needed for Machine Learning and Deep Learning.
+              {overallProgress.completedLessons === 0
+                ? 'Begin with Linear Algebra to build the foundations needed for Machine Learning and Deep Learning.'
+                : `${overallProgress.completedLessons} of ${overallProgress.totalLessons} lessons completed. Keep going!`}
             </p>
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="w-6 h-6 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                <span className="text-gray-700 dark:text-gray-300">Linear Algebra</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="w-6 h-6 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-xs font-bold">2</span>
-                <span className="text-gray-700 dark:text-gray-300">Calculus</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="w-6 h-6 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full flex items-center justify-center text-xs font-bold">3</span>
-                <span className="text-gray-700 dark:text-gray-300">Probability</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="w-6 h-6 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 rounded-full flex items-center justify-center text-xs font-bold">4</span>
-                <span className="text-gray-700 dark:text-gray-300">Statistics</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Total Stats */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
-            <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">
-              Track Overview
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {overallProgress.totalLessons}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Total Lessons</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {overallProgress.completedLessons}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Completed</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-                  {overallProgress.totalXP}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Total XP</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {categories.length}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Categories</p>
-              </div>
+              {categories.map((cat, idx) => {
+                const catProgress = getCategoryProgress(cat.id);
+                return (
+                  <div key={cat.id} className="flex items-center gap-2 text-sm">
+                    <span className="w-6 h-6 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center text-xs font-bold">{idx + 1}</span>
+                    <span className="text-gray-700 dark:text-gray-300 flex-1">{cat.title}</span>
+                    {catProgress.completedLessons > 0 && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{catProgress.completedLessons}/{catProgress.totalLessons}</span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -187,52 +152,20 @@ export default function MathOverview() {
             })) ?? [];
 
             return (
-              <div key={category.id} onClick={() => toggleCategory(category.id)}>
+              <div key={category.id} onClick={() => toggleCategory(category.id)} className="cursor-pointer">
                 <MathTopicCard
                   category={category}
                   progress={progress}
                   lessons={expandedCategory === category.id ? lessons : undefined}
+                  onStart={() => {
+                    const firstIncomplete = topic?.lessons.find((l) => !isLessonCompleted(l.id));
+                    const target = firstIncomplete ?? topic?.lessons[0];
+                    if (target) window.location.href = `/content/math/${target.slug}`;
+                  }}
                   onLessonClick={(lessonId) => {
                     window.location.href = `/content/math/${topic?.lessons.find((l) => l.id === lessonId)?.slug ?? lessonId}`;
                   }}
                 />
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Learning Path */}
-      <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          Learning Path
-        </h2>
-        <div className="relative">
-          <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700" />
-          {categories.map((category, idx) => {
-            const progress = getCategoryProgress(category.id);
-            const isLast = idx === categories.length - 1;
-            return (
-              <div key={category.id} className={`relative flex items-start gap-4 ${isLast ? '' : 'pb-8'}`}>
-                <div
-                  className="relative z-10 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                  style={{ backgroundColor: category.color }}
-                >
-                  {idx + 1}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                      {category.title}
-                    </h3>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {progress.completedLessons}/{progress.totalLessons} lessons
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    {category.description}
-                  </p>
-                </div>
               </div>
             );
           })}
@@ -252,7 +185,7 @@ export default function MathOverview() {
           </div>
           <button
             onClick={() => setView('visualizations')}
-            className="flex-shrink-0 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+            className="flex-shrink-0 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors cursor-pointer"
           >
             Explore
           </button>

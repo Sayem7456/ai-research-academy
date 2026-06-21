@@ -41,7 +41,7 @@ export default function MathProgressTracker({ progress }: MathProgressTrackerPro
               cy="50"
               r="45"
               stroke="currentColor"
-              className="text-green-500"
+              className={ringPercentage > 0 ? 'text-green-500' : 'text-gray-300 dark:text-gray-600'}
               strokeWidth="8"
               fill="none"
               strokeLinecap="round"
@@ -63,12 +63,6 @@ export default function MathProgressTracker({ progress }: MathProgressTrackerPro
             <span className="text-sm text-gray-500 dark:text-gray-400">Lessons completed</span>
             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
               {progress.completedLessons} / {progress.totalLessons}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Total XP</span>
-            <span className="text-sm font-semibold text-yellow-600 dark:text-yellow-400">
-              {progress.totalXP} XP
             </span>
           </div>
 

@@ -307,7 +307,7 @@ export default function DistributionExplorer() {
           <div className="flex flex-wrap gap-2">
             {DISTRIBUTIONS.map((d) => (
               <button key={d.id} onClick={() => setDistId(d.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${distId === d.id ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${distId === d.id ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>
                 {d.name}
               </button>
             ))}
@@ -354,6 +354,43 @@ export default function DistributionExplorer() {
               {distId === 'poisson' && 'Number of events in a fixed interval with rate λ. Used for modeling counts: arrivals, clicks, defects. Mean equals variance.'}
               {distId === 'exponential' && 'Time between events in a Poisson process. Memoryless: P(X > s + t | X > s) = P(X > t). Used in survival analysis and queuing.'}
               {distId === 'beta' && 'Distribution over probabilities [0,1]. Conjugate prior for Bernoulli/Binomial likelihoods. α and β act like pseudo-counts of successes and failures.'}
+            </p>
+          </div>
+
+          {/* AI/ML Analogy */}
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm">
+            <h4 className="font-semibold text-amber-900 dark:text-amber-300 mb-2">AI/ML Analogy</h4>
+            <p className="text-amber-800 dark:text-amber-300 text-xs mb-3">
+              Every probability distribution is a tool in the ML toolbox — different shapes solve different problems.
+            </p>
+            <div className="space-y-2 text-xs text-amber-700 dark:text-amber-400">
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Gaussian</span>
+                <span>→ Weight initialization (Xavier/He), noise in VAEs, output of regression models. The default assumption.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Uniform</span>
+                <span>→ Random weight init, dropout masks, random search for hyperparameters. Equal probability everywhere.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Binomial</span>
+                <span>→ Classification (yes/no), A/B testing, dropout (flip a coin for each neuron). Discrete outcomes.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Poisson</span>
+                <span>→ Counting events: website clicks, customer arrivals, defects per batch. Rare events modeling.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Exponential</span>
+                <span>→ Time until next event: time between clicks, failure prediction, survival analysis.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Beta</span>
+                <span>→ Bayesian inference: updating beliefs about probabilities. Prior for A/B test conversion rates.</span>
+              </div>
+            </div>
+            <p className="text-amber-600 dark:text-amber-500 text-xs mt-3 font-medium">
+              Choosing the right distribution = choosing the right assumptions for your model. This shapes everything.
             </p>
           </div>
         </div>

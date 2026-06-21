@@ -35,6 +35,7 @@ function ArrowLine({ from, to, color, label, dashed = false }: {
   return (
     <g>
       <motion.line
+        x1={x1} y1={y1}
         animate={{ x1, y1, x2, y2 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
         stroke={color}
@@ -184,7 +185,7 @@ export default function VectorVisualizer() {
               <button
                 key={op}
                 onClick={() => setOperation(op)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                   operation === op
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -249,6 +250,31 @@ export default function VectorVisualizer() {
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">The dot product measures how much two vectors point in the same direction. Zero means perpendicular (orthogonal).</p>
               </>
             )}
+          </div>
+
+          {/* AI/ML Analogy */}
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm">
+            <h4 className="font-semibold text-amber-900 dark:text-amber-300 mb-2">AI/ML Analogy</h4>
+            <p className="text-amber-800 dark:text-amber-300 text-xs mb-3">
+              Vectors are the language of AI — every input, weight, and output in a neural network is a vector.
+            </p>
+            <div className="space-y-2 text-xs text-amber-700 dark:text-amber-400">
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Addition</span>
+                <span>→ Like combining features from two layers. [age, income] + [risk, debt] = merged risk profile.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Scaling</span>
+                <span>→ Like multiplying by a weight in a neural network. High weight = strong signal. Negative = flips the effect.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Dot Product</span>
+                <span>→ The core of every neural network layer. Measures how similar two vectors are. Attention mechanisms use this to find relevance.</span>
+              </div>
+            </div>
+            <p className="text-amber-600 dark:text-amber-500 text-xs mt-3 font-medium">
+              Every prediction is just a series of vector operations: scale, add, dot product, repeat.
+            </p>
           </div>
         </div>
       </div>

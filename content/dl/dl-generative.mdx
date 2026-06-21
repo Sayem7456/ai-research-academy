@@ -1,0 +1,292 @@
+---
+title: "Generative Models"
+date: 2025-01-22
+tags:
+  - deep-learning
+  - generative-models
+  - vae
+  - autoencoder
+  - latent-space
+---
+
+<Callout type="info">Generative models learn to create new data that resembles the training data. Autoencoders compress and reconstruct inputs. VAEs add probabilistic sampling to generate novel variations. These are the foundation of modern generative AI.</Callout>
+
+## What Problem Does It Solve?
+
+Generative models learn the underlying distribution of data to create new samples. Applications include image generation, data augmentation, anomaly detection, and latent space interpolation.
+
+**Key insight:** By learning to compress data into a meaningful latent space, models can generate new variations by sampling from that space.
+
+## Mathematical Intuition
+
+### Autoencoder
+
+An autoencoder learns to compress (encode) and decompress (decode) data:
+
+$$
+z = \text{Encoder}(x)
+$$
+$$
+\hat{x} = \text{Decoder}(z)
+$$
+$$
+L = \|x - \hat{x}\|^2
+$$
+
+The bottleneck forces the model to learn a compressed representation.
+
+### Variational Autoencoder (VAE)
+
+Instead of encoding to a point, VAE encodes to a distribution:
+
+$$
+\mu, \sigma = \text{Encoder}(x)
+$$
+$$
+z = \mu + \sigma \odot \epsilon, \quad \epsilon \sim \mathcal{N}(0, I)
+$$
+$$
+\hat{x} = \text{Decoder}(z)
+$$
+
+**Loss function:**
+$$
+L = \|x - \hat{x}\|^2 + D_{KL}(q(z|x) \| p(z))
+$$
+
+- Reconstruction loss: how well we reconstruct the input
+- KL divergence: how close the latent distribution is to $\mathcal{N}(0, I)$
+
+### Reparameterization Trick
+
+We can't backpropagate through random sampling. The reparameterization trick moves the randomness to $\epsilon$:
+
+$$
+z = \mu + \sigma \odot \epsilon
+$$
+
+This is differentiable with respect to $\mu$ and $\sigma$.
+
+## Latent Space Properties
+
+### Interpolation
+$$
+z_{interpolated} = (1-t) \cdot z_1 + t \cdot z_2, \quad t \in [0, 1]
+$$
+
+Smooth interpolation in latent space produces smooth transitions in output.
+
+### Arithmetic
+$$
+z_{result} = z_{man} + z_{woman} - z_{person}
+$$
+
+Latent space arithmetic enables semantic manipulation.
+
+## PyTorch Implementation
+
+### Autoencoder
+
+```python
+import torch
+import torch.nn as nn
+
+class Autoencoder(nn.Module):
+    def __init__(self, input_dim=784, latent_dim=32):
+        super().__init__()
+        self.encoder = nn.Sequential(
+            nn.Linear(input_dim, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Linear(128, latent_dim)
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(latent_dim, 128),
+            nn.ReLU(),
+            nn.Linear(128, 256),
+            nn.ReLU(),
+            nn.Linear(256, input_dim),
+            nn.Sigmoid()
+        )
+    
+    def forward(self, x):
+        z = self.encoder(x)
+        x_recon = self.decoder(z)
+        return x_recon
+
+model = Autoencoder(input_dim=784, latent_dim=32)
+```
+
+### Variational Autoencoder
+
+```python
+class VAE(nn.Module):
+    def __init__(self, input_dim=784, latent_dim=32):
+        super().__init__()
+        
+        # Encoder
+        self.encoder = nn.Sequential(
+            nn.Linear(input_dim, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
+            nn.ReLU()
+        )
+        self.mu_layer = nn.Linear(128, latent_dim)
+        self.logvar_layer = nn.Linear(128, latent_dim)
+        
+        # Decoder
+        self.decoder = nn.Sequential(
+            nn.Linear(latent_dim, 128),
+            nn.ReLU(),
+            nn.Linear(128, 256),
+            nn.ReLU(),
+            nn.Linear(256, input_dim),
+            nn.Sigmoid()
+        )
+    
+    def encode(self, x):
+        h = self.encoder(x)
+        mu = self.mu_layer(h)
+        logvar = self.logvar_layer(h)
+        return mu, logvar
+    
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5 * logvar)
+        eps = torch.randn_like(std)
+        return mu + eps * std
+    
+    def decode(self, z):
+        return self.decoder(z)
+    
+    def forward(self, x):
+        mu, logvar = self.encode(x)
+        z = self.reparameterize(mu, logvar)
+        x_recon = self.decode(z)
+        return x_recon, mu, logvar
+
+def vae_loss(x_recon, x, mu, logvar):
+    # Reconstruction loss
+    recon_loss = nn.functional.mse_loss(x_recon, x, reduction='sum')
+    
+    # KL divergence
+    kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    
+    return recon_loss + kl_loss
+
+# Training
+model = VAE(input_dim=784, latent_dim=32)
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+
+for epoch in range(100):
+    for x in dataloader:
+        x = x.view(-1, 784)
+        x_recon, mu, logvar = model(x)
+        loss = vae_loss(x_recon, x, mu, logvar)
+        
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+```
+
+### Generate New Samples
+
+```python
+def generate_samples(model, num_samples, latent_dim=32):
+    model.eval()
+    with torch.no_grad():
+        # Sample from standard normal
+        z = torch.randn(num_samples, latent_dim)
+        samples = model.decode(z)
+    return samples
+
+# Generate 16 new images
+samples = generate_samples(model, 16)
+```
+
+### Latent Space Interpolation
+
+```python
+def interpolate(model, z1, z2, num_steps=10):
+    model.eval()
+    with torch.no_grad():
+        t = torch.linspace(0, 1, num_steps).unsqueeze(1)
+        z_interpolated = (1 - t) * z1 + t * z2
+        images = model.decode(z_interpolated)
+    return images
+
+# Interpolate between two points
+z1 = torch.randn(1, 32)
+z2 = torch.randn(1, 32)
+interpolated = interpolate(model, z1, z2, num_steps=10)
+```
+
+### Convolutional VAE
+
+```python
+class ConvVAE(nn.Module):
+    def __init__(self, latent_dim=32):
+        super().__init__()
+        
+        # Encoder: 1x28x28 -> 4x7x7
+        self.encoder = nn.Sequential(
+            nn.Conv2d(1, 32, 4, 2, 1),    # 14x14
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 4, 2, 1),   # 7x7
+            nn.ReLU(),
+            nn.Flatten()
+        )
+        self.mu_layer = nn.Linear(64 * 7 * 7, latent_dim)
+        self.logvar_layer = nn.Linear(64 * 7 * 7, latent_dim)
+        
+        # Decoder: latent -> 1x28x28
+        self.decoder_input = nn.Linear(latent_dim, 64 * 7 * 7)
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(64, 32, 4, 2, 1),  # 14x14
+            nn.ReLU(),
+            nn.ConvTranspose2d(32, 1, 4, 2, 1),   # 28x28
+            nn.Sigmoid()
+        )
+    
+    def forward(self, x):
+        h = self.encoder(x)
+        mu = self.mu_layer(h)
+        logvar = self.logvar_layer(h)
+        z = self.reparameterize(mu, logvar)
+        h_dec = self.decoder_input(z).view(-1, 64, 7, 7)
+        return self.decoder(h_dec), mu, logvar
+```
+
+## Hyperparameters
+
+### Latent Dimension
+- Small (8-32): simple datasets (MNIST)
+- Medium (64-256): complex images (CIFAR)
+- Large (512+): high-resolution images
+
+### KL Weight ($\beta$)
+- Standard VAE: $\beta = 1$
+- $\beta$-VAE: $\beta > 1$ for disentangled representations
+- $\beta < 1$ for better reconstruction
+
+## When to Use
+
+**Autoencoders:**
+- Dimensionality reduction
+- Anomaly detection
+- Data denoising
+
+**VAEs:**
+- Generating new samples
+- Learning disentangled representations
+- Data augmentation
+- Semi-supervised learning
+
+## Key Takeaways
+
+1. Autoencoders learn to compress and reconstruct data
+2. VAEs add probabilistic sampling for generation
+3. The reparameterization trick enables backpropagation through sampling
+4. KL divergence forces the latent space to be smooth and regular
+5. Latent space interpolation generates smooth transitions
+6. VAEs are the foundation for many modern generative models (diffusion, etc.)

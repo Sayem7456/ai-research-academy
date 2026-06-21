@@ -231,7 +231,7 @@ export default function MatrixVisualizer() {
                 <button
                   key={preset.name}
                   onClick={() => handlePreset(preset)}
-                  className="px-3 py-1.5 text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                  className="px-3 py-1.5 text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors cursor-pointer"
                 >
                   {preset.name}
                 </button>
@@ -259,6 +259,39 @@ export default function MatrixVisualizer() {
               <p>• Area scales by |det| = {Math.abs(det).toFixed(3)}x</p>
               <p>• Input vector [{testVector[0]}, {testVector[1]}] → Output [{transformedVector[0].toFixed(2)}, {transformedVector[1].toFixed(2)}]</p>
             </div>
+          </div>
+
+          {/* AI/ML Analogy */}
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm">
+            <h4 className="font-semibold text-amber-900 dark:text-amber-300 mb-2">AI/ML Analogy</h4>
+            <p className="text-amber-800 dark:text-amber-300 text-xs mb-3">
+              Think of a neural network layer as a matrix transformation — it takes your input data and reshapes it to find useful patterns.
+            </p>
+            <div className="space-y-2 text-xs text-amber-700 dark:text-amber-400">
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Scale 2x</span>
+                <span>→ Like increasing the learning rate. Amplifies features, making differences more pronounced.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Shear</span>
+                <span>→ Like a hidden layer mixing features. Combines inputs to create new representations.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Projection</span>
+                <span>→ Like dimensionality reduction (PCA). Collapses 2D → 1D, keeping the most important info.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Rotation</span>
+                <span>→ Like PCA finding the best angle to view data. Preserves distances, just reorients.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Reflection</span>
+                <span>→ Like data augmentation (flipping images). Mirrors the data without changing its structure.</span>
+              </div>
+            </div>
+            <p className="text-amber-600 dark:text-amber-500 text-xs mt-3 font-medium">
+              Every layer in a neural network applies a matrix transformation to transform inputs into increasingly useful representations.
+            </p>
           </div>
         </div>
       </div>

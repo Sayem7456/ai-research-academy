@@ -37,7 +37,7 @@ export default function VisualizationsOverview() {
       <div className="max-w-6xl mx-auto py-6 px-4">
         <button
           onClick={() => setActiveViz(null)}
-          className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-6 transition-colors"
+          className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-6 transition-colors cursor-pointer"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -81,7 +81,7 @@ export default function VisualizationsOverview() {
               <button
                 key={viz.id}
                 onClick={() => setActiveViz(viz.id)}
-                className="text-left bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-5 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all group"
+                className="text-left bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-5 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all group cursor-pointer"
               >
                 <div className="flex items-start gap-3">
                   <span className="text-3xl">{viz.icon}</span>

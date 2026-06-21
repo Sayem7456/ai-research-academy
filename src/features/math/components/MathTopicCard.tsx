@@ -12,6 +12,7 @@ interface MathTopicCardProps {
   category: MathCategory;
   progress: MathCategoryProgress;
   onLessonClick?: (lessonId: string) => void;
+  onStart?: () => void;
   lessons?: { id: string; title: string; order: number; completed: boolean }[];
 }
 
@@ -19,6 +20,7 @@ export default function MathTopicCard({
   category,
   progress,
   onLessonClick,
+  onStart,
   lessons,
 }: MathTopicCardProps) {
   const progressColor = progress.percentage === 100
@@ -32,6 +34,12 @@ export default function MathTopicCard({
     : progress.percentage > 0
       ? 'bg-blue-500'
       : 'bg-gray-300 dark:bg-gray-600';
+
+  const ctaLabel = progress.percentage === 0
+    ? 'Start'
+    : progress.percentage === 100
+      ? 'Review'
+      : 'Continue';
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden transition-all hover:shadow-lg">
@@ -52,8 +60,19 @@ export default function MathTopicCard({
               </p>
             </div>
           </div>
-          <div className={`text-right ${progressColor}`}>
-            <span className="text-2xl font-bold">{progress.percentage}%</span>
+          <div className="flex items-center gap-3">
+            <div className={`text-right ${progressColor}`}>
+              <span className="text-2xl font-bold">{progress.percentage}%</span>
+            </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onStart?.();
+              }}
+              className="px-3 py-1.5 text-sm font-medium rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+            >
+              {ctaLabel}
+            </button>
           </div>
         </div>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
@@ -82,7 +101,7 @@ export default function MathTopicCard({
             <button
               key={lesson.id}
               onClick={() => onLessonClick?.(lesson.id)}
-              className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+              className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                 lesson.completed
                   ? 'text-gray-500 dark:text-gray-400 hover:bg-green-50 dark:hover:bg-green-900/20'
                   : 'text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'

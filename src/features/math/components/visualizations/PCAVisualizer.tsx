@@ -222,7 +222,7 @@ export default function PCAVisualizer() {
             </div>
             <div className="flex gap-3">
               <button onClick={regenerate}
-                className="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-medium hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors">
+                className="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-medium hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors cursor-pointer">
                 Regenerate Data
               </button>
               <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
@@ -272,6 +272,39 @@ export default function PCAVisualizer() {
               • Yellow dot = data mean. Arrow lengths = 2σ along each PC.
               <br />• Enable projections to see how data points project onto PC1.
               <br />• If PC1 explains &gt;95% variance, projecting to 1D loses very little information.
+            </p>
+          </div>
+
+          {/* AI/ML Analogy */}
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm">
+            <h4 className="font-semibold text-amber-900 dark:text-amber-300 mb-2">AI/ML Analogy</h4>
+            <p className="text-amber-800 dark:text-amber-300 text-xs mb-3">
+              PCA is like finding the best camera angle to photograph your data — it finds the viewpoint that captures the most detail.
+            </p>
+            <div className="space-y-2 text-xs text-amber-700 dark:text-amber-400">
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Dimensionality Reduction</span>
+                <span>→ Like compressing a high-res photo. You lose some detail but keep the important parts. 100 features → 10 PCs.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Explained Variance</span>
+                <span>→ Like a quality meter. 95% means your compressed version captures 95% of the original information.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Noise Removal</span>
+                <span>→ Low-variance PCs are often noise. Discarding them actually improves your model by removing distractions.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Visualization</span>
+                <span>→ Can&apos;t plot 50D data. PCA projects it to 2D/3D so you can see clusters and patterns with your eyes.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-amber-600 dark:text-amber-300">Feature Engineering</span>
+                <span>→ PCs become new features. Linear combinations of originals that capture maximum information in fewer dimensions.</span>
+              </div>
+            </div>
+            <p className="text-amber-600 dark:text-amber-500 text-xs mt-3 font-medium">
+              PCA is used in image compression, gene expression analysis, stock market modeling, and as a preprocessing step before training any ML model.
             </p>
           </div>
         </div>
