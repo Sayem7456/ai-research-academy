@@ -47,7 +47,7 @@ export default function VisionTransformerExplorer() {
         setIsAnimating(false);
       }
     }, 1000);
-  }, []);
+  }, [phases.length]);
 
   useEffect(() => { return () => stopAnim(); }, [stopAnim]);
 
@@ -111,14 +111,14 @@ export default function VisionTransformerExplorer() {
               <label className="block text-sm font-medium mb-2">Patch Size: {patchSize}×{patchSize}</label>
               <input type="range" min="8" max="32" step="8" value={patchSize}
                 onChange={(e) => setPatchSize(parseInt(e.target.value))}
-                className="w-full" />
+                className="w-full cursor-pointer" />
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{numPatches} patches</div>
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Attention Head</label>
               <input type="range" min="0" max="11" step="1" value={attentionHead}
                 onChange={(e) => setAttentionHead(parseInt(e.target.value))}
-                className="w-full" />
+                className="w-full cursor-pointer" />
             </div>
             <div className="flex items-center gap-2">
               <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
@@ -130,11 +130,11 @@ export default function VisionTransformerExplorer() {
             </div>
             <div className="flex items-end gap-2">
               <button onClick={isAnimating ? stopAnim : startAnim}
-                className={`px-4 py-2 text-sm rounded transition-colors ${isAnimating ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'} hover:opacity-90`}>
+                className={`px-4 py-2 text-sm rounded cursor-pointer transition-colors ${isAnimating ? 'bg-red-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>
                 {isAnimating ? 'Stop' : 'Animate Pipeline'}
               </button>
               <button onClick={() => { stopAnim(); setAnimPhase(0); }}
-                className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300 transition-colors">
+                className="px-3 py-2 text-sm rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer transition-colors">
                 Reset
               </button>
             </div>

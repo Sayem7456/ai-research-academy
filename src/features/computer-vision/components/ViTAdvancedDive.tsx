@@ -62,7 +62,7 @@ function AttentionExplorer() {
                 return (
                   <button key={`${i}-${j}`}
                     onClick={() => setQueryIdx(idx)}
-                    className={`rounded transition-all border ${queryIdx === idx ? 'border-blue-500 ring-2 ring-blue-300 dark:ring-blue-700' : 'border-gray-200 dark:border-gray-600'}`}
+                    className={`rounded transition-all cursor-pointer border ${queryIdx === idx ? 'border-blue-500 ring-2 ring-blue-300 dark:ring-blue-700' : 'border-gray-200 dark:border-gray-600'}`}
                     style={{ width: cellSize, height: cellSize }}>
                     <div className="w-full h-full rounded"
                       style={{ backgroundColor: `rgba(59, 130, 246, ${0.15 + w * 0.85})` }} />
@@ -74,7 +74,7 @@ function AttentionExplorer() {
           <div className="flex items-center gap-1 mt-1">
             <div className="text-[8px] text-gray-400 w-3" />
             <button onClick={() => setQueryIdx(totalTokens - 1)}
-              className={`rounded transition-all border ${queryIdx === totalTokens - 1 ? 'border-purple-500 ring-2 ring-purple-300 dark:ring-purple-700' : 'border-gray-200 dark:border-gray-600'}`}
+              className={`rounded transition-all cursor-pointer border ${queryIdx === totalTokens - 1 ? 'border-purple-500 ring-2 ring-purple-300 dark:ring-purple-700' : 'border-gray-200 dark:border-gray-600'}`}
               style={{ width: cellSize, height: cellSize }}>
               <div className="w-full h-full rounded bg-purple-200 dark:bg-purple-800" />
             </button>
@@ -90,7 +90,7 @@ function AttentionExplorer() {
               <div className="flex items-center gap-2 text-xs">
                 <span className="text-gray-500 dark:text-gray-400">Heads:</span>
                 <select value={numHeads} onChange={e => setNumHeads(parseInt(e.target.value))}
-                  className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded px-2 py-1 text-xs">
+                  className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded px-2 py-1 text-xs cursor-pointer">
                   {[1, 2, 4, 8].map(h => <option key={h} value={h}>{h}</option>)}
                 </select>
               </div>
@@ -179,10 +179,15 @@ function PositionEncoding() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 mt-3">
-            <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
               <label className="text-xs font-medium">Frequency: {freq.toFixed(1)}</label>
               <input type="range" min="0.5" max="20" step="0.5" value={freq}
-                onChange={e => setFreq(parseFloat(e.target.value))} className="w-full" />
+                onChange={e => setFreq(parseFloat(e.target.value))} className="w-full cursor-pointer" />
+            </div>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+              <label className="text-xs font-medium">Dimension: {dim}</label>
+              <input type="range" min="0" max={dModel} step="2" value={dim}
+                onChange={e => setDim(parseInt(e.target.value))} className="w-full cursor-pointer" />
             </div>
             <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
               <label className="text-xs font-medium">Dimension: {dim}</label>
@@ -254,7 +259,7 @@ function ViTVariants() {
       <div className="flex gap-1 mb-4 overflow-x-auto">
         {VIT_VARIANTS.map((v, i) => (
           <button key={i} onClick={() => setSelected(i)}
-            className={`flex-1 p-2 text-xs rounded-t text-center transition-all border-b-2 whitespace-nowrap ${
+            className={`flex-1 p-2 text-xs rounded-t cursor-pointer text-center transition-all border-b-2 whitespace-nowrap ${
               selected === i
                 ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-500 font-semibold text-blue-700 dark:text-blue-300'
                 : 'bg-gray-50 dark:bg-gray-900 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -328,7 +333,7 @@ export default function ViTAdvancedDive() {
         <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700 pb-2 overflow-x-auto">
           {sections.map(s => (
             <button key={s.id} onClick={() => setSection(s.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 text-sm rounded-t whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm rounded-t cursor-pointer whitespace-nowrap transition-colors ${
                 section === s.id
                   ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-b-2 border-blue-500 font-semibold'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'

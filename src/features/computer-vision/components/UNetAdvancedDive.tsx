@@ -63,8 +63,8 @@ function SkipConnectionExplorer() {
         <div className="flex gap-2">
           {levels.map((l, i) => (
             <button key={i} onClick={() => setLevel(i)}
-              className={`px-3 py-1.5 text-xs rounded transition-colors ${
-                level === i ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+              className={`px-3 py-1.5 text-xs rounded-lg cursor-pointer transition-colors ${
+                level === i ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}>
               {l.name}
             </button>
@@ -227,7 +227,7 @@ function WeightMapExplorer() {
           <div className="flex gap-4 items-center">
             <label className="text-xs font-medium">σ (border width): {sigma}</label>
             <input type="range" min="1" max="15" step="0.5" value={sigma}
-              onChange={e => setSigma(parseFloat(e.target.value))} className="w-24" />
+              onChange={e => setSigma(parseFloat(e.target.value))} className="w-24 cursor-pointer" />
             <label className="flex items-center gap-1 text-xs cursor-pointer ml-2">
               <input type="checkbox" checked={showWeightMap} onChange={e => setShowWeightMap(e.target.checked)} />
               Show Weights
@@ -236,7 +236,7 @@ function WeightMapExplorer() {
         </div>
 
         <div className="space-y-3 flex-1">
-          <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
             <h4 className="font-semibold text-sm mb-2">Loss Function</h4>
             <div className="font-mono text-xs text-gray-700 dark:text-gray-300">
               L = Σ w(x) · log(p<sub>ℓ(x)</sub>(x))
@@ -246,7 +246,7 @@ function WeightMapExplorer() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
             <h4 className="font-semibold text-sm mb-2">Weight Formula</h4>
             <div className="font-mono text-xs text-gray-700 dark:text-gray-300">
               w(x) = w<sub>c</sub>(x) + w<sub>0</sub> · exp(-d² / 2σ²)
@@ -288,7 +288,7 @@ function AugmentationExplorer() {
       grid.push(row);
     }
     return grid;
-  }, [alpha, sigma, gridSize]);
+  }, [alpha, gridSize]);
 
   return (
     <div>
@@ -352,18 +352,18 @@ function AugmentationExplorer() {
             <div>
               <label className="text-xs font-medium">α (intensity): {alpha}</label>
               <input type="range" min="5" max="60" step="1" value={alpha}
-                onChange={e => setAlpha(parseInt(e.target.value))} className="w-24 ml-1" />
+                onChange={e => setAlpha(parseInt(e.target.value))} className="w-24 ml-1 cursor-pointer" />
             </div>
             <div>
               <label className="text-xs font-medium">σ (smoothness): {sigma}</label>
               <input type="range" min="2" max="16" step="1" value={sigma}
-                onChange={e => setSigma(parseInt(e.target.value))} className="w-24 ml-1" />
+                onChange={e => setSigma(parseInt(e.target.value))} className="w-24 ml-1 cursor-pointer" />
             </div>
           </div>
         </div>
 
         <div className="space-y-3 flex-1">
-          <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
             <h4 className="font-semibold text-sm mb-2">Why Elastic Deformation?</h4>
             <p className="text-xs text-gray-700 dark:text-gray-300">
               Medical images have high natural variability — organs shift, tissues stretch,
@@ -372,7 +372,7 @@ function AugmentationExplorer() {
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
             <h4 className="font-semibold text-sm mb-2">U-Net Augmentation Pipeline</h4>
             <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1 list-disc list-inside">
               <li>Elastic deformation (α={alpha}, σ={sigma})</li>
@@ -429,7 +429,7 @@ function UNetVariants() {
       <div className="flex gap-1 mb-4 overflow-x-auto">
         {VARIANTS.map((v, i) => (
           <button key={i} onClick={() => setSelected(i)}
-            className={`flex-1 p-2 text-xs rounded-t text-center transition-all border-b-2 whitespace-nowrap min-w-0 ${
+            className={`flex-1 p-2 text-xs rounded-t text-center transition-all border-b-2 whitespace-nowrap cursor-pointer min-w-0 ${
               selected === i
                 ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-500 font-semibold text-blue-700 dark:text-blue-300'
                 : 'bg-gray-50 dark:bg-gray-900 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -453,7 +453,7 @@ function UNetVariants() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700 text-xs">
+        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 text-xs">
           <span className="font-semibold text-emerald-700 dark:text-emerald-400">Key Idea:</span>
           <p className="text-gray-700 dark:text-gray-300 mt-0.5">{VARIANTS[selected].idea}</p>
         </div>
@@ -495,7 +495,7 @@ export default function UNetAdvancedDive() {
         <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700 pb-2 overflow-x-auto">
           {sections.map(s => (
             <button key={s.id} onClick={() => setSection(s.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 text-sm rounded-t whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm rounded-t whitespace-nowrap transition-colors cursor-pointer ${
                 section === s.id
                   ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-b-2 border-blue-500 font-semibold'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'

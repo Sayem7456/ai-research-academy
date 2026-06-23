@@ -161,7 +161,7 @@ export default function VisionTransformerVisualizer() {
                 step="8"
                 value={patchSize}
                 onChange={(e) => setPatchSize(parseInt(e.target.value))}
-                className="w-full"
+                className="w-full cursor-pointer"
               />
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Smaller patches = more tokens = higher computation
@@ -221,7 +221,7 @@ export default function VisionTransformerVisualizer() {
           <h3 className="font-semibold mb-3 text-sm">ViT vs CNN</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
-              <h4 className="font-semibold text-blue-700 mb-2">CNN (Traditional)</h4>
+              <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-2">CNN (Traditional)</h4>
               <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
                 <li>✓ Strong inductive bias (locality, translation equivariance)</li>
                 <li>✓ Works well with limited data</li>
@@ -229,7 +229,7 @@ export default function VisionTransformerVisualizer() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-purple-700 mb-2">ViT (Transformer)</h4>
+              <h4 className="font-semibold text-purple-700 dark:text-purple-400 mb-2">ViT (Transformer)</h4>
               <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
                 <li>✓ Global attention from the start</li>
                 <li>✓ Scales better with large datasets</li>
@@ -239,7 +239,7 @@ export default function VisionTransformerVisualizer() {
           </div>
         </div>
 
-        <div className="mt-6 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
+        <div className="mt-6 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border-l-4 border-green-400">
           <h3 className="font-semibold mb-3 text-sm">Key Results</h3>
           <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
             <li className="flex gap-2">

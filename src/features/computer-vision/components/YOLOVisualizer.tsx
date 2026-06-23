@@ -119,7 +119,7 @@ export default function YOLOVisualizer() {
           showDetails={true}
         />
 
-        <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-950/30 rounded-lg">
+        <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-950/30 rounded-lg border-l-4 border-purple-400">
           <h3 className="font-semibold mb-3">Multi-Scale Detection</h3>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">Select Detection Scale</label>
@@ -128,10 +128,10 @@ export default function YOLOVisualizer() {
                 <button
                   key={scale}
                   onClick={() => setSelectedScale(scale)}
-                  className={`px-4 py-2 text-sm rounded ${
+                  className={`px-4 py-2 text-sm rounded-lg cursor-pointer transition-colors ${
                     selectedScale === scale
                       ? 'bg-purple-600 text-white'
-                      : 'bg-white text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
                   {scale}×{scale}
@@ -144,7 +144,7 @@ export default function YOLOVisualizer() {
             key={selectedScale}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-3 bg-white dark:bg-gray-800 rounded border border-purple-200 dark:border-purple-800"
+            className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-800"
           >
             <div className="text-sm space-y-1">
               <div className="flex justify-between">
@@ -205,7 +205,7 @@ export default function YOLOVisualizer() {
           </motion.div>
         </div>
 
-        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-950/30 rounded-lg border-l-4 border-gray-400 dark:border-gray-500">
           <h3 className="font-semibold mb-3 text-sm">YOLO Evolution</h3>
           <div className="space-y-2 text-xs">
             <div className="flex gap-2">
@@ -231,7 +231,7 @@ export default function YOLOVisualizer() {
           </div>
         </div>
 
-        <div className="mt-6 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
+        <div className="mt-6 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border-l-4 border-green-400">
           <h3 className="font-semibold mb-3 text-sm">Applications</h3>
           <div className="grid grid-cols-2 gap-2 text-sm text-gray-700 dark:text-gray-300">
             <div>✓ Real-time Video Surveillance</div>

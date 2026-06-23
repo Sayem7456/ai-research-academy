@@ -17,6 +17,7 @@ function GridPredictions() {
   const [cellY, setCellY] = useState(4);
   const [gridSize, setGridSize] = useState(7);
   const [showProbs, setShowProbs] = useState(false);
+  const [showBBox, setShowBBox] = useState(true);
   const cellW = 100 / gridSize;
 
   const classes = ['person', 'car', 'dog', 'bicycle', 'background'];
@@ -24,6 +25,25 @@ function GridPredictions() {
     const base = cellX === 4 && cellY === 4 ? 0.7 : 0.1;
     return Math.min(0.99, Math.max(0.01, base + (seededRandom(i + cellX * 7 + cellY * 13) - 0.5) * 0.2));
   });
+
+  const predictedBoxes = [
+    {
+      x: cellX * cellW + cellW * 0.3,
+      y: cellY * cellW + cellW * 0.2,
+      w: cellW * 0.6,
+      h: cellW * 0.7,
+      conf: 0.82,
+      classId: 0,
+    },
+    {
+      x: cellX * cellW + cellW * 0.5,
+      y: cellY * cellW + cellW * 0.4,
+      w: cellW * 0.5,
+      h: cellW * 0.5,
+      conf: 0.45,
+      classId: 1,
+    },
+  ];
 
   return (
     <div>
@@ -34,7 +54,7 @@ function GridPredictions() {
 
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-shrink-0">
-          <div className="relative border-2 border-gray-300 dark:border-gray-600 rounded overflow-hidden bg-gray-50 dark:bg-gray-900"
+          <div className="relative border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900"
             style={{ width: 300, height: 300 }}>
             {Array.from({ length: gridSize }).map((_, i) => (
               <div key={`h${i}`} className="absolute border-t border-gray-300 dark:border-gray-600"
@@ -65,6 +85,34 @@ function GridPredictions() {
                 ({cellX},{cellY})
               </span>
             </div>
+
+            {showBBox && (
+              <svg className="absolute inset-0 pointer-events-none" viewBox="0 0 100 100">
+                {predictedBoxes.map((box, i) => (
+                  <g key={i}>
+                    <rect
+                      x={box.x}
+                      y={box.y}
+                      width={box.w}
+                      height={box.h}
+                      fill={i === 0 ? '#3b82f622' : '#10b98122'}
+                      stroke={i === 0 ? '#3b82f6' : '#10b981'}
+                      strokeWidth={0.8}
+                      strokeDasharray={i === 0 ? 'none' : '2 1'}
+                    />
+                    <text
+                      x={box.x + 0.5}
+                      y={box.y - 0.5}
+                      fill={i === 0 ? '#3b82f6' : '#10b981'}
+                      fontSize={2.5}
+                      fontFamily="monospace"
+                    >
+                      B{i + 1}: {box.conf.toFixed(2)}
+                    </text>
+                  </g>
+                ))}
+              </svg>
+            )}
           </div>
         </div>
 
@@ -73,17 +121,21 @@ function GridPredictions() {
             <div>
               <label className="text-xs font-medium">Grid Size: {gridSize}×{gridSize}</label>
               <input type="range" min="4" max="10" step="1" value={gridSize}
-                onChange={e => setGridSize(parseInt(e.target.value))} className="w-full" />
+                onChange={e => setGridSize(parseInt(e.target.value))} className="w-full cursor-pointer" />
             </div>
-            <div className="flex items-end">
+            <div className="flex items-end gap-3">
               <label className="flex items-center gap-1 text-xs cursor-pointer">
                 <input type="checkbox" checked={showProbs} onChange={e => setShowProbs(e.target.checked)} />
-                Show Class Probabilities
+                Class Probs
+              </label>
+              <label className="flex items-center gap-1 text-xs cursor-pointer">
+                <input type="checkbox" checked={showBBox} onChange={e => setShowBBox(e.target.checked)} />
+                Bounding Boxes
               </label>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 p-3">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <h4 className="font-semibold text-sm mb-2">Cell ({cellX},{cellY}) Predictions</h4>
             <div className="text-xs space-y-2">
               <div className="flex justify-between">
@@ -94,6 +146,19 @@ function GridPredictions() {
                 <span className="text-gray-500 dark:text-gray-400">Coordinates:</span>
                 <span className="font-mono text-gray-700 dark:text-gray-300">(x, y, w, h, confidence)</span>
               </div>
+              {showBBox && (
+                <div className="mt-2 space-y-1.5">
+                  {predictedBoxes.map((box, i) => (
+                    <div key={i} className="flex items-center gap-2 text-[10px]">
+                      <div className="w-2 h-2 rounded" style={{ backgroundColor: i === 0 ? '#3b82f6' : '#10b981' }} />
+                      <span className="font-medium">B{i + 1}:</span>
+                      <span className="font-mono text-gray-600 dark:text-gray-400">
+                        x={box.x.toFixed(1)}, y={box.y.toFixed(1)}, w={box.w.toFixed(1)}, h={box.h.toFixed(1)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
               {showProbs && (
                 <div className="mt-2 space-y-1">
                   {classes.map((cls, i) => (
@@ -130,11 +195,15 @@ function YOLOLossBreakdown() {
   const [coordWeight, setCoordWeight] = useState(5);
   const [noobjWeight, setNoobjWeight] = useState(0.5);
   const [showBreakdown, setShowBreakdown] = useState(true);
+  const [trainingStep, setTrainingStep] = useState(50);
 
-  const Lcoord = 2.15;
-  const Lobj = 1.80;
-  const Lnoobj = 3.20;
-  const Lcls = 0.95;
+  const progress = trainingStep / 200;
+  const convergenceFactor = 1 - Math.exp(-progress * 3);
+
+  const Lcoord = 2.15 * (1.2 - 0.5 * convergenceFactor) + (seededRandom(trainingStep) - 0.5) * 0.3;
+  const Lobj = 1.80 * (1.3 - 0.6 * convergenceFactor) + (seededRandom(trainingStep + 100) - 0.5) * 0.2;
+  const Lnoobj = 3.20 * (1.1 - 0.3 * convergenceFactor) + (seededRandom(trainingStep + 200) - 0.5) * 0.4;
+  const Lcls = 0.95 * (1.2 - 0.7 * convergenceFactor) + (seededRandom(trainingStep + 300) - 0.5) * 0.15;
 
   const total = coordWeight * Lcoord + Lobj + noobjWeight * Lnoobj + Lcls;
 
@@ -148,7 +217,7 @@ function YOLOLossBreakdown() {
 
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 space-y-4">
-          <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <h4 className="font-semibold text-sm mb-3">Loss Components</h4>
             {[
               { label: 'Localization (coord)', key: 'coord', value: coordWeight * Lcoord,
@@ -172,21 +241,30 @@ function YOLOLossBreakdown() {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
               <label className="text-xs font-medium">λ<sub>coord</sub>: {coordWeight}</label>
               <input type="range" min="1" max="10" step="0.5" value={coordWeight}
-                onChange={e => setCoordWeight(parseFloat(e.target.value))} className="w-full" />
+                onChange={e => setCoordWeight(parseFloat(e.target.value))} className="w-full cursor-pointer" />
             </div>
-            <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
               <label className="text-xs font-medium">λ<sub>noobj</sub>: {noobjWeight}</label>
               <input type="range" min="0.1" max="1" step="0.1" value={noobjWeight}
-                onChange={e => setNoobjWeight(parseFloat(e.target.value))} className="w-full" />
+                onChange={e => setNoobjWeight(parseFloat(e.target.value))} className="w-full cursor-pointer" />
+            </div>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 col-span-2">
+              <label className="text-xs font-medium">Training Step: {trainingStep} / 200</label>
+              <input type="range" min="1" max="200" step="1" value={trainingStep}
+                onChange={e => setTrainingStep(parseInt(e.target.value))} className="w-full cursor-pointer" />
+              <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+                <span>Early training</span>
+                <span>Converged</span>
+              </div>
             </div>
           </div>
         </div>
 
         <div className="flex-shrink-0 w-full lg:w-56 space-y-4">
-          <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <h4 className="font-semibold text-sm mb-3">Total Loss</h4>
             <div className="text-3xl font-bold text-blue-700 dark:text-blue-300 text-center">
               {total.toFixed(2)}
@@ -195,7 +273,7 @@ function YOLOLossBreakdown() {
           </div>
 
           {showBreakdown && (
-            <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 p-3">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3">
               <h4 className="font-semibold text-xs mb-2">Composition</h4>
               {[
                 { label: 'coord', value: coordWeight * Lcoord, color: 'bg-blue-500' },
@@ -259,7 +337,7 @@ function YOLOEvolution() {
       <div className="flex gap-1 mb-4 overflow-x-auto">
         {YOLO_VERSIONS.map((v, i) => (
           <button key={i} onClick={() => setSelected(i)}
-            className={`flex-1 p-2 text-xs rounded-t text-center transition-all border-b-2 whitespace-nowrap ${
+            className={`flex-1 p-2 text-xs rounded-t text-center transition-all border-b-2 whitespace-nowrap cursor-pointer ${
               selected === i
                 ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-500 font-semibold text-blue-700 dark:text-blue-300'
                 : 'bg-gray-50 dark:bg-gray-900 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -288,11 +366,11 @@ function YOLOEvolution() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-          <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
             <span className="font-semibold text-blue-700 dark:text-blue-400">Key Idea:</span>
             <p className="text-gray-700 dark:text-gray-300 mt-0.5">{YOLO_VERSIONS[selected].idea}</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
             <span className="font-semibold text-red-600 dark:text-red-400">Limitation:</span>
             <p className="text-gray-700 dark:text-gray-300 mt-0.5">{YOLO_VERSIONS[selected].limitation}</p>
           </div>
@@ -334,7 +412,7 @@ export default function YOLOAdvancedDive() {
         <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700 pb-2 overflow-x-auto">
           {sections.map(s => (
             <button key={s.id} onClick={() => setSection(s.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 text-sm rounded-t whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm rounded-t whitespace-nowrap transition-colors cursor-pointer ${
                 section === s.id
                   ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-b-2 border-blue-500 font-semibold'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'

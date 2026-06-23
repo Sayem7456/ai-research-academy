@@ -139,7 +139,7 @@ export default function UNetVisualizer() {
         </div>
 
         <div className="mb-4 flex items-center gap-3">
-          <label className="flex items-center gap-2 text-sm font-medium">
+          <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
             <input
               type="checkbox"
               checked={showSkipConnections}
@@ -217,7 +217,7 @@ export default function UNetVisualizer() {
           </ul>
         </div>
 
-        <div className="mt-6 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
+        <div className="mt-6 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border-l-4 border-green-400">
           <h3 className="font-semibold mb-3 text-sm">Applications</h3>
           <div className="grid grid-cols-2 gap-2 text-sm text-gray-700 dark:text-gray-300">
             <div>✓ Medical Image Segmentation</div>

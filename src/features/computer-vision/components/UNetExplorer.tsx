@@ -59,7 +59,7 @@ export default function UNetExplorer() {
         setIsAnimating(false);
       }
     }, 700);
-  }, []);
+  }, [totalPhases]);
 
   useEffect(() => { return () => stopAnim(); }, [stopAnim]);
 
@@ -82,11 +82,11 @@ export default function UNetExplorer() {
               Show Skip Connections
             </label>
             <button onClick={isAnimating ? stopAnim : startAnim}
-              className={`px-4 py-2 text-sm rounded transition-colors ${isAnimating ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'} hover:opacity-90`}>
+              className={`px-4 py-2 text-sm rounded-lg cursor-pointer transition-colors ${isAnimating ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>
               {isAnimating ? 'Stop' : 'Animate Flow'}
             </button>
             <button onClick={() => { stopAnim(); setAnimPhase(0); }}
-              className="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+              className="px-3 py-2 text-sm rounded-lg cursor-pointer bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
               Reset
             </button>
             {isAnimating && (

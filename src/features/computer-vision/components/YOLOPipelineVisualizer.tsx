@@ -13,6 +13,13 @@ interface BBox {
   className: string;
 }
 
+interface NMSStep {
+  currentBox: BBox;
+  keptBoxes: BBox[];
+  comparisons: { box: BBox; iou: number; suppressed: boolean }[];
+  suppressedSoFar: BBox[];
+}
+
 function seededRandom(seed: number): number {
   const x = Math.sin(seed * 12.9898) * 43758.5453;
   return x - Math.floor(x);
@@ -23,12 +30,12 @@ const CLASS_COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
 
 function generateBoxes(): BBox[] {
   const objects: { x: number; y: number; w: number; h: number; classId: number; baseConf: number }[] = [
-    { x: 187, y: 60, w: 25, h: 55, classId: 4, baseConf: 0.85 },   // traffic light
-    { x: 275, y: 195, w: 75, h: 38, classId: 1, baseConf: 0.92 },  // car
-    { x: 80, y: 270, w: 38, h: 22, classId: 3, baseConf: 0.65 },   // bicycle
-    { x: 330, y: 280, w: 12, h: 24, classId: 0, baseConf: 0.78 },  // person
-    { x: 137, y: 308, w: 35, h: 22, classId: 2, baseConf: 0.71 },  // dog
-    { x: 195, y: 65, w: 30, h: 60, classId: 4, baseConf: 0.45 },   // duplicate traffic light (suppressed by NMS)
+    { x: 187, y: 60, w: 25, h: 55, classId: 4, baseConf: 0.85 },
+    { x: 275, y: 195, w: 75, h: 38, classId: 1, baseConf: 0.92 },
+    { x: 80, y: 270, w: 38, h: 22, classId: 3, baseConf: 0.65 },
+    { x: 330, y: 280, w: 12, h: 24, classId: 0, baseConf: 0.78 },
+    { x: 137, y: 308, w: 35, h: 22, classId: 2, baseConf: 0.71 },
+    { x: 195, y: 65, w: 30, h: 60, classId: 4, baseConf: 0.45 },
   ];
 
   return objects.map((obj, idx) => {
@@ -57,6 +64,42 @@ function computeIoU(a: BBox, b: BBox): number {
   return inter / (areaA + areaB - inter);
 }
 
+function runNMSSteps(boxes: BBox[], iouThreshold: number): NMSStep[] {
+  const sorted = [...boxes].sort((a, b) => b.conf - a.conf);
+  const steps: NMSStep[] = [];
+  const kept: BBox[] = [];
+  const suppressed: BBox[] = [];
+
+  for (const box of sorted) {
+    const comparisons: { box: BBox; iou: number; suppressed: boolean }[] = [];
+    let isSuppressed = false;
+
+    for (const k of kept) {
+      if (k.classId === box.classId) {
+        const iou = computeIoU(k, box);
+        const suppressed = iou > iouThreshold;
+        comparisons.push({ box: k, iou, suppressed });
+        if (suppressed) isSuppressed = true;
+      }
+    }
+
+    steps.push({
+      currentBox: box,
+      keptBoxes: [...kept],
+      comparisons,
+      suppressedSoFar: [...suppressed],
+    });
+
+    if (isSuppressed) {
+      suppressed.push(box);
+    } else {
+      kept.push(box);
+    }
+  }
+
+  return steps;
+}
+
 function applyNMS(boxes: BBox[], iouThreshold: number): BBox[] {
   const sorted = [...boxes].sort((a, b) => b.conf - a.conf);
   const kept: BBox[] = [];
@@ -73,18 +116,53 @@ function applyNMS(boxes: BBox[], iouThreshold: number): BBox[] {
   return kept;
 }
 
+function resolveLabelCollisions(boxes: BBox[], containerWidth: number, containerHeight: number): { x: number; y: number }[] {
+  const labelHeight = 18;
+  const labelPadding = 2;
+  const positions = boxes.map(box => ({
+    x: box.x - box.w / 2,
+    y: Math.max(0, box.y - box.h / 2 - labelHeight - labelPadding),
+  }));
+
+  for (let i = 0; i < positions.length; i++) {
+    for (let j = i + 1; j < positions.length; j++) {
+      const a = positions[i];
+      const b = positions[j];
+      const overlapX = a.x < b.x + 80 && a.x + 80 > b.x;
+      const overlapY = Math.abs(a.y - b.y) < labelHeight;
+
+      if (overlapX && overlapY) {
+        const boxA = boxes[i];
+        const boxB = boxes[j];
+        const defaultY_A = Math.max(0, boxA.y - boxA.h / 2 - labelHeight - labelPadding);
+        const defaultY_B = Math.max(0, boxB.y - boxB.h / 2 - labelHeight - labelPadding);
+
+        if (defaultY_A <= defaultY_B) {
+          positions[j].y = Math.min(containerHeight - labelHeight, a.y + labelHeight + labelPadding);
+        } else {
+          positions[i].y = Math.min(containerHeight - labelHeight, b.y + labelHeight + labelPadding);
+        }
+      }
+    }
+  }
+
+  return positions;
+}
+
 export default function YOLOPipelineVisualizer() {
   const [gridSize, setGridSize] = useState(7);
   const [confThreshold, setConfThreshold] = useState(0.3);
   const [iouThreshold, setIouThreshold] = useState(0.5);
   const [showNMS, setShowNMS] = useState(true);
   const [animPhase, setAnimPhase] = useState(0);
+  const [nmsStep, setNmsStep] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const allBoxes = useMemo(() => generateBoxes(), []);
   const filteredBoxes = useMemo(() => allBoxes.filter(b => b.conf > confThreshold), [allBoxes, confThreshold]);
   const nmsBoxes = useMemo(() => showNMS ? applyNMS(filteredBoxes, iouThreshold) : filteredBoxes, [filteredBoxes, iouThreshold, showNMS]);
+  const nmsSteps = useMemo(() => showNMS ? runNMSSteps(filteredBoxes, iouThreshold) : [], [filteredBoxes, iouThreshold, showNMS]);
 
   const phases = [
     'Input image resized to 416×416',
@@ -95,7 +173,24 @@ export default function YOLOPipelineVisualizer() {
     'Final detections with class labels',
   ];
 
-  const displayBoxes = animPhase < 2 ? [] : animPhase === 2 ? allBoxes : animPhase === 5 ? nmsBoxes : filteredBoxes;
+  const getCurrentPhaseBoxes = () => {
+    if (animPhase < 2) return [];
+    if (animPhase === 2) return allBoxes;
+    if (animPhase === 3) return filteredBoxes;
+    if (animPhase === 4 && showNMS) {
+      const step = nmsSteps[Math.min(nmsStep, nmsSteps.length - 1)];
+      if (!step) return filteredBoxes;
+      return [...step.keptBoxes, step.currentBox, ...step.suppressedSoFar];
+    }
+    return nmsBoxes;
+  };
+
+  const displayBoxes = getCurrentPhaseBoxes();
+
+  const labelPositions = useMemo(
+    () => resolveLabelCollisions(displayBoxes, 400, 400),
+    [displayBoxes]
+  );
 
   const stopAnim = useCallback(() => {
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
@@ -105,21 +200,74 @@ export default function YOLOPipelineVisualizer() {
   const startAnim = useCallback(() => {
     setIsAnimating(true);
     setAnimPhase(0);
-    let e = 0;
+    setNmsStep(0);
+    let phase = 0;
+    let step = 0;
     intervalRef.current = setInterval(() => {
-      e++;
-      if (e > phases.length - 1) {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        setIsAnimating(false);
+      if (phase === 4 && showNMS) {
+        step++;
+        if (step >= nmsSteps.length) {
+          phase++;
+          step = 0;
+          setAnimPhase(phase);
+          setNmsStep(0);
+          if (phase > phases.length - 1) {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            setIsAnimating(false);
+          }
+          return;
+        }
+        setNmsStep(step);
         return;
       }
-      setAnimPhase(e);
-    }, 1000);
-  }, []);
+      phase++;
+      setAnimPhase(phase);
+      setNmsStep(0);
+      if (phase > phases.length - 1) {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        setIsAnimating(false);
+      }
+    }, phase === 4 && showNMS ? 800 : 1200);
+  }, [showNMS, nmsSteps.length, phases.length]);
 
   useEffect(() => { return () => stopAnim(); }, [stopAnim]);
 
   const cellSize = 400 / gridSize;
+
+  const getCurrentNMSStep = () => {
+    if (animPhase !== 4 || !showNMS) return null;
+    return nmsSteps[Math.min(nmsStep, nmsSteps.length - 1)] || null;
+  };
+
+  const currentStep = getCurrentNMSStep();
+
+  const getBoxState = (box: BBox) => {
+    if (animPhase === 4 && showNMS && currentStep) {
+      if (currentStep.currentBox === box) return 'current';
+      if (currentStep.comparisons.find(c => c.box === box && c.suppressed)) return 'suppressing';
+      if (currentStep.suppressedSoFar.some(s => s === box)) return 'suppressed';
+      if (currentStep.keptBoxes.some(k => k === box)) return 'kept';
+      if (currentStep.comparisons.find(c => c.box === box && !c.suppressed)) return 'compared';
+    }
+    return 'normal';
+  };
+
+  const getBoxStyle = (state: string, color: string) => {
+    switch (state) {
+      case 'current':
+        return { border: `3px solid ${color}`, backgroundColor: `${color}44`, boxShadow: `0 0 12px ${color}88`, zIndex: 20 };
+      case 'suppressing':
+        return { border: `2px dashed #ef4444`, backgroundColor: '#ef444422', opacity: 0.7 };
+      case 'suppressed':
+        return { border: `1px solid #666`, backgroundColor: '#66666622', opacity: 0.3 };
+      case 'compared':
+        return { border: `2px solid ${color}`, backgroundColor: `${color}22`, opacity: 0.9 };
+      case 'kept':
+        return { border: `2px solid ${color}`, backgroundColor: `${color}22` };
+      default:
+        return { border: `2px solid ${color}`, backgroundColor: `${color}22` };
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -137,19 +285,19 @@ export default function YOLOPipelineVisualizer() {
               <label className="block text-sm font-medium mb-2">Grid: {gridSize}×{gridSize}</label>
               <input type="range" min="4" max="13" step="1" value={gridSize}
                 onChange={(e) => setGridSize(parseInt(e.target.value))}
-                className="w-full" />
+                className="w-full cursor-pointer" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Confidence: {confThreshold.toFixed(2)}</label>
               <input type="range" min="0.1" max="0.9" step="0.05" value={confThreshold}
                 onChange={(e) => setConfThreshold(parseFloat(e.target.value))}
-                className="w-full" />
+                className="w-full cursor-pointer" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">IoU Threshold: {iouThreshold.toFixed(2)}</label>
               <input type="range" min="0.1" max="0.9" step="0.05" value={iouThreshold}
                 onChange={(e) => setIouThreshold(parseFloat(e.target.value))}
-                className="w-full" />
+                className="w-full cursor-pointer" />
             </div>
             <div className="flex items-center">
               <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
@@ -161,24 +309,32 @@ export default function YOLOPipelineVisualizer() {
             </div>
             <div className="flex items-end gap-2">
               <button onClick={isAnimating ? stopAnim : startAnim}
-                className={`px-3 py-2 text-sm rounded transition-colors ${isAnimating ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'} hover:opacity-90`}>
+                className={`px-3 py-2 text-sm rounded-lg cursor-pointer transition-colors ${isAnimating ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>
                 {isAnimating ? 'Stop' : 'Animate'}
               </button>
+              {!isAnimating && (
+                <button onClick={() => { setAnimPhase(0); setNmsStep(0); }}
+                  className="px-3 py-2 text-sm rounded-lg cursor-pointer bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                  Reset
+                </button>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
           <div className="flex-shrink-0">
             <h3 className="font-semibold text-sm mb-2 text-center">
               {animPhase === 0 && 'Input Image'}
               {animPhase === 1 && 'S×S Grid'}
               {animPhase === 2 && 'Bounding Box Predictions'}
               {animPhase === 3 && 'After Confidence Filter'}
-              {animPhase === 4 && 'Non-Maximum Suppression'}
+              {animPhase === 4 && showNMS && currentStep
+                ? `NMS: Checking box ${nmsStep + 1}/${nmsSteps.length}`
+                : animPhase === 4 && 'Non-Maximum Suppression'}
               {animPhase >= 5 && 'Final Detections'}
             </h3>
-            <div className="relative border-2 border-gray-300 rounded overflow-hidden bg-gray-100 dark:bg-gray-800"
+            <div className="relative border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800"
               style={{ width: 400, height: 400 }}>
               <svg width={400} height={400} className="absolute inset-0">
                 <defs>
@@ -186,46 +342,37 @@ export default function YOLOPipelineVisualizer() {
                   <linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#555"/><stop offset="1" stopColor="#444"/></linearGradient>
                 </defs>
                 <rect width={400} height={400} fill="url(#sky)" />
-                {/* Road */}
                 <rect x={0} y={160} width={400} height={100} fill="url(#road)" />
                 <line x1="0" y1="210" x2="400" y2="210" stroke="#ffd700" strokeWidth="2" strokeDasharray="20 15" />
-                {/* Sidewalk */}
                 <rect x={0} y={140} width={400} height={20} fill="#aaa" />
                 <rect x={0} y={260} width={400} height={20} fill="#aaa" />
-                {/* Grass */}
                 <rect x={0} y={280} width={400} height={120} fill="#7ec850" />
                 <rect x={0} y={0} width={400} height={140} fill="#7ec850" opacity={0.3} />
-                {/* Traffic light */}
                 <rect x={180} y={50} width={14} height={40} fill="#333" rx={2} />
                 <rect x={176} y={30} width={22} height={60} fill="#222" rx={4} />
                 <circle cx={187} cy={43} r={6} fill="#ef4444" opacity={0.9} />
                 <circle cx={187} cy={58} r={6} fill="#22c55e" />
                 <circle cx={187} cy={73} r={6} fill="#777" />
-                {/* Car */}
                 <rect x={240} y={178} width={70} height={30} fill="#3b82f6" rx={6} />
                 <rect x={248} y={172} width={40} height={10} fill="#3b82f6" rx={4} />
                 <circle cx={254} cy={210} r={7} fill="#222" />
                 <circle cx={296} cy={210} r={7} fill="#222" />
                 <rect x={252} y={178} width={10} height={12} fill="#87ceeb" rx={1} />
                 <rect x={278} y={178} width={10} height={12} fill="#87ceeb" rx={1} />
-                {/* Bicycle (sidewalk) */}
                 <circle cx={70} cy={268} r={8} fill="none" stroke="#f59e0b" strokeWidth="2" />
                 <circle cx={70} cy={268} r={3} fill="#f59e0b" />
                 <circle cx={90} cy={272} r={8} fill="none" stroke="#f59e0b" strokeWidth="2" />
                 <circle cx={90} cy={272} r={3} fill="#f59e0b" />
                 <line x1={70} y1={268} x2={90} y2={272} stroke="#f59e0b" strokeWidth="2" />
                 <line x1={75} y1={260} x2={85} y2={264} stroke="#f59e0b" strokeWidth="2" />
-                {/* Person (sidewalk) */}
                 <circle cx={330} cy={268} r={6} fill="#fbbf24" />
                 <rect x={327} y={274} width={6} height={6} fill="#3b82f6" rx={1} />
                 <line x1={330} y1={280} x2={326} y2={292} stroke="#1e40af" strokeWidth="3" />
                 <line x1={330} y1={280} x2={334} y2={292} stroke="#1e40af" strokeWidth="3" />
-                {/* Dog (grass) */}
                 <ellipse cx={140} cy={310} rx={14} ry={8} fill="#a0522d" />
                 <circle cx={130} cy={304} r={6} fill="#a0522d" />
                 <circle cx={128} cy={303} r={1.5} fill="#222" />
                 <ellipse cx={124} cy={306} rx={3} ry={1.5} fill="#333" />
-                {/* Sidewalk poles */}
                 <line x1={20} y1={140} x2={20} y2={120} stroke="#666" strokeWidth="2" />
                 <line x1={100} y1={140} x2={100} y2={120} stroke="#666" strokeWidth="2" />
                 <line x1={300} y1={140} x2={300} y2={120} stroke="#666" strokeWidth="2" />
@@ -246,18 +393,18 @@ export default function YOLOPipelineVisualizer() {
               <AnimatePresence>
                 {displayBoxes.map((box, idx) => {
                   const color = CLASS_COLORS[box.classId % CLASS_COLORS.length];
-                  const isNmsRemoved = showNMS && animPhase === 4 && !nmsBoxes.includes(box);
+                  const state = getBoxState(box);
+                  const style = getBoxStyle(state, color);
+                  const labelPos = labelPositions[idx] || { x: box.x - box.w / 2, y: Math.max(0, box.y - box.h / 2 - 20) };
+
                   return (
                     <motion.div
-                      key={idx}
+                      key={`${box.classId}-${box.x.toFixed(1)}-${box.y.toFixed(1)}`}
                       initial={{ opacity: 0, scale: 0.5 }}
-                      animate={isNmsRemoved ? {
-                        opacity: 0,
-                        scale: 0.3,
-                        transition: { duration: 0.4 },
-                      } : {
-                        opacity: 1,
-                        scale: 1,
+                      animate={{
+                        opacity: style.opacity ?? 1,
+                        scale: state === 'suppressed' ? 0.8 : 1,
+                        ...style,
                       }}
                       exit={{ opacity: 0, scale: 0.5 }}
                       className="absolute pointer-events-none"
@@ -266,14 +413,22 @@ export default function YOLOPipelineVisualizer() {
                         top: box.y - box.h / 2,
                         width: box.w,
                         height: box.h,
-                        border: `2px solid ${color}`,
-                        backgroundColor: `${color}22`,
+                        border: style.border,
+                        backgroundColor: style.backgroundColor,
                         borderRadius: 2,
+                        boxShadow: style.boxShadow,
+                        zIndex: style.zIndex,
+                        opacity: style.opacity,
                       }}
                     >
-                      {!isNmsRemoved && (
-                        <div className="absolute -top-5 left-0 text-[9px] font-semibold px-1 rounded-sm whitespace-nowrap"
-                          style={{ backgroundColor: color, color: 'white' }}>
+                      {state !== 'suppressed' && (
+                        <div className="absolute text-[9px] font-semibold px-1 rounded-sm whitespace-nowrap z-30"
+                          style={{
+                            left: labelPos.x - (box.x - box.w / 2),
+                            top: labelPos.y - (box.y - box.h / 2),
+                            backgroundColor: state === 'current' ? color : state === 'suppressing' ? '#ef4444' : color,
+                            color: 'white',
+                          }}>
                           {box.className} {box.conf.toFixed(2)}
                         </div>
                       )}
@@ -288,12 +443,14 @@ export default function YOLOPipelineVisualizer() {
                 </div>
               )}
             </div>
-            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
+            <div className="mt-2 text-xs text-gray-600 dark:text-gray-400 text-center">
               {!isAnimating && animPhase === 0 ? 'Ready — click Animate' :
                animPhase === 1 ? 'Grid overlaid' :
                animPhase === 2 ? `${allBoxes.length} raw proposals` :
                animPhase === 3 ? `${filteredBoxes.length} after confidence filter` :
-               animPhase === 4 ? `${filteredBoxes.length} before NMS` :
+               animPhase === 4 && showNMS && currentStep
+                 ? `Box ${nmsStep + 1}: ${currentStep.currentBox.className} (${currentStep.currentBox.conf.toFixed(2)})`
+                 : animPhase === 4 ? `${filteredBoxes.length} before NMS` :
                `${nmsBoxes.length} final detection${nmsBoxes.length !== 1 ? 's' : ''}`}
             </div>
           </div>
@@ -301,7 +458,7 @@ export default function YOLOPipelineVisualizer() {
           <div className="flex-1 space-y-4">
             <AnimatePresence mode="wait">
               {isAnimating && (
-                <motion.div key={animPhase} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                <motion.div key={`${animPhase}-${nmsStep}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
                   className="p-4 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg border-l-4 border-indigo-400">
                   <div className="flex items-center gap-3">
                     <div className="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold">
@@ -312,6 +469,59 @@ export default function YOLOPipelineVisualizer() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {animPhase === 4 && showNMS && currentStep && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-lg border-l-4 border-amber-400"
+              >
+                <h3 className="font-semibold text-sm mb-2">NMS Step {nmsStep + 1} of {nmsSteps.length}</h3>
+                <div className="text-xs space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded" style={{ backgroundColor: CLASS_COLORS[currentStep.currentBox.classId] }} />
+                    <span className="font-medium">Checking:</span>
+                    <span className="font-mono">{currentStep.currentBox.className}</span>
+                    <span className="text-gray-500">(conf: {currentStep.currentBox.conf.toFixed(2)})</span>
+                  </div>
+
+                  {currentStep.comparisons.length > 0 ? (
+                    <div className="space-y-1">
+                      <span className="font-medium">Comparisons with kept boxes:</span>
+                      {currentStep.comparisons.map((comp, i) => (
+                        <div key={i} className="flex items-center gap-2 pl-4">
+                          <div className="w-2 h-2 rounded" style={{ backgroundColor: CLASS_COLORS[comp.box.classId] }} />
+                          <span className="font-mono">{comp.box.className}</span>
+                          <span className={`font-mono font-bold ${comp.suppressed ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                            IoU: {comp.iou.toFixed(3)}
+                          </span>
+                          <span className={`text-[10px] px-1 rounded ${comp.suppressed ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'}`}>
+                            {comp.suppressed ? `> ${iouThreshold} — SUPPRESSED` : `≤ ${iouThreshold} — KEPT`}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-gray-500 dark:text-gray-400 pl-4">
+                      No same-class boxes to compare — box is kept
+                    </div>
+                  )}
+
+                  {currentStep.suppressedSoFar.length > 0 && (
+                    <div className="mt-2 pt-2 border-t border-amber-200 dark:border-amber-800">
+                      <span className="font-medium">Previously suppressed:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {currentStep.suppressedSoFar.map((s, i) => (
+                          <span key={i} className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-gray-500 line-through">
+                            {s.className} ({s.conf.toFixed(2)})
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -336,10 +546,11 @@ export default function YOLOPipelineVisualizer() {
                 Removes duplicate detections. Steps:
               </p>
               <ol className="text-xs text-gray-600 dark:text-gray-400 space-y-1 list-decimal list-inside">
-                <li>Sort boxes by confidence score</li>
-                <li>Select highest confidence box</li>
-                <li>Remove boxes with IoU &gt; threshold</li>
-                <li>Repeat for remaining boxes</li>
+                <li>Sort boxes by confidence score (highest first)</li>
+                <li>Select highest confidence box → add to &ldquo;kept&rdquo;</li>
+                <li>Compare with all kept boxes of same class</li>
+                <li>If IoU &gt; threshold → suppress (remove)</li>
+                <li>Repeat until all boxes processed</li>
               </ol>
             </motion.div>
 
@@ -360,7 +571,7 @@ export default function YOLOPipelineVisualizer() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="p-3 bg-red-50 dark:bg-red-950/30 rounded text-xs text-red-800 dark:text-red-200"
+                className="p-3 bg-red-50 dark:bg-red-950/30 rounded-lg border-l-4 border-red-400 text-xs text-red-800 dark:text-red-200"
               >
                 NMS removed {filteredBoxes.length - nmsBoxes.length} overlapping box{(filteredBoxes.length - nmsBoxes.length) !== 1 ? 'es' : ''}
               </motion.div>
