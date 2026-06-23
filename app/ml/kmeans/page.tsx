@@ -3,7 +3,7 @@ import Link from "next/link";
 import KMeansAnimation from '@/features/machine-learning/components/visualizations/KMeansAnimation';
 
 export const metadata: Metadata = {
-  title: "K-Means Clustering — Interactive Visualizer",
+  title: "K-Means Clustering — AI Research Academy",
   description:
     "Learn K-Means clustering with an interactive animation. Add points, adjust K, and watch centroids converge step by step.",
 };

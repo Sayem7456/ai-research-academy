@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { VisionTransformerExplorer, VisionTransformerVisualizer, ViTAdvancedDive } from '@/features/computer-vision/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Vision Transformer Explorer — AI Research Academy",
+  description:
+    "Learn about the Vision Transformer with an interactive visualization. See how the self-attention mechanism works.",
+};
 
 export default function VisionTransformerPage() {
   return (

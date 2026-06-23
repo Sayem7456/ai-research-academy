@@ -1,5 +1,11 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { NeuralStyleTransfer, StyleTransferAdvancedDive } from '@/features/computer-vision/components';
+
+export const metadata: Metadata = {
+  title: 'Neural Style Transfer — AI Research Academy',
+  description: 'Explore neural style transfer: VGG-based content and style separation, loss computation, and artistic image generation.',
+};
 
 export default function StyleTransferPage() {
   return (

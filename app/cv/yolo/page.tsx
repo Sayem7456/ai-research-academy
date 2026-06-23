@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { YOLOPipelineVisualizer, YOLOVisualizer, YOLOAdvancedDive } from '@/features/computer-vision/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "YOLO Pipeline — AI Research Academy",
+  description:
+    "Learn about YOLO with an interactive visualization. See how the algorithm detects objects in real-time.",
+};
 
 export default function YOLOPage() {
   return (

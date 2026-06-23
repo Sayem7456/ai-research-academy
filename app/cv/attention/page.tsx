@@ -1,5 +1,11 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { AttentionExplorer, AttentionAdvancedDive } from '@/features/computer-vision/components';
+
+export const metadata: Metadata = {
+  title: 'Attention Mechanisms — AI Research Academy',
+  description: 'Explore attention mechanisms in computer vision: SE-Net, CBAM, self-attention for vision, and how attention enhances feature extraction.',
+};
 
 export default function AttentionPage() {
   return (

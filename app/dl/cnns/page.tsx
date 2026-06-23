@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { CNNFilterVisualizer } from '@/features/deep-learning/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "CNNs — AI Research Academy",
+  description:
+    "Learn about convolutional neural networks with an interactive visualization. See how filters are applied to images.",
+};
 
 export default function CNNPage() {
   return (

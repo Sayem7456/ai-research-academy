@@ -1,4 +1,10 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Large Language Models — AI Research Academy',
+  description: 'Interactive visualizations for LLMs: tokenization, embeddings, attention, Transformers, positional encoding, RAG, and agents.',
+};
 
 export default function LLMIndex() {
   const visualizations = [

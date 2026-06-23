@@ -3,7 +3,7 @@ import Link from "next/link";
 import NaiveBayesVisualizer from '@/features/machine-learning/components/visualizations/NaiveBayesVisualizer';
 
 export const metadata: Metadata = {
-  title: "Naive Bayes — Interactive Visualizer",
+  title: "Naive Bayes — AI Research Academy",
   description:
     "Explore Gaussian Naive Bayes classification. Add points, view Gaussian ellipses, and see the decision boundary update in real time.",
 };

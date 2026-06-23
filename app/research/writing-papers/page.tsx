@@ -1,4 +1,10 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Writing Papers — AI Research Academy',
+  description: 'Learn AI paper structure, writing tips, and common mistakes. Guide to writing clear, impactful research papers.',
+};
 
 export default function WritingPapersPage() {
   return (

@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { BackpropVisualizer } from '@/features/deep-learning/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Backpropagation — AI Research Academy",
+  description:
+    "Learn about backpropagation with an interactive visualization. See how gradients are computed and weights are updated.",
+};
 
 export default function BackpropPage() {
   return (

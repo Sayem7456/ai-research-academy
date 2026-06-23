@@ -3,7 +3,7 @@ import Link from "next/link";
 import RandomForestVisualizer from '@/features/machine-learning/components/visualizations/RandomForestVisualizer';
 
 export const metadata: Metadata = {
-  title: "Random Forest — Interactive Visualizer",
+  title: "Random Forest — AI Research Academy",
   description:
     "Explore Random Forest ensembles. Add points, adjust trees and depth, and watch the ensemble decision boundary evolve.",
 };

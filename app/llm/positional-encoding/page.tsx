@@ -1,5 +1,11 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { PositionalEncodingExplorer } from '@/features/llm/components';
+
+export const metadata: Metadata = {
+  title: 'Positional Encoding — AI Research Academy',
+  description: 'Explore positional encoding in Transformers: sinusoidal encodings, learned embeddings, and how sequence order is preserved.',
+};
 
 export default function PositionalEncodingPage() {
   return (

@@ -1,4 +1,10 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Deep Learning Visualizations — AI Research Academy',
+  description: 'Interactive visualizations for understanding deep learning: perceptrons, backpropagation, optimization, regularization, CNNs, RNNs, transfer learning, and generative models.',
+};
 
 export default function DLIndex() {
   const visualizations = [

@@ -3,7 +3,7 @@ import Link from "next/link";
 import SVMBoundaryExplorer from '@/features/machine-learning/components/visualizations/SVMBoundaryExplorer';
 
 export const metadata: Metadata = {
-  title: "Support Vector Machine (SVM) — Interactive Visualizer",
+  title: "Support Vector Machine (SVM) — AI Research Academy",
   description:
     "Learn SVM with an interactive visualization. Add points, adjust C, and see the maximum-margin hyperplane update in real time.",
 };

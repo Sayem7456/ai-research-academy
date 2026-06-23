@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { ResNetSkipAnimation, ResNetVisualizer, ResNetAdvancedDive } from '@/features/computer-vision/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "ResNet Skip Connections — AI Research Academy",
+  description:
+    "Learn about Residual Networks with an interactive visualization. See how skip connections help mitigate the vanishing gradient problem.",
+};
 
 export default function ResNetPage() {
   return (

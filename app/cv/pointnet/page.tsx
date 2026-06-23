@@ -1,5 +1,11 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { PointNetExplorer, PointNetAdvancedDive } from '@/features/computer-vision/components';
+
+export const metadata: Metadata = {
+  title: 'PointNet / 3D Vision — AI Research Academy',
+  description: 'Explore PointNet and 3D vision: deep learning on point clouds, spatial transformations, and 3D object recognition.',
+};
 
 export default function PointNetPage() {
   return (

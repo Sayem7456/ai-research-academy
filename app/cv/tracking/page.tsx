@@ -1,5 +1,11 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { ObjectTrackingExplorer, TrackingAdvancedDive } from '@/features/computer-vision/components';
+
+export const metadata: Metadata = {
+  title: 'Object Tracking — AI Research Academy',
+  description: 'Interactive object tracking visualizer: SORT/DeepSORT algorithms, Kalman filters, IoU matching, and multi-object tracking.',
+};
 
 export default function TrackingPage() {
   return (

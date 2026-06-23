@@ -1,5 +1,11 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { PaperLibrary } from '@/features/research/components';
+
+export const metadata: Metadata = {
+  title: 'Research Skills — AI Research Academy',
+  description: 'Learn how to read, reproduce, and write AI research papers. Build the skills needed to become an effective AI researcher.',
+};
 
 export default function ResearchIndex() {
   return (

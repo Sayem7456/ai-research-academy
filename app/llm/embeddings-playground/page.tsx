@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { EmbeddingPlayground } from '@/features/llm/components';
 
 export const metadata: Metadata = {
-  title: "Embedding Playground — Interactive Word Embedding Explorer",
+  title: "Embedding Playground — AI Research Academy",
   description:
     "Advanced interactive playground for exploring word embeddings. Solve analogies, find nearest neighbors, visualize 2D projections, inspect dimensions, explore contextual embeddings, discover biases, and train skip-gram from scratch.",
 };

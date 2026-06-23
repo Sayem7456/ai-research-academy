@@ -3,7 +3,7 @@ import Link from "next/link";
 import DecisionTreeBuilder from '@/features/machine-learning/components/visualizations/DecisionTreeBuilder';
 
 export const metadata: Metadata = {
-  title: "Decision Tree — Interactive Visualizer",
+  title: "Decision Tree — AI Research Academy",
   description:
     "Learn Decision Trees with an interactive visualization. Add training points, adjust depth, and see how splits partition the feature space.",
 };

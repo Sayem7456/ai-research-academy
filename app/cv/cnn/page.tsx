@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { ConvolutionExplorer } from '@/features/computer-vision/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Convolution — AI Research Academy",
+  description:
+    "Learn about convolutional neural networks with an interactive visualization. See how convolutions, pooling, and activation functions work together.",
+};
 
 export default function CNNPage() {
   return (

@@ -1,5 +1,11 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { GANExplorer, GANAdvancedDive } from '@/features/computer-vision/components';
+
+export const metadata: Metadata = {
+  title: 'Generative Adversarial Networks — AI Research Academy',
+  description: 'Interactive GAN visualization: generator vs discriminator training, mode collapse, and generative model architectures.',
+};
 
 export default function GANPage() {
   return (

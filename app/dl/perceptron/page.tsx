@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { PerceptronPlayground } from '@/features/deep-learning/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Perceptron — AI Research Academy",
+  description:
+    "Learn about the Perceptron with an interactive visualization. Adjust weights, bias, and activation function to see how it affects the decision boundary.",
+};
 
 export default function PerceptronPage() {
   return (

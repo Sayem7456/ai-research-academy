@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { EmbeddingExplorer } from '@/features/llm/components';
 
 export const metadata: Metadata = {
-  title: "Word Embeddings — Interactive Explorer",
+  title: "Word Embeddings — AI Research Academy",
   description:
     "Explore word embeddings interactively. Visualize vector representations, compute cosine similarities, and see how vector arithmetic captures analogical relationships like king − man + woman ≈ queen.",
 };

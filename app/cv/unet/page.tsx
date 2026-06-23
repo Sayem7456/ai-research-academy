@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { UNetExplorer, UNetVisualizer, UNetAdvancedDive } from '@/features/computer-vision/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "U-Net — AI Research Academy",
+  description:
+    "Learn about U-Net with an interactive visualization. See how the encoder and decoder work together for semantic segmentation.",
+};
 
 export default function UNetPage() {
   return (

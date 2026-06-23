@@ -1,4 +1,5 @@
 import React from "react";
+import type { Metadata } from "next";
 import { getContentBySlug, renderHTMLWithKaTeX, getAllSlugs } from "@/lib/content";
 import { mdxComponents } from "@/components/mdx";
 
@@ -21,6 +22,24 @@ const SECTION_ICONS: Record<string, string> = {
   dl: "🧠",
   research: "📄",
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { section, slug } = (await params) as unknown as { section: string; slug: string };
+  const sectionLabel = SECTION_LABELS[section] || section;
+
+  try {
+    const { frontmatter } = await getContentBySlug(section, slug);
+    const title = frontmatter?.title || slug.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+    return {
+      title: `${title} — ${sectionLabel} — AI Research Academy`,
+      description: frontmatter?.description || `Learn about ${title} in ${sectionLabel}.`,
+    };
+  } catch {
+    return {
+      title: `${sectionLabel} Lesson — AI Research Academy`,
+    };
+  }
+}
 
 export default async function Page({ params }: Props) {
   const { section, slug } = (await params) as unknown as { section: string; slug: string };

@@ -1,4 +1,11 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: "ML Visualizations — AI Research Academy",
+  description:
+    "Interactive playgrounds for understanding ML algorithms. Click on any visualization to explore how algorithms learn from data.",
+};
 
 export default function MLIndex() {
   const visualizations = [

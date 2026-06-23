@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { FasterRCNNVisualizer, FasterRCNNAdvancedDive } from '@/features/computer-vision/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Faster R-CNN — AI Research Academy",
+  description:
+    "Learn about Faster R-CNN with an interactive visualization. See how the region proposal network and detection network work together.",
+};
 
 export default function FasterRCNNPage() {
   return (

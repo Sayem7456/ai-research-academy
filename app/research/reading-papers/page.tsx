@@ -1,4 +1,10 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Reading Papers — AI Research Academy',
+  description: 'Learn to efficiently read and understand AI research papers using the three-pass approach and structured reading checklists.',
+};
 
 export default function ReadingPapersPage() {
   return (

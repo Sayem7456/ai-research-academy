@@ -1,4 +1,10 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Computer Vision Visualizations — AI Research Academy',
+  description: 'Interactive visualizations for computer vision: CNNs, ResNet, YOLO, U-Net, Vision Transformers, object detection, segmentation, and more.',
+};
 
 export default function CVIndex() {
   const visualizations = [

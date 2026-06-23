@@ -3,7 +3,7 @@ import Link from "next/link";
 import LogisticRegressionPlayground from '@/features/machine-learning/components/visualizations/LogisticRegressionPlayground';
 
 export const metadata: Metadata = {
-  title: "Logistic Regression — Interactive Visualizer",
+  title: "Logistic Regression — AI Research Academy",
   description:
     "Learn Logistic Regression with an interactive visualization. Add training points, adjust learning rate, and see the decision boundary update in real time.",
 };

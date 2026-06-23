@@ -3,7 +3,7 @@ import Link from "next/link";
 import PCAAnimation from '@/features/machine-learning/components/visualizations/PCAAnimation';
 
 export const metadata: Metadata = {
-  title: "Principal Component Analysis (PCA) — Interactive Visualizer",
+  title: "Principal Component Analysis (PCA) — AI Research Academy",
   description:
     "Learn PCA with an interactive visualization. Add points, see principal components, and understand variance explained.",
 };

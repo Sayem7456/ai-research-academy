@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { TransferLearningPlayground } from '@/features/deep-learning/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Transfer Learning — AI Research Academy",
+  description:
+    "Learn about transfer learning with an interactive visualization. See how pre-trained models can be adapted for new tasks.",
+};
 
 export default function TransferLearningPage() {
   return (

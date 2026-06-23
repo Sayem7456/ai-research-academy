@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { RNNSequenceVisualizer } from '@/features/deep-learning/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "RNNs — AI Research Academy",
+  description:
+    "Learn about recurrent neural networks with an interactive visualization. See how RNNs, LSTMs, and GRUs process sequential data.",
+};
 
 export default function RNNPage() {
   return (

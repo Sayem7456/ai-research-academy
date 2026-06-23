@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { LossLandscapeExplorer } from '@/features/deep-learning/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Optimization — AI Research Academy",
+  description:
+    "Learn about optimization techniques with an interactive visualization. See how different algorithms navigate the loss landscape.",
+};
 
 export default function OptimizationPage() {
   return (

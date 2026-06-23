@@ -1,4 +1,10 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Reproducing Papers — AI Research Academy',
+  description: 'A roadmap for reproducing AI research papers: common pitfalls, best practices, and systematic experiment design.',
+};
 
 export default function ReproducingPapersPage() {
   return (

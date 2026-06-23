@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { RegularizationDemo } from '@/features/deep-learning/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Regularization — AI Research Academy",
+  description:
+    "Learn about regularization techniques with an interactive visualization. See how L1, L2, and dropout regularization prevent overfitting.",
+};
 
 export default function RegularizationPage() {
   return (

@@ -1,5 +1,11 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { TokenizationExplorer } from '@/features/llm/components';
+
+export const metadata: Metadata = {
+  title: 'Tokenization Explorer — AI Research Academy',
+  description: 'See how different tokenization algorithms split text into tokens for LLM processing: BPE, WordPiece, SentencePiece, and more.',
+};
 
 export default function TokenizationPage() {
   return (

@@ -1,5 +1,11 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { RAGPipelineExplorer } from '@/features/llm/components';
+
+export const metadata: Metadata = {
+  title: 'RAG Pipeline Explorer — AI Research Academy',
+  description: 'Interactive visualization of Retrieval-Augmented Generation: document chunking, embedding, retrieval, and answer generation.',
+};
 
 export default function RAGPage() {
   return (

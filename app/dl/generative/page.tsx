@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { VAELatentSpaceExplorer } from '@/features/deep-learning/components';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Generative Models — AI Research Academy",
+  description:
+    "Learn about generative models with an interactive visualization. See how VAEs and GANs create new data samples.",
+};
 
 export default function GenerativePage() {
   return (

@@ -3,7 +3,7 @@ import Link from "next/link";
 import LinearRegressionPlayground from '@/features/machine-learning/components/visualizations/LinearRegressionPlayground';
 
 export const metadata: Metadata = {
-  title: "Linear Regression — Interactive Visualizer",
+  title: "Linear Regression — AI Research Academy",
   description:
     "Learn Linear Regression with an interactive visualization. Add data points, adjust parameters, and see the line of best fit update in real time.",
 };

@@ -3,7 +3,7 @@ import Link from "next/link";
 import KNNVisualizer from "@/features/machine-learning/components/visualizations/KNNVisualizer";
 
 export const metadata: Metadata = {
-  title: "K-Nearest Neighbors (KNN) — Interactive Visualizer",
+  title: "K-Nearest Neighbors (KNN) — AI Research Academy",
   description:
     "Learn K-Nearest Neighbors with an interactive visualization. Add training points, adjust K, and see real-time classification decision boundaries.",
 };

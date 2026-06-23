@@ -1,5 +1,11 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { AgentWorkflowVisualizer } from '@/features/llm/components';
+
+export const metadata: Metadata = {
+  title: 'Agent Workflow Visualizer — AI Research Academy',
+  description: 'Explore LLM agent workflows: the Think-Act-Observe loop, tool use, planning, and autonomous decision-making.',
+};
 
 export default function AgentsPage() {
   return (

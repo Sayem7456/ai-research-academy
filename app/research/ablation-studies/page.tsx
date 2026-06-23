@@ -1,4 +1,10 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Ablation Studies — AI Research Academy',
+  description: 'Master ablation study methodology: component removal, controlled experiments, and isolating contributing factors in AI research.',
+};
 
 export default function AblationStudiesPage() {
   return (
