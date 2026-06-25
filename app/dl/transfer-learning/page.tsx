@@ -3,9 +3,9 @@ import { TransferLearningPlayground } from '@/features/deep-learning/components'
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Transfer Learning — AI Research Academy",
+  title: "Transfer Learning Playground — AI Research Academy",
   description:
-    "Learn about transfer learning with an interactive visualization. See how pre-trained models can be adapted for new tasks.",
+    "Interactive transfer learning playground. Explore architectures, freeze/unfreeze layers, simulate training, and learn how pre-trained models adapt to new tasks.",
 };
 
 export default function TransferLearningPage() {
@@ -23,7 +23,7 @@ export default function TransferLearningPage() {
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">🧠 Transfer Learning Playground</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">Compare feature extraction, fine-tuning, and training from scratch</p>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">Interactive exploration of transfer learning with layer control, training simulation, and guided tutorials</p>
           </div>
           <Link
             href="/content/dl/dl-transfer-learning"
