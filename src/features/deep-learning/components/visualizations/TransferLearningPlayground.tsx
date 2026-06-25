@@ -267,7 +267,7 @@ export default function TransferLearningPlayground() {
 
       setTraining(prev => ({
         ...prev,
-        epoch: epoch + 1,
+        epoch: Math.min(epoch + 1, maxEpochs),
         trainLoss: [...prev.trainLoss, trainLoss],
         valLoss: [...prev.valLoss, valLoss],
         trainAcc: [...prev.trainAcc, trainAcc],
