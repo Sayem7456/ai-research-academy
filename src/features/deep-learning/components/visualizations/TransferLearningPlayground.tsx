@@ -5,6 +5,7 @@ import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 type Architecture = 'resnet18' | 'vgg16' | 'efficientnet' | 'vit';
 type Dataset = 'cifar10' | 'imagenette' | 'medical' | 'custom';
 type ViewMode = 'interactive' | 'tutorial';
+type Preset = 'extraction' | 'finetune-top' | 'finetune-all' | null;
 
 interface LayerInfo {
   id: string;
@@ -171,6 +172,7 @@ export default function TransferLearningPlayground() {
   const [viewMode, setViewMode] = useState<ViewMode>('interactive');
   const [architecture, setArchitecture] = useState<Architecture>('resnet18');
   const [dataset, setDataset] = useState<Dataset>('cifar10');
+  const [activePreset, setActivePreset] = useState<Preset>(null);
   const [layers, setLayers] = useState<LayerInfo[]>(() => {
     const arch = ARCHITECTURES['resnet18'];
     return arch.layers.map((l, i) => ({
@@ -194,6 +196,7 @@ export default function TransferLearningPlayground() {
   const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
+    setActivePreset(null);
     const arch = ARCHITECTURES[architecture];
     setLayers(arch.layers.map((l, i) => ({
       ...l,
@@ -220,6 +223,7 @@ export default function TransferLearningPlayground() {
   }, []);
 
   const toggleLayer = useCallback((layerId: string) => {
+    setActivePreset(null);
     setLayers(prev => prev.map(l =>
       l.id === layerId ? { ...l, frozen: !l.frozen } : l
     ));
@@ -237,14 +241,48 @@ export default function TransferLearningPlayground() {
 
   const computeAccuracy = useCallback((epoch: number, isTransfer: boolean) => {
     const arch = ARCHITECTURES[architecture];
-    const ds = DATASETS[dataset];
-    const baseAcc = isTransfer ? arch.top1Accuracy * 0.8 : 20 + Math.random() * 5;
-    const transferBoost = isTransfer ? domainSimilarity * 15 : 0;
-    const dataBonus = Math.log10(datasetSize + 1) * 8;
-    const layerBonus = (trainableLayers.length / layers.length) * 10;
-    const epochBonus = Math.min(epoch / 50, 1) * 20;
-    const overfitPenalty = !isTransfer && datasetSize < 200 ? -10 * (1 - epoch / 50) : 0;
-    return Math.min(98, baseAcc + transferBoost + dataBonus + layerBonus + epochBonus + overfitPenalty);
+    const fraction = epoch / 50;
+    const trainableRatio = trainableLayers.length / layers.length;
+    const dataRatio = datasetSize / 1000;
+
+    let accuracy: number;
+
+    if (isTransfer) {
+      // Transfer learning: feature extraction vs fine-tuning
+      const isFeatureExtraction = trainableRatio <= 0.25;
+
+      if (isFeatureExtraction) {
+        // Feature extraction: freeze most layers, only train classifier
+        // Good with small data + high similarity, limited ceiling
+        const base = 30 + domainSimilarity * 35;
+        const dataEffect = Math.min(dataRatio * 15, 15);
+        const ceiling = 75 + domainSimilarity * 15;
+        accuracy = base + dataEffect * fraction;
+        accuracy = Math.min(accuracy, ceiling);
+      } else {
+        // Fine-tuning: unfreeze some layers
+        // Better ceiling but needs more data, risk of overfitting with small data
+        const base = 25 + domainSimilarity * 30;
+        const dataEffect = Math.min(dataRatio * 25, 25);
+        const overfitPenalty = dataRatio < 0.1 ? (0.1 - dataRatio) * 200 * trainableRatio : 0;
+        const ceiling = 80 + domainSimilarity * 12;
+        accuracy = base + dataEffect * fraction - overfitPenalty * (1 - fraction * 0.5);
+        accuracy = Math.min(accuracy, ceiling);
+      }
+    } else {
+      // Training from scratch
+      // Needs lots of data, slow convergence
+      const base = 10;
+      const dataEffect = Math.min(dataRatio * 40, 40);
+      const archBonus = (arch.top1Accuracy - 60) * 0.3;
+      const ceiling = 55 + archBonus + dataRatio * 20;
+      accuracy = base + (dataEffect + archBonus) * fraction;
+      accuracy = Math.min(accuracy, ceiling);
+    }
+
+    // Small random noise for realism
+    const noise = ((epoch * 7 + trainableLayers.length * 13) % 10 - 5) * 0.3;
+    return Math.max(0, Math.min(98, accuracy + noise));
   }, [architecture, dataset, datasetSize, trainableLayers.length, layers.length, domainSimilarity]);
 
   const startTraining = useCallback(() => {
@@ -262,8 +300,11 @@ export default function TransferLearningPlayground() {
 
       const trainAcc = computeAccuracy(epoch, true);
       const valAcc = computeAccuracy(epoch, true) - 2 - Math.random() * 3;
-      const trainLoss = 2.5 * Math.exp(-epoch / 15) + 0.1 + Math.random() * 0.05;
-      const valLoss = trainLoss + 0.05 + Math.random() * 0.1;
+
+      // Loss depends on accuracy: higher accuracy = lower loss
+      const targetLoss = 2.5 * (1 - trainAcc / 100);
+      const trainLoss = targetLoss + 0.05 + Math.random() * 0.05;
+      const valLoss = trainLoss + 0.1 + Math.random() * 0.15;
 
       setTraining(prev => ({
         ...prev,
@@ -682,33 +723,49 @@ export default function TransferLearningPlayground() {
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => {
+                  setActivePreset('extraction');
                   setLayers(prev => prev.map((l, i) => ({ ...l, frozen: i < prev.length - 1 })));
                   resetTraining();
                 }}
-                className="px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg text-xs font-medium hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                  activePreset === 'extraction'
+                    ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-400 ring-offset-1 dark:ring-offset-gray-800'
+                    : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/40'
+                }`}
               >
                 Feature Extraction
               </button>
               <button
                 onClick={() => {
+                  setActivePreset('finetune-top');
                   setLayers(prev => prev.map((l, i) => ({ ...l, frozen: i < prev.length - 3 })));
                   resetTraining();
                 }}
-                className="px-3 py-2 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-lg text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors cursor-pointer"
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                  activePreset === 'finetune-top'
+                    ? 'bg-green-600 text-white shadow-md ring-2 ring-green-400 ring-offset-1 dark:ring-offset-gray-800'
+                    : 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/40'
+                }`}
               >
                 Fine-tune Top
               </button>
               <button
                 onClick={() => {
+                  setActivePreset('finetune-all');
                   setLayers(prev => prev.map(l => ({ ...l, frozen: false })));
                   resetTraining();
                 }}
-                className="px-3 py-2 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-lg text-xs font-medium hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors cursor-pointer"
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                  activePreset === 'finetune-all'
+                    ? 'bg-purple-600 text-white shadow-md ring-2 ring-purple-400 ring-offset-1 dark:ring-offset-gray-800'
+                    : 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40'
+                }`}
               >
                 Fine-tune All
               </button>
               <button
                 onClick={() => {
+                  setActivePreset(null);
                   resetTraining();
                 }}
                 className="px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
@@ -716,6 +773,255 @@ export default function TransferLearningPlayground() {
                 Reset All
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Training Dynamics Visualization */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">What Happens During Training</h3>
+          <div className={`text-[10px] px-2 py-1 rounded-full font-medium ${
+            training.isTraining 
+              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' 
+              : training.epoch > 0 
+                ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+          }`}>
+            {training.isTraining ? '● Training Active' : training.epoch > 0 ? '✓ Training Complete' : '○ Idle'}
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Frozen Layers Visualization */}
+          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <div className={`w-3 h-3 rounded-full bg-gray-400 ${training.isTraining ? 'animate-pulse' : ''}`}></div>
+              <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300">Frozen Layers</h4>
+            </div>
+            
+            <div className="space-y-3">
+              {/* Visual: Weights stay constant */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
+                <div className="text-[10px] text-gray-500 dark:text-gray-400 mb-2">Weight Values (unchanged)</div>
+                <div className="flex gap-1">
+                  {[0.23, -0.45, 0.67, -0.12, 0.89, -0.34, 0.56, -0.78].map((w, i) => (
+                    <div key={i} className="flex-1 text-center">
+                      <div className="h-12 rounded flex items-center justify-center text-[8px] font-mono bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-500">
+                        {w.toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 text-[10px] text-gray-500 dark:text-gray-400 text-center flex items-center justify-center gap-1">
+                  <span className={`inline-block ${training.isTraining ? 'animate-bounce' : ''}`}>🔒</span> Weights locked — no gradient updates
+                </div>
+              </div>
+              
+              {/* Gradient flow blocked */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
+                <div className="text-[10px] text-gray-500 dark:text-gray-400 mb-2">Gradient Flow</div>
+                <div className="flex items-center justify-center gap-2 py-2">
+                  <div className="flex items-center gap-1">
+                    <span className={`text-green-500 text-lg ${training.isTraining ? 'animate-pulse' : 'opacity-30'}`}>↓</span>
+                    <span className={`text-green-500 text-lg ${training.isTraining ? 'animate-pulse' : 'opacity-30'}`} style={{ animationDelay: '0.2s' }}>↓</span>
+                    <span className={`text-green-500 text-lg ${training.isTraining ? 'animate-pulse' : 'opacity-30'}`} style={{ animationDelay: '0.4s' }}>↓</span>
+                  </div>
+                  <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center border-2 border-red-300 dark:border-red-700">
+                    <span className={`text-red-500 text-xl font-bold ${training.isTraining ? 'animate-pulse' : ''}`}>✕</span>
+                  </div>
+                  <div className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">BLOCKED</div>
+                </div>
+                <div className="flex justify-center">
+                  <div className="w-full h-1 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                    <div className="h-full bg-red-400 w-full opacity-50"></div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Explanation */}
+              <div className="text-[11px] text-gray-600 dark:text-gray-400 space-y-1">
+                <p>• <strong>No backward pass</strong> — gradients don't flow through</p>
+                <p>• <strong>No weight updates</strong> — parameters stay as pre-trained</p>
+                <p>• <strong>Preserves features</strong> — edges, textures, shapes remain</p>
+                <p>• <strong>Faster training</strong> — fewer computations needed</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Trainable Layers Visualization */}
+          <div className="bg-green-50 dark:bg-green-900/10 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <div className={`w-3 h-3 rounded-full bg-green-500 ${training.isTraining ? 'animate-pulse' : ''}`}></div>
+              <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300">Trainable Layers</h4>
+            </div>
+            
+            <div className="space-y-3">
+              {/* Visual: Weights change */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
+                <div className="text-[10px] text-gray-500 dark:text-gray-400 mb-2">
+                  {training.isTraining ? 'Weight Updates (changing)' : training.epoch > 0 ? 'Weight Updates (final)' : 'Weight Updates (initial)'}
+                </div>
+                <div className="flex gap-1">
+                  {[
+                    { before: 0.23, after: 0.31 },
+                    { before: -0.45, after: -0.38 },
+                    { before: 0.67, after: 0.72 },
+                    { before: -0.12, after: -0.08 },
+                    { before: 0.89, after: 0.85 },
+                    { before: -0.34, after: -0.29 },
+                    { before: 0.56, after: 0.61 },
+                    { before: -0.78, after: -0.71 },
+                  ].map((w, i) => (
+                    <div key={i} className="flex-1 text-center">
+                      <div className={`h-5 rounded flex items-center justify-center text-[8px] font-mono ${
+                        training.epoch > 0 && !training.isTraining
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+                          : 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 line-through'
+                      }`}>
+                        {training.epoch > 0 && !training.isTraining ? w.after.toFixed(2) : w.before.toFixed(2)}
+                      </div>
+                      <div className={`text-[10px] my-0.5 ${
+                        training.isTraining ? 'text-green-500 animate-bounce' : 'text-gray-300 dark:text-gray-600'
+                      }`} style={{ animationDelay: `${i * 0.1}s` }}>
+                        {training.isTraining ? '↓' : training.epoch > 0 ? '✓' : '—'}
+                      </div>
+                      <div className="h-5 rounded flex items-center justify-center text-[8px] font-mono bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300 font-bold border border-green-400 dark:border-green-600">
+                        {w.after.toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 text-[10px] text-center flex items-center justify-center gap-1">
+                  {training.isTraining ? (
+                    <span className="text-green-600 dark:text-green-400">
+                      <span className="inline-block animate-bounce">🔓</span> Weights updating via gradient descent
+                    </span>
+                  ) : training.epoch > 0 ? (
+                    <span className="text-green-600 dark:text-green-400">
+                      ✓ Weights optimized — training complete
+                    </span>
+                  ) : (
+                    <span className="text-gray-500 dark:text-gray-400">
+                      ○ Waiting for training to start
+                    </span>
+                  )}
+                </div>
+              </div>
+              
+              {/* Gradient flow passes */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
+                <div className="text-[10px] text-gray-500 dark:text-gray-400 mb-2">Gradient Flow</div>
+                <div className="flex items-center justify-center gap-2 py-2">
+                  <div className="flex items-center gap-1">
+                    <span className={`text-green-500 text-lg ${training.isTraining ? 'animate-bounce' : training.epoch > 0 ? 'text-green-400' : 'text-gray-300 dark:text-gray-600'}`} style={{ animationDelay: '0s' }}>
+                      {training.isTraining ? '↓' : training.epoch > 0 ? '✓' : '—'}
+                    </span>
+                    <span className={`text-green-500 text-lg ${training.isTraining ? 'animate-bounce' : training.epoch > 0 ? 'text-green-400' : 'text-gray-300 dark:text-gray-600'}`} style={{ animationDelay: '0.15s' }}>
+                      {training.isTraining ? '↓' : training.epoch > 0 ? '✓' : '—'}
+                    </span>
+                    <span className={`text-green-500 text-lg ${training.isTraining ? 'animate-bounce' : training.epoch > 0 ? 'text-green-400' : 'text-gray-300 dark:text-gray-600'}`} style={{ animationDelay: '0.3s' }}>
+                      {training.isTraining ? '↓' : training.epoch > 0 ? '✓' : '—'}
+                    </span>
+                  </div>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+                    training.isTraining 
+                      ? 'bg-green-100 dark:bg-green-900/40 border-green-300 dark:border-green-700' 
+                      : training.epoch > 0
+                        ? 'bg-green-200 dark:bg-green-800 border-green-400 dark:border-green-600'
+                        : 'bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600'
+                  }`}>
+                    <span className={`text-xl font-bold ${
+                      training.isTraining ? 'text-green-500 animate-pulse' : training.epoch > 0 ? 'text-green-600 dark:text-green-300' : 'text-gray-400'
+                    }`}>
+                      {training.isTraining ? '✓' : training.epoch > 0 ? '✓' : '○'}
+                    </span>
+                  </div>
+                  <div className={`text-[11px] font-medium ${
+                    training.isTraining ? 'text-green-600 dark:text-green-400' : training.epoch > 0 ? 'text-green-600 dark:text-green-400' : 'text-gray-400'
+                  }`}>
+                    {training.isTraining ? 'UPDATING' : training.epoch > 0 ? 'COMPLETE' : 'IDLE'}
+                  </div>
+                </div>
+                <div className="flex justify-center">
+                  <div className="w-full h-1 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                    <div className={`h-full transition-all duration-500 ${
+                      training.isTraining ? 'bg-green-500 animate-pulse' : training.epoch > 0 ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-500'
+                    }`} style={{ width: training.epoch > 0 ? '100%' : '0%' }}></div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Explanation */}
+              <div className="text-[11px] text-gray-600 dark:text-gray-400 space-y-1">
+                <p>• <strong>Full backward pass</strong> — gradients computed via backprop</p>
+                <p>• <strong>Weight updates</strong> — W = W - lr × gradient</p>
+                <p>• <strong>Learns task-specific features</strong> — adapts to your data</p>
+                <p>• <strong>Risk of overfitting</strong> — if too many layers unfrozen with small data</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Training Loop Summary */}
+        <div className="mt-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4">
+          <h4 className="text-xs font-semibold text-indigo-800 dark:text-indigo-300 mb-3">Training Loop: Forward → Loss → Backward → Update</h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[11px]">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-2 text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-transparent dark:from-indigo-900/30 animate-pulse"></div>
+              <div className="relative">
+                <div className="text-indigo-600 dark:text-indigo-400 font-semibold mb-1">1. Forward Pass</div>
+                <div className="text-gray-500 dark:text-gray-400">Input flows through all layers</div>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-2 text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-100 to-transparent dark:from-orange-900/30 animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+              <div className="relative">
+                <div className="text-orange-600 dark:text-orange-400 font-semibold mb-1">2. Compute Loss</div>
+                <div className="text-gray-500 dark:text-gray-400">Compare prediction vs actual</div>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-2 text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-red-100 to-transparent dark:from-red-900/30 animate-pulse" style={{ animationDelay: '0.6s' }}></div>
+              <div className="relative">
+                <div className="text-red-600 dark:text-red-400 font-semibold mb-1">3. Backward Pass</div>
+                <div className="text-gray-500 dark:text-gray-400">Gradients stop at frozen layers</div>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-2 text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-green-100 to-transparent dark:from-green-900/30 animate-pulse" style={{ animationDelay: '0.9s' }}></div>
+              <div className="relative">
+                <div className="text-green-600 dark:text-green-400 font-semibold mb-1">4. Update Weights</div>
+                <div className="text-gray-500 dark:text-gray-400">W = W - lr × ∇L</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Current Configuration Summary */}
+        <div className="mt-4 grid grid-cols-3 gap-3 text-xs">
+          <div className={`rounded-lg p-3 text-center transition-all duration-300 ${
+            frozenLayers.length > 0 
+              ? 'bg-gray-100 dark:bg-gray-700' 
+              : 'bg-gray-50 dark:bg-gray-700/50 opacity-50'
+          }`}>
+            <div className="text-2xl font-bold text-gray-700 dark:text-gray-300">{frozenLayers.length}</div>
+            <div className="text-gray-500 dark:text-gray-400">Frozen Layers</div>
+            <div className="text-[10px] text-gray-400 mt-1">No gradient updates</div>
+          </div>
+          <div className={`rounded-lg p-3 text-center transition-all duration-300 ${
+            trainableLayers.length > 0 
+              ? 'bg-green-100 dark:bg-green-900/30' 
+              : 'bg-gray-50 dark:bg-gray-700/50 opacity-50'
+          }`}>
+            <div className="text-2xl font-bold text-green-700 dark:text-green-300">{trainableLayers.length}</div>
+            <div className="text-green-600 dark:text-green-400">Trainable Layers</div>
+            <div className="text-[10px] text-green-500 mt-1">Updating via backprop</div>
+          </div>
+          <div className="bg-indigo-100 dark:bg-indigo-900/30 rounded-lg p-3 text-center">
+            <div className="text-2xl font-bold text-indigo-700 dark:text-indigo-300">{formatParams(trainableParams)}</div>
+            <div className="text-indigo-600 dark:text-indigo-400">Trainable Params</div>
+            <div className="text-[10px] text-indigo-500 mt-1">{((trainableParams / totalParams) * 100).toFixed(1)}% of total</div>
           </div>
         </div>
       </div>
