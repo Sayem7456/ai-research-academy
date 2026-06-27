@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import LearnMoreSection from './LearnMoreSection';
 
 interface Point3D {
   x: number; y: number; z: number; label: string;
@@ -423,6 +424,176 @@ export default function PointNetExplorer() {
             </p>
           </div>
         </div>
+
+        {/* Learn More Section */}
+        <LearnMoreSection
+          title="Learn PointNet"
+          gradientFrom="from-cyan-50"
+          gradientTo="to-blue-50"
+          darkGradientFrom="from-cyan-950/30"
+          darkGradientTo="from-blue-950/30"
+          hoverFrom="hover:from-cyan-100"
+          hoverTo="hover:to-blue-100"
+          darkHoverFrom="dark:hover:from-cyan-950/50"
+          darkHoverTo="dark:hover:to-blue-950/50"
+          analogyTitle="Reading a 3D Sculpture"
+          analogyIcon="🗿"
+          analogyContent={
+            <>
+              <p className="text-xs text-gray-700 dark:text-gray-300 mb-3">
+                Imagine you're blindfolded and need to identify a sculpture by touching it.
+                You feel individual points on the surface, each giving you a small piece of information.
+                By aggregating all these points, you build a mental model of the whole shape.
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-cyan-600 text-[10px] mb-2">Point-wise MLP</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Each point (x, y, z) is processed independently through shared multi-layer perceptrons.
+                    This extracts per-point features while preserving permutation invariance.
+                  </div>
+                </div>
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-blue-600 text-[10px] mb-2">Symmetric Function</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Max pooling aggregates all point features into a single global feature vector.
+                    This ensures the output is invariant to the order of points (set invariance).
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-700 dark:text-gray-300">
+                <strong>Key insight:</strong> PointNet uses shared MLPs + max pooling to achieve
+                permutation invariance, allowing it to process unordered point sets directly
+                without converting to voxels or meshes.
+              </p>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="p-3 bg-sky-50 dark:bg-sky-950/30 rounded-lg border-l-4 border-sky-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-sky-700 dark:text-sky-400">🎯 Spatial Transformer</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    A lightweight module that aligns input points to a canonical pose before feature extraction.
+                    Helps the network be invariant to geometric transformations.
+                  </p>
+                </div>
+                <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg border-l-4 border-indigo-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-indigo-700 dark:text-indigo-400">📊 PointNet++ Extension</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Addresses PointNet's lack of local structure by grouping points into local regions
+                    and learning features hierarchically, capturing both local and global patterns.
+                  </p>
+                </div>
+              </div>
+            </>
+          }
+          stepsTitle="How PointNet Works"
+          stepsContent={[
+            { step: 1, title: 'Input Normalization', desc: 'Normalize point cloud to unit sphere and align with spatial transformer network.', formula: 'points → T-Net → aligned points' },
+            { step: 2, title: 'Per-Point Feature Extraction', desc: 'Apply shared MLP to each point independently.', formula: '(x, y, z) → MLP → 1024-d feature' },
+            { step: 3, title: 'Global Feature Aggregation', desc: 'Apply max pooling across all points to get global feature vector.', formula: 'max(pooled features) → 1024-d global feature' },
+            { step: 4, title: 'Classification/Segmentation', desc: 'Use global feature for classification, or per-point features for segmentation.', formula: 'global → MLP → class scores' },
+          ]}
+          simpleTitle="PointNet with PyTorch"
+          simpleCode={`import torch
+import torch.nn as nn
+
+class PointNet(nn.Module):
+    def __init__(self, num_classes=40):
+        super().__init__()
+        self.mlp = nn.Sequential(
+            nn.Conv1d(3, 64, 1),
+            nn.BatchNorm1d(64),
+            nn.ReLU(),
+            nn.Conv1d(64, 128, 1),
+            nn.BatchNorm1d(128),
+            nn.ReLU(),
+            nn.Conv1d(128, 1024, 1),
+            nn.BatchNorm1d(1024),
+            nn.ReLU()
+        )
+        self.fc = nn.Sequential(
+            nn.Linear(1024, 512),
+            nn.BatchNorm1d(512),
+            nn.ReLU(),
+            nn.Linear(512, 256),
+            nn.BatchNorm1d(256),
+            nn.ReLU(),
+            nn.Linear(256, num_classes)
+        )
+    
+    def forward(self, x):
+        # x: (B, 3, N) where N is number of points
+        features = self.mlp(x)  # (B, 1024, N)
+        global_feature = torch.max(features, dim=2)[0]  # (B, 1024)
+        return self.fc(global_feature)
+
+# Example
+model = PointNet(num_classes=40)
+points = torch.randn(8, 3, 1024)  # batch of 8 point clouds, 1024 points each
+logits = model(points)  # (8, 40)`}
+          scratchTitle="PointNet components from scratch"
+          scratchCode={`import torch
+import torch.nn as nn
+
+class TNet(nn.Module):
+    """Spatial Transformer Network for alignment"""
+    def __init__(self, k=3):
+        super().__init__()
+        self.mlp = nn.Sequential(
+            nn.Conv1d(k, 64, 1), nn.BatchNorm1d(64), nn.ReLU(),
+            nn.Conv1d(64, 128, 1), nn.BatchNorm1d(128), nn.ReLU(),
+            nn.Conv1d(128, 1024, 1), nn.BatchNorm1d(1024), nn.ReLU()
+        )
+        self.fc = nn.Sequential(
+            nn.Linear(1024, 512), nn.BatchNorm1d(512), nn.ReLU(),
+            nn.Linear(512, 256), nn.BatchNorm1d(256), nn.ReLU(),
+            nn.Linear(256, k*k)
+        )
+    
+    def forward(self, x):
+        B, k, N = x.shape
+        feat = self.mlp(x)
+        feat = torch.max(feat, dim=2)[0]
+        transform = self.fc(feat).view(B, k, k)
+        return torch.eye(k, device=x.device).unsqueeze(0) + transform
+
+class SimplePointNet(nn.Module):
+    def __init__(self, num_classes=40):
+        super().__init__()
+        self.tnet = TNet(k=3)
+        self.mlp1 = nn.Sequential(
+            nn.Conv1d(3, 64, 1), nn.BatchNorm1d(64), nn.ReLU(),
+            nn.Conv1d(64, 64, 1), nn.BatchNorm1d(64), nn.ReLU()
+        )
+        self.tnet_feat = TNet(k=64)
+        self.mlp2 = nn.Sequential(
+            nn.Conv1d(64, 128, 1), nn.BatchNorm1d(128), nn.ReLU(),
+            nn.Conv1d(128, 1024, 1), nn.BatchNorm1d(1024), nn.ReLU()
+        )
+        self.fc = nn.Sequential(
+            nn.Linear(1024, 512), nn.Dropout(0.3), nn.BatchNorm1d(512), nn.ReLU(),
+            nn.Linear(512, 256), nn.Dropout(0.3), nn.BatchNorm1d(256), nn.ReLU(),
+            nn.Linear(256, num_classes)
+        )
+    
+    def forward(self, x):
+        # Spatial transformer
+        transform = self.tnet(x)
+        x = torch.bmm(transform, x)
+        
+        # Per-point features
+        x = self.mlp1(x)
+        
+        # Feature transformer
+        transform_feat = self.tnet_feat(x)
+        x = torch.bmm(transform_feat, x)
+        
+        # Global feature
+        x = self.mlp2(x)
+        x = torch.max(x, dim=2)[0]
+        
+        # Classification
+        return self.fc(x)`}
+        />
       </div>
     </div>
   );

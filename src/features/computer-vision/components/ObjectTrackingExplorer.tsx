@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import LearnMoreSection from './LearnMoreSection';
 
 interface TrackedObject {
   id: number;
@@ -278,6 +279,180 @@ export default function ObjectTrackingExplorer() {
             </div>
           </div>
         </div>
+
+        {/* Learn More Section */}
+        <LearnMoreSection
+          title="Learn Object Tracking"
+          gradientFrom="from-orange-50"
+          gradientTo="to-yellow-50"
+          darkGradientFrom="from-orange-950/30"
+          darkGradientTo="from-yellow-950/30"
+          hoverFrom="hover:from-orange-100"
+          hoverTo="hover:to-yellow-100"
+          darkHoverFrom="dark:hover:from-orange-950/50"
+          darkHoverTo="dark:hover:to-yellow-950/50"
+          analogyTitle="Following a Friend in a Crowd"
+          analogyIcon="👥"
+          analogyContent={
+            <>
+              <p className="text-xs text-gray-700 dark:text-gray-300 mb-3">
+                Imagine trying to follow your friend through a crowded market. You first spot them
+                (detection), then remember their appearance (feature extraction), and predict where
+                they'll move next (motion model). Each frame, you match what you see with what you expect.
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-orange-600 text-[10px] mb-2">Detection + Re-ID</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    An object detector finds bounding boxes each frame. A Re-ID network extracts
+                    appearance features to match the same identity across frames.
+                  </div>
+                </div>
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-yellow-600 text-[10px] mb-2">Motion Prediction</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Kalman filter predicts where each object will be in the next frame based on
+                    velocity and acceleration, handling temporary occlusions.
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-700 dark:text-gray-300">
+                <strong>Key insight:</strong> Multi-object tracking (MOT) combines detection, feature extraction,
+                and motion prediction to maintain consistent identities over time, even when objects
+                overlap or temporarily disappear.
+              </p>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border-l-4 border-amber-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-amber-700 dark:text-amber-400">🔗 Hungarian Algorithm</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Solves the assignment problem: matching detections to existing tracks optimally
+                    by minimizing a cost matrix (IoU + appearance distance).
+                  </p>
+                </div>
+                <div className="p-3 bg-rose-50 dark:bg-rose-950/30 rounded-lg border-l-4 border-rose-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-rose-700 dark:text-rose-400">🔄 Track Management</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Initialize new tracks for unmatched detections, delete tracks that haven't been
+                    matched for several frames, and handle track fragmentation.
+                  </p>
+                </div>
+              </div>
+            </>
+          }
+          stepsTitle="How Multi-Object Tracking Works"
+          stepsContent={[
+            { step: 1, title: 'Object Detection', desc: 'Run detector on each frame to get bounding boxes + confidence.', formula: 'frame → detector → boxes, scores' },
+            { step: 2, title: 'Feature Extraction', desc: 'Extract appearance features (Re-ID) for each detection.', formula: 'crop → CNN → 256-d appearance feature' },
+            { step: 3, title: 'Prediction', desc: 'Kalman filter predicts next state for each existing track.', formula: 'x_t = F * x_{t-1} + noise' },
+            { step: 4, title: 'Data Association', desc: 'Match detections to tracks using cost matrix (IoU + appearance).', formula: 'cost = α·IoU + β·appearance_distance' },
+            { step: 5, title: 'Track Update', desc: 'Update matched tracks, create new tracks, delete lost tracks.', formula: 'Kalman update for matched, initialize new, age++' },
+          ]}
+          simpleTitle="Simple MOT with Kalman Filter"
+          simpleCode={`import numpy as np
+from filterpy.kalman import KalmanFilter
+
+class KalmanTracker:
+    def __init__(self, bbox):
+        self.kf = KalmanFilter(dim_x=7, dim_z=4)
+        self.kf.F = np.array([
+            [1,0,0,0,1,0,0],
+            [0,1,0,0,0,1,0],
+            [0,0,1,0,0,0,1],
+            [0,0,0,1,0,0,0],
+            [0,0,0,0,1,0,0],
+            [0,0,0,0,0,1,0],
+            [0,0,0,0,0,0,1]
+        ])
+        self.kf.H = np.array([
+            [1,0,0,0,0,0,0],
+            [0,1,0,0,0,0,0],
+            [0,0,1,0,0,0,0],
+            [0,0,0,1,0,0,0]
+        ])
+        self.kf.R *= 10
+        self.kf.P[4:,4:] *= 1000
+        self.kf.P *= 10
+        self.kf.x[:4] = bbox.reshape((4, 1))
+        self.time_since_update = 0
+    
+    def predict(self):
+        self.kf.predict()
+        self.time_since_update += 1
+        return self.kf.x[:4].reshape((4,))
+    
+    def update(self, bbox):
+        self.kf.update(bbox.reshape((4, 1)))
+        self.time_since_update = 0
+
+# Example usage
+tracker = KalmanTracker(np.array([100, 50, 50, 50]))
+prediction = tracker.predict()
+tracker.update(np.array([102, 52, 50, 50]))`}
+          scratchTitle="Simple tracker from scratch"
+          scratchCode={`import numpy as np
+from scipy.optimize import linear_sum_assignment
+
+class SimpleMOT:
+    def __init__(self, iou_threshold=0.3, max_age=30):
+        self.tracks = []
+        self.next_id = 0
+        self.iou_threshold = iou_threshold
+        self.max_age = max_age
+    
+    def update(self, detections):
+        # Predict existing tracks
+        for track in self.tracks:
+            track['age'] += 1
+            track['hit'] = False
+        
+        # Compute cost matrix (IoU)
+        if len(self.tracks) > 0 and len(detections) > 0:
+            cost = np.zeros((len(self.tracks), len(detections)))
+            for i, track in enumerate(self.tracks):
+                for j, det in enumerate(detections):
+                    cost[i, j] = 1 - self.iou(track['bbox'], det)
+            
+            # Hungarian assignment
+            row_idx, col_idx = linear_sum_assignment(cost)
+            
+            # Update matched tracks
+            matched_dets = set()
+            for r, c in zip(row_idx, col_idx):
+                if cost[r, c] < 1 - self.iou_threshold:
+                    self.tracks[r]['bbox'] = detections[c]
+                    self.tracks[r]['age'] = 0
+                    self.tracks[r]['hit'] = True
+                    matched_dets.add(c)
+            
+            # Delete unmatched tracks
+            self.tracks = [t for t in self.tracks if t['age'] < self.max_age]
+        else:
+            matched_dets = set()
+        
+        # Create new tracks for unmatched detections
+        for j, det in enumerate(detections):
+            if j not in matched_dets:
+                self.tracks.append({
+                    'id': self.next_id,
+                    'bbox': det,
+                    'age': 0,
+                    'hit': True
+                })
+                self.next_id += 1
+        
+        return [(t['id'], t['bbox']) for t in self.tracks if t['hit']]
+    
+    def iou(self, bbox1, bbox2):
+        x1 = max(bbox1[0], bbox2[0])
+        y1 = max(bbox1[1], bbox2[1])
+        x2 = min(bbox1[2], bbox2[2])
+        y2 = min(bbox1[3], bbox2[3])
+        inter = max(0, x2-x1) * max(0, y2-y1)
+        area1 = (bbox1[2]-bbox1[0]) * (bbox1[3]-bbox1[1])
+        area2 = (bbox2[2]-bbox2[0]) * (bbox2[3]-bbox2[1])
+        return inter / (area1 + area2 - inter + 1e-6)`}
+        />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import LearnMoreSection from './LearnMoreSection';
 
 type ConvLayerState = {
   input: number[][][];
@@ -378,6 +379,124 @@ export default function CNNVisualizer() {
           </div>
         </div>
       </div>
+
+      <LearnMoreSection
+        title="Learn More: CNN Convolution Operation"
+        gradientFrom="from-amber-500"
+        gradientTo="to-yellow-500"
+        darkGradientFrom="from-amber-600"
+        darkGradientTo="to-yellow-600"
+        hoverFrom="hover:from-amber-600"
+        hoverTo="hover:to-yellow-600"
+        darkHoverFrom="dark:hover:from-amber-700"
+        darkHoverTo="dark:hover:to-yellow-700"
+        analogyTitle="The Flashlight Scanning Analogy"
+        analogyIcon="🔦"
+        analogyContent={
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            Think of a convolution kernel as a <strong>small flashlight</strong> that slides across the image.
+            At each position, it illuminates a local patch and computes a weighted sum — bright spots
+            contribute more, dark spots less. Different kernels detect different features: one might
+            highlight horizontal edges, another vertical ones, another textures. Stacking many kernels
+            gives the network a toolkit of feature detectors.
+          </p>
+        }
+        stepsTitle="How Convolution Works"
+        stepsContent={[
+          {
+            step: 1,
+            title: "Kernel slides over input",
+            desc: "A small matrix (kernel) of weights slides across the input image, computing the element-wise product and sum at each position.",
+            formula: "output[i,j] = Σ Σ input[i+k, j+l] × kernel[k, l]"
+          },
+          {
+            step: 2,
+            title: "Stride controls step size",
+            desc: "Stride determines how many pixels the kernel moves at each step. Stride=1 moves one pixel at a time; stride=2 skips every other position.",
+            formula: "output_size = (input_size - kernel_size) / stride + 1"
+          },
+          {
+            step: 3,
+            title: "Padding preserves dimensions",
+            desc: "Zero-padding around the border allows the kernel to process edge pixels and control output size.",
+            formula: "padded_size = input_size + 2 × padding"
+          },
+          {
+            step: 4,
+            title: "Multiple filters create feature maps",
+            desc: "Each filter detects a different feature. Stacking all feature maps creates the output channel dimension.",
+            formula: "Input(C_in) × Filters(C_out) → Output(C_out feature maps)"
+          }
+        ]}
+        simpleTitle="CNN Convolution in PyTorch"
+        simpleCode={`class SimpleCNN(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.fc = nn.Linear(32 * 8 * 8, 10)
+
+    def forward(self, x):
+        # Block 1: Conv → ReLU → Pool
+        x = self.pool(F.relu(self.conv1(x)))  # 32→16
+
+        # Block 2: Conv → ReLU → Pool
+        x = self.pool(F.relu(self.conv2(x)))  # 16→8
+
+        # Flatten and classify
+        x = x.view(x.size(0), -1)
+        return self.fc(x)`}
+        scratchTitle="Convolution from Scratch"
+        scratchCode={`import numpy as np
+
+def conv2d(input, kernel, stride=1, padding=0):
+    """
+    2D convolution without padding
+    input: (H, W, C) - input feature map
+    kernel: (kH, kW) - 2D kernel (same across channels)
+    """
+    # Add padding
+    if padding > 0:
+        input = np.pad(input,
+            ((padding, padding), (padding, padding), (0, 0)))
+
+    H, W, C = input.shape
+    kH, kW = kernel.shape
+
+    out_H = (H - kH) // stride + 1
+    out_W = (W - kW) // stride + 1
+    output = np.zeros((out_H, out_W, C))
+
+    for i in range(out_H):
+        for j in range(out_W):
+            # Extract the local region
+            region = input[i*stride:i*stride+kH,
+                          j*stride:j*stride+kW, :]
+            # Element-wise multiply and sum across channels
+            for c in range(C):
+                output[i, j, c] = np.sum(region[:, :, c] * kernel)
+
+    return output
+
+def max_pool(input, pool_size=2):
+    """2×2 max pooling"""
+    H, W, C = input.shape
+    out_H, out_W = H // pool_size, W // pool_size
+    output = np.zeros((out_H, out_W, C))
+
+    for c in range(C):
+        for i in range(out_H):
+            for j in range(out_W):
+                region = input[i*pool_size:(i+1)*pool_size,
+                              j*pool_size:(j+1)*pool_size, c]
+                output[i, j, c] = np.max(region)
+    return output
+
+def relu(x):
+    """ReLU activation"""
+    return np.maximum(0, x)`}
+      />
     </div>
   );
 }

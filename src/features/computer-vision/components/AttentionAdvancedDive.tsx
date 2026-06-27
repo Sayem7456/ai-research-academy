@@ -42,7 +42,7 @@ function QKVDemo() {
 
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-shrink-0">
-          <svg width="260" height="220" className="border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-800">
+          <svg width="260" height="220" className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
             {keys.map((k, i) => (
               <g key={i}>
                 <circle cx={40 + k.x * 180} cy={40 + k.y * 150} r={14}
@@ -73,10 +73,10 @@ function QKVDemo() {
 
         <div className="flex-1 space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
               <label className="text-xs font-medium">Temperature: {temperature.toFixed(1)}</label>
               <input type="range" min="0.5" max="5" step="0.5" value={temperature}
-                onChange={e => setTemperature(parseFloat(e.target.value))} className="w-full" />
+                onChange={e => setTemperature(parseFloat(e.target.value))} className="w-full cursor-pointer" />
               <div className="text-[10px] text-gray-400 mt-0.5">
                 Low = sharp, high = smooth distribution
               </div>
@@ -86,8 +86,8 @@ function QKVDemo() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 p-3">
-            <h4 className="font-semibold text-xs mb-2">Attention Distribution</h4>
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+              <h4 className="font-semibold text-xs mb-2">Attention Distribution</h4>
             <div className="flex items-end gap-1 h-24 border-b border-gray-300 dark:border-gray-600 pb-1">
               {softmax.map((v, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center">
@@ -218,7 +218,7 @@ function AttentionPatterns() {
           <div className="flex gap-2 flex-wrap">
             {(['local', 'dilated', 'global', 'strided'] as const).map(p => (
               <button key={p} onClick={() => setPattern(p)}
-                className={`px-3 py-1.5 text-xs rounded transition-colors ${
+                className={`px-3 py-1.5 text-xs rounded cursor-pointer transition-colors ${
                   pattern === p
                     ? 'bg-blue-600 text-white'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
@@ -229,10 +229,10 @@ function AttentionPatterns() {
           </div>
 
           {pattern !== 'global' && (
-            <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
               <label className="text-xs font-medium">Kernel/Step Size: {kernelSize}</label>
               <input type="range" min="2" max="6" step="1" value={kernelSize}
-                onChange={e => setKernelSize(parseInt(e.target.value))} className="w-full" />
+                onChange={e => setKernelSize(parseInt(e.target.value))} className="w-full cursor-pointer" />
             </div>
           )}
 
@@ -246,7 +246,7 @@ function AttentionPatterns() {
                 {pattern === 'strided' && `Skips every ${Math.max(2, kernelSize)}-th token. Reduces computational cost like strided convolution.`}
               </p>
             </div>
-            <div className="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 text-xs">
+            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-xs">
               <h4 className="font-semibold mb-1">Stats</h4>
               <div className="text-gray-700 dark:text-gray-300 text-[11px] space-y-0.5">
                 <div>Attended tokens: <strong>{attended.length}</strong></div>
@@ -304,7 +304,7 @@ function AttentionEvolution() {
       <div className="flex gap-1 mb-4 overflow-x-auto">
         {ATTENTION_MILESTONES.map((v, i) => (
           <button key={i} onClick={() => setSelected(i)}
-            className={`flex-1 p-2 text-xs rounded-t text-center transition-all border-b-2 whitespace-nowrap ${
+            className={`flex-1 p-2 text-xs rounded-t cursor-pointer text-center transition-all border-b-2 whitespace-nowrap ${
               selected === i
                 ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-500 font-semibold text-blue-700 dark:text-blue-300'
                 : 'bg-gray-50 dark:bg-gray-900 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -378,7 +378,7 @@ export default function AttentionAdvancedDive() {
         <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700 pb-2 overflow-x-auto">
           {sections.map(s => (
             <button key={s.id} onClick={() => setSection(s.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 text-sm rounded-t whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm rounded-t cursor-pointer whitespace-nowrap transition-colors ${
                 section === s.id
                   ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-b-2 border-blue-500 font-semibold'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'

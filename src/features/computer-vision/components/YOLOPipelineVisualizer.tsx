@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import LearnMoreSection from './LearnMoreSection';
 
 interface BBox {
   x: number;
@@ -578,6 +579,128 @@ export default function YOLOPipelineVisualizer() {
             )}
           </div>
         </div>
+
+        {/* Learn More Section */}
+        <LearnMoreSection
+          title="Learn YOLO Pipeline"
+          gradientFrom="from-blue-50"
+          gradientTo="to-indigo-50"
+          darkGradientFrom="from-blue-950/30"
+          darkGradientTo="from-indigo-950/30"
+          hoverFrom="hover:from-blue-100"
+          hoverTo="hover:to-indigo-100"
+          darkHoverFrom="dark:hover:from-blue-950/50"
+          darkHoverTo="dark:hover:to-indigo-950/50"
+          analogyTitle="Single Shot Detection"
+          analogyIcon="📸"
+          analogyContent={
+            <>
+              <p className="text-xs text-gray-700 dark:text-gray-300 mb-3">
+                Imagine taking a photo and instantly identifying every object in it without a second look.
+                YOLO does exactly that — it sees the whole image at once and predicts bounding boxes
+                and class probabilities in a single forward pass.
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-blue-600 text-[10px] mb-2">Grid Cell Prediction</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    The image is divided into an S×S grid. Each grid cell predicts B bounding boxes
+                    (x, y, w, h, confidence) and C class probabilities.
+                  </div>
+                </div>
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-indigo-600 text-[10px] mb-2">Non-Maximum Suppression</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Overlapping boxes for the same object are suppressed, keeping only the best detection.
+                    This removes duplicate predictions.
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-700 dark:text-gray-300">
+                <strong>Key insight:</strong> YOLO treats detection as a <strong>regression problem</strong>.
+                It directly predicts bounding boxes and class probabilities from the full image,
+                making it extremely fast (45+ FPS) while maintaining good accuracy.
+              </p>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="p-3 bg-cyan-50 dark:bg-cyan-950/30 rounded-lg border-l-4 border-cyan-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-cyan-700 dark:text-cyan-400">🎯 Anchor Boxes</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Pre-defined boxes of different sizes and aspect ratios. The network predicts
+                    offsets relative to these anchors, helping detect objects of various shapes.
+                  </p>
+                </div>
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border-l-4 border-emerald-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-emerald-700 dark:text-emerald-400">⚡ Multi-Scale Detection</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    YOLOv3+ uses three detection scales (13×13, 26×26, 52×52) to detect small, medium,
+                    and large objects simultaneously.
+                  </p>
+                </div>
+              </div>
+            </>
+          }
+          stepsTitle="How YOLO Works"
+          stepsContent={[
+            { step: 1, title: 'Grid Division', desc: 'Divide input image into S×S grid cells.', formula: 'input (416×416×3) → S×S grid' },
+            { step: 2, title: 'Anchor Box Prediction', desc: 'Each cell predicts B bounding boxes with confidence scores.', formula: 'per cell: (x, y, w, h, conf) × B' },
+            { step: 3, title: 'Class Probability', desc: 'Each cell predicts C class probabilities.', formula: 'per cell: P(class) × C' },
+            { step: 4, title: 'Confidence Filtering', desc: 'Remove boxes with confidence below threshold.', formula: 'keep if conf > threshold (e.g., 0.5)' },
+            { step: 5, title: 'Non-Maximum Suppression', desc: 'Remove overlapping boxes, keeping the best per class.', formula: 'IoU > 0.5 → suppress duplicate' },
+          ]}
+          simpleTitle="YOLO with Ultralytics"
+          simpleCode={`from ultralytics import YOLO
+
+# Load pretrained YOLOv8 model
+model = YOLO('yolov8n.pt')  # nano model
+
+# Inference
+results = model('image.jpg')
+
+# Process results
+for result in results:
+    boxes = result.boxes  # bounding boxes
+    print(boxes.xyxy)     # x1,y1,x2,y2
+    print(boxes.conf)     # confidence scores
+    print(boxes.cls)      # class labels
+
+# Custom training
+model = YOLO('yolov8n.yaml')  # build from YAML
+model.train(data='coco128.yaml', epochs=100)`}
+          scratchTitle="YOLO head from scratch"
+          scratchCode={`import torch
+import torch.nn as nn
+
+class YOLOHead(nn.Module):
+    """Simplified YOLO detection head"""
+    def __init__(self, in_channels, num_anchors=3, num_classes=80):
+        super().__init__()
+        self.num_anchors = num_anchors
+        self.num_classes = num_classes
+        
+        # Predict anchor offsets + objectness
+        self.bbox_pred = nn.Conv2d(in_channels, num_anchors * 5, 1)
+        # Predict class probabilities
+        self.cls_pred = nn.Conv2d(in_channels, num_anchors * num_classes, 1)
+    
+    def forward(self, x):
+        B, _, H, W = x.shape
+        
+        # Reshape predictions
+        bbox = self.bbox_pred(x).view(B, self.num_anchors, 5, H, W)
+        cls = self.cls_pred(x).view(B, self.num_anchors, self.num_classes, H, W)
+        
+        # bbox: (x, y, w, h, objectness)
+        # cls: class probabilities
+        return bbox, cls
+
+# Example usage
+model = YOLOHead(in_channels=256, num_anchors=3, num_classes=80)
+x = torch.randn(1, 256, 13, 13)  # feature map
+bbox, cls = model(x)
+print(bbox.shape)  # (1, 3, 5, 13, 13)
+print(cls.shape)   # (1, 3, 80, 13, 13)`}
+        />
       </div>
     </div>
   );

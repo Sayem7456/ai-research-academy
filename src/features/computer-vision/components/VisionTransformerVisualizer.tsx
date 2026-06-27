@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import ArchitectureViewer, { type Architecture } from './ArchitectureViewer';
+import LearnMoreSection from './LearnMoreSection';
 
 const VIT_ARCHITECTURE: Architecture = {
   title: 'Vision Transformer (ViT)',
@@ -260,6 +261,132 @@ export default function VisionTransformerVisualizer() {
           </p>
         </div>
       </div>
+
+      <LearnMoreSection
+        title="Learn More: Vision Transformer Patching"
+        gradientFrom="from-purple-500"
+        gradientTo="to-pink-500"
+        darkGradientFrom="from-purple-600"
+        darkGradientTo="to-pink-600"
+        hoverFrom="hover:from-purple-600"
+        hoverTo="hover:to-pink-600"
+        darkHoverFrom="dark:hover:from-purple-700"
+        darkHoverTo="dark:hover:to-pink-700"
+        analogyTitle="The Mosaic Tile Analogy"
+        analogyIcon="🧩"
+        analogyContent={
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            Think of an image as a <strong>mosaic made of tiles</strong>. ViT cuts the image into a grid
+            of fixed-size patches (like 16×16 tiles), flattens each tile into a vector, and feeds them
+            as a sequence to a Transformer — just like words in a sentence. Position embeddings tell the
+            Transformer which tile came from where, so spatial order isn't lost.
+          </p>
+        }
+        stepsTitle="How ViT Processes Images"
+        stepsContent={[
+          {
+            step: 1,
+            title: "Split image into patches",
+            desc: "The 224×224 image is divided into non-overlapping patches of size P×P (e.g., 16×16).",
+            formula: "N = (H/P) × (W/P) = (224/16)² = 196 patches"
+          },
+          {
+            step: 2,
+            title: "Linearly embed patches",
+            desc: "Each P×P×3 patch is flattened to a vector and projected to dimension D via a learned linear layer.",
+            formula: "x_i = Flatten(patch_i) · E,  where E ∈ ℝ^(P²·3 × D)"
+          },
+          {
+            step: 3,
+            title: "Add [CLS] token and position embeddings",
+            desc: "A learnable [CLS] token is prepended, and 1D position embeddings are added to all tokens.",
+            formula: "z_0 = [x_cls; x_1; x_2; ...; x_N] + E_pos"
+          },
+          {
+            step: 4,
+            title: "Transformer encoder processes sequence",
+            desc: "L layers of multi-head self-attention + FFN. Each patch attends to all other patches globally.",
+            formula: "z_l = MSA(LN(z_{l-1})) + z_{l-1}"
+          },
+          {
+            step: 5,
+            title: "Classify from [CLS] token",
+            desc: "The final [CLS] token representation is normalized and fed to an MLP head for classification.",
+            formula: "y = MLP(LN(z_L^0))"
+          }
+        ]}
+        simpleTitle="Vision Transformer in PyTorch"
+        simpleCode={`class VisionTransformer(nn.Module):
+    def __init__(self, img_size=224, patch_size=16, dim=768, heads=12, layers=12, classes=1000):
+        super().__init__()
+        num_patches = (img_size // patch_size) ** 2
+
+        # Patch embedding: conv2d with kernel=patch_size, stride=patch_size
+        self.patch_embed = nn.Conv2d(3, dim, patch_size, stride=patch_size)
+        self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
+        self.pos_embed = nn.Parameter(torch.randn(1, num_patches + 1, dim))
+
+        # Transformer encoder
+        encoder_layer = nn.TransformerEncoderLayer(d_model=dim, nhead=heads)
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=layers)
+
+        self.norm = nn.LayerNorm(dim)
+        self.head = nn.Linear(dim, classes)
+
+    def forward(self, x):
+        B = x.shape[0]
+        x = self.patch_embed(x).flatten(2).transpose(1, 2)  # (B, N, D)
+
+        cls = self.cls_token.expand(B, -1, -1)
+        x = torch.cat([cls, x], dim=1)  # (B, N+1, D)
+        x = x + self.pos_embed
+
+        x = self.transformer(x)
+        x = self.norm(x[:, 0])  # [CLS] token
+        return self.head(x)`}
+        scratchTitle="ViT Forward Pass from Scratch"
+        scratchCode={`import numpy as np
+
+def patch_embedding(x, W_embed, patch_size=16):
+    """
+    x: image (B, C, H, W)
+    W_embed: (P*P*C, D) projection matrix
+    """
+    B, C, H, W = x.shape
+    P = patch_size
+    N = (H // P) * (W // P)
+
+    # Extract patches and flatten
+    patches = []
+    for i in range(0, H, P):
+        for j in range(0, W, P):
+            patch = x[:, :, i:i+P, j:j+P]  # (B, C, P, P)
+            patches.append(patch.reshape(B, -1))  # (B, C*P*P)
+
+    # Stack and project
+    patch_seq = np.stack(patches, axis=1)  # (B, N, C*P*P)
+    embeddings = patch_seq @ W_embed  # (B, N, D)
+    return embeddings
+
+def vit_forward(x, W_embed, W_pos, W_qkv, W_out, W_mlp, cls_token):
+    # Patch + position embeddings
+    z = patch_embedding(x, W_embed)  # (B, N, D)
+    z = np.concatenate([cls_token, z], axis=1)  # prepend [CLS]
+    z = z + W_pos  # add position embeddings
+
+    # Self-attention
+    Q = z @ W_qkv['W_q']  # (B, N+1, D)
+    K = z @ W_qkv['W_k']
+    V = z @ W_qkv['W_v']
+    attn = softmax(Q @ K.T / np.sqrt(K.shape[-1]))
+    z = z + attn @ V  # residual connection
+
+    # Feed-forward
+    z = z + relu(z @ W_mlp['W1'] + W_mlp['b1']) @ W_mlp['W2']
+
+    # Classify from [CLS] token
+    return z[:, 0] @ W_out`}
+      />
     </div>
   );
 }

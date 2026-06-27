@@ -27,3 +27,5 @@ export { default as GANAdvancedDive } from './GANAdvancedDive';
 export { default as StyleTransferAdvancedDive } from './StyleTransferAdvancedDive';
 export { default as TrackingAdvancedDive } from './TrackingAdvancedDive';
 export { default as PointNetAdvancedDive } from './PointNetAdvancedDive';
+export { default as AdvancedAttentionPlayground } from './AdvancedAttentionPlayground';
+export { default as LearnMoreSection } from './LearnMoreSection';

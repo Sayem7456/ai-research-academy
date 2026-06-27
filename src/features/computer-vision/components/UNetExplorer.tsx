@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import LearnMoreSection from './LearnMoreSection';
 
 interface ULayer {
   name: string;
@@ -252,6 +253,210 @@ export default function UNetExplorer() {
             </li>
           </ul>
         </div>
+
+        {/* Learn More Section */}
+        <LearnMoreSection
+          title="Learn U-Net"
+          gradientFrom="from-green-50"
+          gradientTo="to-teal-50"
+          darkGradientFrom="from-green-950/30"
+          darkGradientTo="from-teal-950/30"
+          hoverFrom="hover:from-green-100"
+          hoverTo="hover:to-teal-100"
+          darkHoverFrom="dark:hover:from-green-950/50"
+          darkHoverTo="dark:hover:to-teal-950/50"
+          analogyTitle="U-Shaped Encoder-Decoder"
+          analogyIcon="🔬"
+          analogyContent={
+            <>
+              <p className="text-xs text-gray-700 dark:text-gray-300 mb-3">
+                Imagine you want to trace the outline of a tiny object in a high-resolution photo.
+                You first shrink the image to understand the overall structure (encoder), then
+                gradually upscale while combining details from earlier layers (decoder) to get
+                precise pixel-level boundaries.
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-green-600 text-[10px] mb-2">Encoder (Contracting)</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Repeatedly applies convolutions and max pooling. Captures context and reduces spatial dimensions.
+                    Each level doubles feature channels.
+                  </div>
+                </div>
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-teal-600 text-[10px] mb-2">Decoder (Expanding)</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Upsamples feature maps and concatenates with skip connections from encoder.
+                    Recovers spatial detail for precise localization.
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-700 dark:text-gray-300">
+                <strong>Key insight:</strong> Skip connections preserve fine-grained spatial information
+                that would otherwise be lost during downsampling. This enables U-Net to achieve
+                precise segmentation even with limited training data.
+              </p>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="p-3 bg-lime-50 dark:bg-lime-950/30 rounded-lg border-l-4 border-lime-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-lime-700 dark:text-lime-400">🔗 Skip Connections</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Concatenate encoder features with upsampled decoder features at each level.
+                    This preserves spatial details lost during pooling.
+                  </p>
+                </div>
+                <div className="p-3 bg-cyan-50 dark:bg-cyan-950/30 rounded-lg border-l-4 border-cyan-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-cyan-700 dark:text-cyan-400">🏥 Medical Imaging</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Originally designed for biomedical image segmentation. Works well with small datasets
+                    due to data augmentation and the U-architecture.
+                  </p>
+                </div>
+              </div>
+            </>
+          }
+          stepsTitle="How U-Net Works"
+          stepsContent={[
+            { step: 1, title: 'Encoder Path', desc: 'Apply two 3×3 convolutions + ReLU, then 2×2 max pooling. Double feature channels at each level.', formula: 'input → [Conv→ReLU→Conv→ReLU→Pool] × 4' },
+            { step: 2, title: 'Bottleneck', desc: 'Apply two 3×3 convolutions + ReLU at the lowest resolution.', formula: 'lowest resolution feature map (e.g., 28×28×1024)' },
+            { step: 3, title: 'Decoder Path', desc: '2×2 up-convolution, concatenate with skip connection, then two 3×3 convolutions.', formula: 'up-conv → concat(skip) → [Conv→ReLU→Conv→ReLU]' },
+            { step: 4, title: 'Final Classification', desc: '1×1 convolution maps to number of classes. Output same spatial size as input.', formula: 'final features → 1×1 conv → N classes' },
+          ]}
+          simpleTitle="U-Net with PyTorch"
+          simpleCode={`import torch
+import torch.nn as nn
+
+class DoubleConv(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
+        self.conv = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, 3, padding=1),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_ch, out_ch, 3, padding=1),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(inplace=True)
+        )
+    def forward(self, x):
+        return self.conv(x)
+
+class UNet(nn.Module):
+    def __init__(self, in_ch=1, out_ch=2):
+        super().__init__()
+        self.enc1 = DoubleConv(in_ch, 64)
+        self.enc2 = DoubleConv(64, 128)
+        self.enc3 = DoubleConv(128, 256)
+        self.enc4 = DoubleConv(256, 512)
+        self.pool = nn.MaxPool2d(2)
+        
+        self.bottleneck = DoubleConv(512, 1024)
+        
+        self.up4 = nn.ConvTranspose2d(1024, 512, 2, stride=2)
+        self.dec4 = DoubleConv(1024, 512)
+        self.up3 = nn.ConvTranspose2d(512, 256, 2, stride=2)
+        self.dec3 = DoubleConv(512, 256)
+        self.up2 = nn.ConvTranspose2d(256, 128, 2, stride=2)
+        self.dec2 = DoubleConv(256, 128)
+        self.up1 = nn.ConvTranspose2d(128, 64, 2, stride=2)
+        self.dec1 = DoubleConv(128, 64)
+        
+        self.out = nn.Conv2d(64, out_ch, 1)
+    
+    def forward(self, x):
+        # Encoder
+        e1 = self.enc1(x)
+        e2 = self.enc2(self.pool(e1))
+        e3 = self.enc3(self.pool(e2))
+        e4 = self.enc4(self.pool(e3))
+        
+        # Bottleneck
+        b = self.bottleneck(self.pool(e4))
+        
+        # Decoder with skip connections
+        d4 = self.dec4(torch.cat([self.up4(b), e4], dim=1))
+        d3 = self.dec3(torch.cat([self.up3(d4), e3], dim=1))
+        d2 = self.dec2(torch.cat([self.up2(d3), e2], dim=1))
+        d1 = self.dec1(torch.cat([self.up1(d2), e1], dim=1))
+        
+        return self.out(d1)
+
+# Example
+model = UNet(in_ch=1, out_ch=2)
+x = torch.randn(1, 1, 572, 572)  # grayscale input
+output = model(x)  # (1, 2, 388, 388)`}
+          scratchTitle="U-Net components from scratch"
+          scratchCode={`import torch
+import torch.nn as nn
+
+class EncoderBlock(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
+        self.conv1 = nn.Conv2d(in_ch, out_ch, 3, padding=1)
+        self.conv2 = nn.Conv2d(out_ch, out_ch, 3, padding=1)
+        self.pool = nn.MaxPool2d(2)
+        self.relu = nn.ReLU(inplace=True)
+    
+    def forward(self, x):
+        x = self.relu(self.conv1(x))
+        x = self.relu(self.conv2(x))
+        skip = x  # save for skip connection
+        x = self.pool(x)
+        return x, skip
+
+class DecoderBlock(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
+        self.up = nn.ConvTranspose2d(in_ch, out_ch, 2, stride=2)
+        self.conv1 = nn.Conv2d(out_ch * 2, out_ch, 3, padding=1)
+        self.conv2 = nn.Conv2d(out_ch, out_ch, 3, padding=1)
+        self.relu = nn.ReLU(inplace=True)
+    
+    def forward(self, x, skip):
+        x = self.up(x)
+        # Handle size mismatch
+        diffY = skip.size(2) - x.size(2)
+        diffX = skip.size(3) - x.size(3)
+        x = nn.functional.pad(x, [diffX // 2, diffX - diffX // 2,
+                                 diffY // 2, diffY - diffY // 2])
+        x = torch.cat([skip, x], dim=1)
+        x = self.relu(self.conv1(x))
+        x = self.relu(self.conv2(x))
+        return x
+
+# Simple U-Net
+class SimpleUNet(nn.Module):
+    def __init__(self, in_ch=1, out_ch=2):
+        super().__init__()
+        self.enc1 = EncoderBlock(in_ch, 64)
+        self.enc2 = EncoderBlock(64, 128)
+        self.enc3 = EncoderBlock(128, 256)
+        
+        self.bottleneck = nn.Sequential(
+            nn.Conv2d(256, 512, 3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(512, 512, 3, padding=1),
+            nn.ReLU(inplace=True)
+        )
+        
+        self.dec3 = DecoderBlock(512, 256)
+        self.dec2 = DecoderBlock(256, 128)
+        self.dec1 = DecoderBlock(128, 64)
+        
+        self.out = nn.Conv2d(64, out_ch, 1)
+    
+    def forward(self, x):
+        x, skip1 = self.enc1(x)
+        x, skip2 = self.enc2(x)
+        x, skip3 = self.enc3(x)
+        
+        x = self.bottleneck(x)
+        
+        x = self.dec3(x, skip3)
+        x = self.dec2(x, skip2)
+        x = self.dec1(x, skip1)
+        
+        return self.out(x)`}
+        />
       </div>
     </div>
   );

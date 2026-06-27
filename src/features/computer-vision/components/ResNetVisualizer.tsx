@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import ArchitectureViewer, { type Architecture } from './ArchitectureViewer';
+import LearnMoreSection from './LearnMoreSection';
 
 const RESNET_ARCHITECTURE: Architecture = {
   title: 'ResNet-50 Architecture',
@@ -189,6 +190,92 @@ export default function ResNetVisualizer() {
           </div>
         </div>
       </div>
+
+      <LearnMoreSection
+        title="Learn More: ResNet Skip Connections"
+        gradientFrom="from-blue-500"
+        gradientTo="to-cyan-500"
+        darkGradientFrom="from-blue-600"
+        darkGradientTo="to-cyan-600"
+        hoverFrom="hover:from-blue-600"
+        hoverTo="hover:to-cyan-600"
+        darkHoverFrom="dark:hover:from-blue-700"
+        darkHoverTo="dark:hover:to-cyan-700"
+        analogyTitle="The Shortcut Analogy"
+        analogyIcon="💡"
+        analogyContent={
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            Think of skip connections like a <strong>shortcut on a highway</strong>. Instead of forcing
+            every car (gradient) to navigate through every exit (layer), skip connections provide direct
+            express lanes. If a block doesn't need to learn anything new, it can simply pass the input
+            through unchanged — the network learns the identity function trivially.
+          </p>
+        }
+        stepsTitle="How Skip Connections Work"
+        stepsContent={[
+          {
+            step: 1,
+            title: "Input passes through convolutional block",
+            desc: "The input x is processed by a series of convolutions, batch norm, and ReLU to produce F(x).",
+            formula: "x → Conv → BN → ReLU → Conv → BN → F(x)"
+          },
+          {
+            step: 2,
+            title: "Skip connection adds input directly",
+            desc: "The original input bypasses the block and is added element-wise to the block's output.",
+            formula: "output = F(x) + x"
+          },
+          {
+            step: 3,
+            title: "Activation applied to combined result",
+            desc: "ReLU is applied to the combined result before passing to the next block.",
+            formula: "ReLU(F(x) + x) → next block"
+          },
+          {
+            step: 4,
+            title: "Gradient flows through identity path",
+            desc: "During backpropagation, gradients can flow directly through the skip connection, bypassing the block.",
+            formula: "∂L/∂x = ∂L/∂output · (1 + ∂F/∂x)"
+          }
+        ]}
+        simpleTitle="ResNet Block in PyTorch"
+        simpleCode={`class ResidualBlock(nn.Module):
+    def __init__(self, channels):
+        super().__init__()
+        self.conv1 = nn.Conv2d(channels, channels, 3, padding=1)
+        self.bn1 = nn.BatchNorm2d(channels)
+        self.conv2 = nn.Conv2d(channels, channels, 3, padding=1)
+        self.bn2 = nn.BatchNorm2d(channels)
+
+    def forward(self, x):
+        identity = x                          # save input
+        out = F.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        out += identity                       # skip connection!
+        return F.relu(out)`}
+        scratchTitle="ResNet Forward Pass from Scratch"
+        scratchCode={`import numpy as np
+
+def resnet_block_forward(x, conv1_w, conv1_b, conv2_w, conv2_b):
+    """
+    x: input feature map (batch, channels, H, W)
+    Returns: output after residual block
+    """
+    # First convolution
+    conv1_out = conv2d(x, conv1_w, conv1_b)
+    bn1_out = batch_norm(conv1_out)
+    relu1_out = np.maximum(0, bn1_out)
+
+    # Second convolution
+    conv2_out = conv2d(relu1_out, conv2_w, conv2_b)
+    bn2_out = batch_norm(conv2_out)
+
+    # Skip connection (the magic!)
+    output = bn2_out + x  # identity shortcut
+
+    # Final ReLU
+    return np.maximum(0, output)`}
+      />
     </div>
   );
 }

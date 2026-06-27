@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import ArchitectureViewer, { type Architecture } from './ArchitectureViewer';
+import LearnMoreSection from './LearnMoreSection';
 
 const UNET_ARCHITECTURE: Architecture = {
   title: 'U-Net Architecture',
@@ -230,6 +231,125 @@ export default function UNetVisualizer() {
           </p>
         </div>
       </div>
+
+      <LearnMoreSection
+        title="Learn More: U-Net Encoder-Decoder Architecture"
+        gradientFrom="from-cyan-500"
+        gradientTo="to-blue-500"
+        darkGradientFrom="from-cyan-600"
+        darkGradientTo="to-blue-600"
+        hoverFrom="hover:from-cyan-600"
+        hoverTo="hover:to-blue-600"
+        darkHoverFrom="dark:hover:from-cyan-700"
+        darkHoverTo="dark:hover:to-blue-700"
+        analogyTitle="The Camera Zoom Analogy"
+        analogyIcon="📷"
+        analogyContent={
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            Imagine using a camera with <strong>variable zoom</strong>. The encoder zooms out to capture the
+            big picture (semantic meaning), while the decoder zooms back in to pinpoint exact locations.
+            Skip connections are like having the original high-res photo available when zooming back in —
+            you don't lose the fine details that get blurry when zoomed out.
+          </p>
+        }
+        stepsTitle="U-Net Architecture Steps"
+        stepsContent={[
+          {
+            step: 1,
+            title: "Encoder downsamples input",
+            desc: "Each encoder block applies two 3×3 convolutions + ReLU, then 2×2 max pooling halves the spatial dimensions.",
+            formula: "H×W×C → 2× Conv(3×3) → Pool(2×2) → H/2 × W/2 × 2C"
+          },
+          {
+            step: 2,
+            title: "Bottleneck captures semantics",
+            desc: "The deepest layer has the smallest spatial size but richest semantic features.",
+            formula: "Lowest resolution + Highest feature channels"
+          },
+          {
+            step: 3,
+            title: "Decoder upsamples with transpose conv",
+            desc: "2×2 transposed convolution doubles spatial dimensions while halving channels.",
+            formula: "H×W×C → UpConv(2×2) → 2H × 2W × C/2"
+          },
+          {
+            step: 4,
+            title: "Skip connection concatenates features",
+            desc: "Encoder features are cropped and concatenated with decoder features to recover spatial details.",
+            formula: "decoder_out ⊕ encoder_crop → [concatenated features]"
+          }
+        ]}
+        simpleTitle="U-Net in PyTorch"
+        simpleCode={`class UNet(nn.Module):
+    def __init__(self, in_channels=1, out_channels=2):
+        super().__init__()
+        # Encoder
+        self.enc1 = self._block(in_channels, 64)
+        self.enc2 = self._block(64, 128)
+        self.pool = nn.MaxPool2d(2)
+
+        # Bottleneck
+        self.bottleneck = self._block(128, 256)
+
+        # Decoder
+        self.up2 = nn.ConvTranspose2d(256, 128, 2, stride=2)
+        self.dec2 = self._block(256, 128)  # 256 because of concat
+        self.up1 = nn.ConvTranspose2d(128, 64, 2, stride=2)
+        self.dec1 = self._block(128, 64)
+
+        self.out_conv = nn.Conv2d(64, out_channels, 1)
+
+    def forward(self, x):
+        # Encoder
+        e1 = self.enc1(x);  e2 = self.enc2(self.pool(e1))
+
+        # Bottleneck
+        b = self.bottleneck(self.pool(e2))
+
+        # Decoder with skip connections
+        d2 = self.dec2(torch.cat([self.up2(b), e2], dim=1))
+        d1 = self.dec1(torch.cat([self.up1(d2), e1], dim=1))
+        return self.out_conv(d1)`}
+        scratchTitle="U-Net Forward Pass from Scratch"
+        scratchCode={`import numpy as np
+
+def unet_encoder_block(x, w1, b1, w2, b2):
+    """Two conv layers + ReLU, return pre-pool features"""
+    h1 = relu(conv2d(x, w1, b1))
+    h2 = relu(conv2d(h1, w2, b2))
+    return h2  # save for skip connection
+
+def unet_decoder_block(x, skip, w_up, b_up, w1, b1, w2, b2):
+    """Upsample, concat skip, then two conv layers"""
+    # Transposed convolution (upsample)
+    up = conv_transpose2d(x, w_up, b_up, stride=2)
+
+    # Crop skip features to match upsampled size
+    skip_cropped = crop_to_match(skip, up.shape)
+
+    # Concatenate along channel dimension
+    concat = np.concatenate([up, skip_cropped], axis=1)
+
+    # Two conv layers
+    h1 = relu(conv2d(concat, w1, b1))
+    h2 = relu(conv2d(h1, w2, b2))
+    return h2
+
+def unet_forward(x, encoder_weights, decoder_weights):
+    """Full U-Net forward pass"""
+    # Encoder
+    e1 = unet_encoder_block(x, *encoder_weights['enc1'])
+    e2 = unet_encoder_block(pool(e1), *encoder_weights['enc2'])
+
+    # Bottleneck
+    b = relu(conv2d(pool(e2), *encoder_weights['bottleneck']))
+
+    # Decoder with skip connections
+    d2 = unet_decoder_block(b, e2, *decoder_weights['dec2'])
+    d1 = unet_decoder_block(d2, e1, *decoder_weights['dec1'])
+
+    return d1`}
+      />
     </div>
   );
 }

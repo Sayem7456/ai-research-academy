@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import LearnMoreSection from './LearnMoreSection';
 
 function seededRandom(seed: number): number {
   const x = Math.sin(seed * 12.9898) * 43758.5453;
@@ -364,6 +365,187 @@ export default function PointNetAdvancedDive() {
           {section === 'tnetsim' && <TNetSimulation />}
           {section === 'evolution' && <PointNetEvolution />}
         </motion.div>
+
+        <LearnMoreSection
+          title="Learn PointNet"
+          gradientFrom="from-indigo-50"
+          gradientTo="to-violet-50"
+          darkGradientFrom="from-indigo-950/30"
+          darkGradientTo="from-violet-950/30"
+          hoverFrom="hover:from-indigo-100"
+          hoverTo="hover:to-violet-100"
+          darkHoverFrom="dark:hover:from-indigo-950/50"
+          darkHoverTo="dark:hover:to-violet-950/50"
+          analogyTitle="A Bag of Marbles"
+          analogyIcon="🔮"
+          analogyContent={
+            <>
+              <p className="text-xs text-gray-700 dark:text-gray-300 mb-3">
+                Imagine you have a bag of colored marbles (a point cloud). You want to classify
+                the bag — is it &quot;red-dominant&quot; or &quot;blue-dominant&quot;? You can&apos;t rely on
+                the order you pull them out, only on the <strong>set statistics</strong>:
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-indigo-600 text-[10px] mb-2">Permutation Problem</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Unlike images (where pixel [0,0] is always top-left), point clouds have no
+                    fixed order. Point [1,2,3] could be anywhere in the set. Standard neural
+                    networks expect fixed ordering — this is the core challenge.
+                  </div>
+                </div>
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-violet-600 text-[10px] mb-2">Max Pooling Solution</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Max pooling is a <strong>symmetric function</strong>: max(a, b) = max(b, a).
+                    By applying max pooling across all points, the output is the same regardless
+                    of input order. This is PointNet&apos;s key innovation.
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-700 dark:text-gray-300">
+                <strong>Key insight:</strong> PointNet processes each point independently with shared MLPs,
+                then aggregates globally with max pooling. The T-Net further learns an input-dependent
+                spatial alignment before feature extraction.
+              </p>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border-l-4 border-blue-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-blue-700 dark:text-blue-400">🔗 Local + Global</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    PointNet only sees individual points (no local neighborhoods). PointNet++ fixes
+                    this by grouping nearby points and applying PointNet to each group hierarchically,
+                    like a CNN&apos;s convolutional layers.
+                  </p>
+                </div>
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border-l-4 border-amber-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-amber-700 dark:text-amber-400">🏗️ Scene Understanding</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    PointNet can be extended to part segmentation (labeling each point) by combining
+                    local features with the global feature vector, enabling per-point classification.
+                  </p>
+                </div>
+              </div>
+            </>
+          }
+          stepsTitle="How PointNet Processes Point Clouds"
+          stepsContent={[
+            { step: 1, title: 'Input: N×3 Point Cloud', desc: 'Each point has (x, y, z) coordinates. Points are unordered — any permutation is valid.', formula: 'X = {p_1, p_2, ..., p_N}, p_i ∈ R³' },
+            { step: 2, title: 'Shared MLP on Each Point', desc: 'Apply the same small MLP to every point independently. This extracts per-point features.', formula: 'h_i = MLP(p_i), h_i ∈ R^d' },
+            { step: 3, title: 'Symmetric Aggregation (Max Pool)', desc: 'Take the element-wise maximum across all point features. Output is permutation-invariant.', formula: 'g = max({h_1, h_2, ..., h_N}), g ∈ R^d' },
+            { step: 4, title: 'Classification / Segmentation', desc: 'Global feature g is used for classification. For segmentation, concatenate g with each h_i.', formula: 'class = FC(g), seg_i = FC([h_i; g])' },
+          ]}
+          simpleTitle="PointNet with PyTorch"
+          simpleCode={`import torch
+import torch.nn as nn
+
+class PointNet(nn.Module):
+    def __init__(self, num_classes=40):
+        super().__init__()
+        # Per-point MLP (shared across all points)
+        self.mlp = nn.Sequential(
+            nn.Linear(3, 64),
+            nn.BatchNorm1d(64),
+            nn.ReLU(),
+            nn.Linear(64, 128),
+            nn.BatchNorm1d(128),
+            nn.ReLU(),
+            nn.Linear(128, 1024),
+        )
+        # Classification head
+        self.classifier = nn.Sequential(
+            nn.Linear(1024, 256),
+            nn.BatchNorm1d(256),
+            nn.ReLU(),
+            nn.Linear(256, num_classes),
+        )
+    
+    def forward(self, x):
+        # x: (batch, num_points, 3)
+        batch_size, num_points, _ = x.shape
+        
+        # Apply MLP to each point: (B, N, 3) -> (B, N, 1024)
+        features = self.mlp(x)
+        
+        # Max pooling over all points: (B, N, 1024) -> (B, 1024)
+        global_feat = features.max(dim=1)[0]
+        
+        # Classify
+        return self.classifier(global_feat)
+
+# T-Net for spatial alignment
+class TNet(nn.Module):
+    def __init__(self, k=3):
+        super().__init__()
+        self.mlp = nn.Sequential(
+            nn.Linear(k, 64), nn.ReLU(),
+            nn.Linear(64, 128), nn.ReLU(),
+            nn.Linear(128, 1024),
+        )
+        self.fc = nn.Sequential(
+            nn.Linear(1024, 512), nn.ReLU(),
+            nn.Linear(512, 256), nn.ReLU(),
+            nn.Linear(256, k * k),  # Output k×k matrix
+        )
+    
+    def forward(self, x):
+        B, N, K = x.shape
+        features = self.mlp(x).max(dim=1)[0]
+        matrix = self.fc(features).view(B, K, K)
+        return torch.bmm(x, matrix)  # Apply transformation`}
+          scratchTitle="PointNet from scratch"
+          scratchCode={`import torch
+
+class SimplePointNet(torch.nn.Module):
+    """PointNet for point cloud classification"""
+    def __init__(self, num_classes=10):
+        super().__init__()
+        # Per-point feature extractor (shared MLP)
+        self.point_mlp = torch.nn.Sequential(
+            torch.nn.Linear(3, 32),
+            torch.nn.ReLU(),
+            torch.nn.Linear(32, 64),
+            torch.nn.ReLU(),
+        )
+        # Global feature aggregator
+        self.global_mlp = torch.nn.Sequential(
+            torch.nn.Linear(64, 128),
+            torch.nn.ReLU(),
+        )
+        # Classifier
+        self.classifier = torch.nn.Linear(128, num_classes)
+    
+    def forward(self, points):
+        # points: (batch, num_points, 3)
+        B, N, _ = points.shape
+        
+        # Per-point features
+        feat = self.point_mlp(points)  # (B, N, 64)
+        
+        # Global feature via max pooling (permutation invariant!)
+        global_feat = feat.max(dim=1)[0]  # (B, 64)
+        
+        # Classify
+        global_feat = self.global_mlp(global_feat)
+        return self.classifier(global_feat)
+
+def permutation_test():
+    """Verify permutation invariance"""
+    model = SimplePointNet()
+    points = torch.randn(1, 100, 3)
+    
+    # Shuffle points
+    perm = torch.randperm(100)
+    points_shuffled = points[:, perm, :]
+    
+    out1 = model(points)
+    out2 = model(points_shuffled)
+    
+    print(f"Original output:  {out1[0, :3].detach()}")
+    print(f"Shuffled output:  {out2[0, :3].detach()}")
+    print(f"Difference: {(out1 - out2).abs().max().item():.8f}")
+    # Should be ~0 (exact up to float precision)`}
+        />
       </div>
     </div>
   );

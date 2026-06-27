@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import LearnMoreSection from './LearnMoreSection';
 
 type Section = 'tradeoff' | 'gram' | 'evolution';
 
@@ -547,6 +548,165 @@ export default function StyleTransferAdvancedDive() {
           {section === 'gram' && <GramMatrixVisualizer />}
           {section === 'evolution' && <Evolution />}
         </motion.div>
+
+        <LearnMoreSection
+          title="Learn Neural Style Transfer"
+          gradientFrom="from-rose-50"
+          gradientTo="to-purple-50"
+          darkGradientFrom="from-rose-950/30"
+          darkGradientTo="from-purple-950/30"
+          hoverFrom="hover:from-rose-100"
+          hoverTo="hover:to-purple-100"
+          darkHoverFrom="dark:hover:from-rose-950/50"
+          darkHoverTo="dark:hover:to-purple-950/50"
+          analogyTitle="Mixing Paint Colors on a Canvas"
+          analogyIcon="🎨"
+          analogyContent={
+            <>
+              <p className="text-xs text-gray-700 dark:text-gray-300 mb-3">
+                Imagine you have a <strong>photograph</strong> and a <strong>famous painting</strong>.
+                Style transfer is like repainting the photo using the painting&apos;s color palette and brushstroke style,
+                while keeping the photo&apos;s shapes and objects intact:
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-rose-600 text-[10px] mb-2">Content (the photo)</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    A cat sitting on a couch. The shapes, objects, and layout are the content.
+                    We extract this using deep CNN feature maps (e.g., conv4_2 from VGG).
+                  </div>
+                </div>
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-purple-600 text-[10px] mb-2">Style (the painting)</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Van Gogh&apos;s Starry Night. The swirling brushstrokes, color distribution,
+                    and texture are the style. We capture this with Gram matrices across layers.
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-700 dark:text-gray-300">
+                <strong>Key insight:</strong> The Gram matrix captures <strong>correlations between feature channels</strong>,
+                ignoring <em>where</em> features appear. This is why two images with the same color
+                texture but different layouts can have nearly identical Gram matrices.
+              </p>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border-l-4 border-blue-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-blue-700 dark:text-blue-400">⚖️ The Tradeoff</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    The ratio α/β controls the balance. High α = keep the photo recognizable.
+                    High β = apply more artistic style. Finding the sweet spot is the art of style transfer.
+                  </p>
+                </div>
+                <div className="p-3 bg-violet-50 dark:bg-violet-950/30 rounded-lg border-l-4 border-violet-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-violet-700 dark:text-violet-400">⚡ Speed Evolution</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Gatys (2015) took minutes per image via optimization. Johnson (2016) trained
+                    feed-forward networks for real-time results. Now diffusion models do it from text descriptions.
+                  </p>
+                </div>
+              </div>
+            </>
+          }
+          stepsTitle="How Neural Style Transfer Works"
+          stepsContent={[
+            { step: 1, title: 'Extract Features', desc: 'Pass both content and style images through a pretrained VGG network. Extract feature maps at multiple layers.', formula: 'F_content = VGG(x_content), F_style = VGG(x_style)' },
+            { step: 2, title: 'Compute Gram Matrices', desc: 'For style features, compute the Gram matrix at each layer. This captures channel correlations, discarding spatial info.', formula: 'G(F) = F^T × F / (H × W)' },
+            { step: 3, title: 'Initialize Output', desc: 'Start with the content image (or random noise) as the output canvas.', formula: 'x_output = x_content (or noise)' },
+            { step: 4, title: 'Optimize via Loss', desc: 'Iteratively update x_output to minimize: α × content_loss + β × style_loss.', formula: 'L = α × ||F(x) - F(x_content)||² + β × ||G(F(x)) - G(F(x_style))||²' },
+          ]}
+          simpleTitle="Style transfer with PyTorch"
+          simpleCode={`import torch
+import torch.nn as nn
+import torchvision.models as models
+
+# Load pretrained VGG19
+vgg = models.vgg19(pretrained=True).features.eval()
+
+# Content and style layers
+CONTENT_LAYERS = ['conv_4']
+STYLE_LAYERS = ['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']
+
+def gram_matrix(features):
+    batch, channels, h, w = features.size()
+    F = features.view(batch * channels, h * w)
+    G = torch.mm(F, F.t())
+    return G / (channels * h * w)
+
+# Loss functions
+content_loss = nn.MSELoss()
+style_loss = nn.MSELoss()
+
+# Optimization loop
+output = content_image.clone().requires_grad_(True)
+optimizer = torch.optim.LBFGS([output])
+
+for step in range(300):
+    def closure():
+        output.data.clamp_(0, 1)
+        optimizer.zero_grad()
+        
+        x_features = get_features(output, vgg)
+        c_loss = content_loss(x_features['conv_4'], target_content)
+        
+        s_loss = 0
+        for layer in STYLE_LAYERS:
+            s_loss += style_loss(
+                gram_matrix(x_features[layer]),
+                gram_matrix(target_style[layer])
+            )
+        
+        total_loss = 1e6 * c_loss + 1e6 * s_loss
+        total_loss.backward()
+        return total_loss
+    
+    optimizer.step(closure)`}
+          scratchTitle="Gram matrix from scratch"
+          scratchCode={`import torch
+
+def gram_matrix(features):
+    """Compute Gram matrix for style representation"""
+    b, c, h, w = features.shape
+    # Reshape to (channels, height*width)
+    F = features.view(b, c, h * w)
+    # Compute correlations between channels
+    G = torch.bmm(F, F.transpose(1, 2))
+    # Normalize by spatial dimensions
+    return G / (c * h * w)
+
+def style_loss(gen_features, style_features):
+    """MSE between Gram matrices"""
+    gen_gram = gram_matrix(gen_features)
+    style_gram = gram_matrix(style_features)
+    return torch.nn.functional.mse_loss(gen_gram, style_gram)
+
+def content_loss(gen_features, content_features):
+    """MSE between feature maps"""
+    return torch.nn.functional.mse_loss(gen_features, content_features)
+
+# Full style transfer optimization
+def transfer(content, style, model, steps=300, lr=1.0):
+    output = content.clone().requires_grad_(True)
+    optimizer = torch.optim.LBFGS([output], lr=lr)
+    
+    for i in range(steps):
+        def closure():
+            optimizer.zero_grad()
+            gen_feats = model(output)
+            c_loss = content_loss(gen_feats['conv_4'],
+                                  model(content)['conv_4'])
+            s_loss = sum(
+                style_loss(gen_feats[l], model(style)[l])
+                for l in ['conv_1', 'conv_2', 'conv_3',
+                          'conv_4', 'conv_5']
+            )
+            total = 1e6 * c_loss + 1e4 * s_loss
+            total.backward()
+            return total
+        optimizer.step(closure)
+    
+    return output.detach()`}
+        />
       </div>
     </div>
   );

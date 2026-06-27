@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import LearnMoreSection from './LearnMoreSection';
 
 function seededRandom(seed: number): number {
   const x = Math.sin(seed * 12.9898) * 43758.5453;
@@ -260,6 +261,177 @@ export default function VisionTransformerExplorer() {
             <div className="text-green-600 dark:text-green-400">→ Extract [CLS] → MLP → Class scores</div>
           </div>
         </div>
+
+        {/* Learn More Section */}
+        <LearnMoreSection
+          title="Learn Vision Transformer"
+          gradientFrom="from-purple-50"
+          gradientTo="to-pink-50"
+          darkGradientFrom="from-purple-950/30"
+          darkGradientTo="from-pink-950/30"
+          hoverFrom="hover:from-purple-100"
+          hoverTo="hover:to-pink-100"
+          darkHoverFrom="dark:hover:from-purple-950/50"
+          darkHoverTo="dark:hover:to-pink-950/50"
+          analogyTitle="Image as a Sentence"
+          analogyIcon="📖"
+          analogyContent={
+            <>
+              <p className="text-xs text-gray-700 dark:text-gray-300 mb-3">
+                Imagine treating an image like a sentence of words. You split the image into small patches,
+                flatten each patch into a vector (like a word embedding), add position information,
+                and then process the sequence with a Transformer encoder — just like BERT but for images.
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-purple-600 text-[10px] mb-2">Patch Embedding</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Split image into fixed-size patches (e.g., 16×16). Each patch is flattened and linearly
+                    projected to an embedding dimension (e.g., 768). Acts like a "visual token".
+                  </div>
+                </div>
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-pink-600 text-[10px] mb-2">Self-Attention</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Each patch attends to every other patch, capturing global relationships.
+                    Multi-head attention allows different types of relationships simultaneously.
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-700 dark:text-gray-300">
+                <strong>Key insight:</strong> ViT replaces convolutional layers with pure transformer architecture,
+                relying on large datasets to learn spatial inductive biases. When pre-trained on sufficient data,
+                it outperforms CNNs.
+              </p>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="p-3 bg-violet-50 dark:bg-violet-950/30 rounded-lg border-l-4 border-violet-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-violet-700 dark:text-violet-400">🔢 Position Embeddings</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Learnable 1D embeddings added to each patch to retain spatial order.
+                    Without them, the model would treat the image as a bag of patches.
+                  </p>
+                </div>
+                <div className="p-3 bg-fuchsia-50 dark:bg-fuchsia-950/30 rounded-lg border-l-4 border-fuchsia-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-fuchsia-700 dark:text-fuchsia-400">🏷️ [CLS] Token</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    A special learnable token prepended to the sequence. Its final hidden state is used
+                    for classification, similar to BERT's [CLS] token.
+                  </p>
+                </div>
+              </div>
+            </>
+          }
+          stepsTitle="How ViT Works"
+          stepsContent={[
+            { step: 1, title: 'Patch Extraction', desc: 'Split image into fixed-size patches (e.g., 16×16).', formula: '224×224×3 → 196 patches of 16×16×3' },
+            { step: 2, title: 'Linear Projection', desc: 'Flatten each patch and project to embedding dimension.', formula: '16×16×3 = 768 → linear → 768d embedding' },
+            { step: 3, title: 'Add Position + [CLS]', desc: 'Add learnable position embeddings and prepend [CLS] token.', formula: '[CLS]; patch1; patch2; ... + pos_embed' },
+            { step: 4, title: 'Transformer Encoder', desc: 'Apply L layers of multi-head self-attention + FFN.', formula: 'MSA → LayerNorm → FFN → LayerNorm × L' },
+            { step: 5, title: 'Classification', desc: 'Use [CLS] token output for final class prediction.', formula: '[CLS] → MLP → logits → softmax' },
+          ]}
+          simpleTitle="ViT with HuggingFace"
+          simpleCode={`from transformers import ViTForImageClassification, ViTFeatureExtractor
+import torch
+from PIL import Image
+
+# Load pretrained ViT
+model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224')
+feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224')
+
+# Prepare image
+image = Image.open('cat.jpg')
+inputs = feature_extractor(images=image, return_tensors='pt')
+
+# Inference
+with torch.no_grad():
+    outputs = model(**inputs)
+    logits = outputs.logits
+    predicted_class = logits.argmax(-1).item()
+    print(f'Predicted class: {model.config.id2label[predicted_class]}')
+
+# Custom ViT
+from transformers import ViTConfig, ViTForImageClassification
+
+config = ViTConfig(
+    image_size=224,
+    patch_size=16,
+    num_hidden_layers=12,
+    hidden_size=768,
+    num_attention_heads=12,
+    num_labels=10
+)
+model = ViTForImageClassification(config)`}
+          scratchTitle="ViT from scratch"
+          scratchCode={`import torch
+import torch.nn as nn
+import math
+
+class PatchEmbedding(nn.Module):
+    def __init__(self, img_size=224, patch_size=16, in_channels=3, embed_dim=768):
+        super().__init__()
+        self.num_patches = (img_size // patch_size) ** 2
+        self.proj = nn.Conv2d(in_channels, embed_dim, 
+                             kernel_size=patch_size, stride=patch_size)
+        self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
+        self.pos_embed = nn.Parameter(torch.randn(1, self.num_patches + 1, embed_dim))
+    
+    def forward(self, x):
+        B = x.shape[0]
+        x = self.proj(x)  # (B, embed_dim, H/P, W/P)
+        x = x.flatten(2).transpose(1, 2)  # (B, num_patches, embed_dim)
+        
+        # Add [CLS] token
+        cls_tokens = self.cls_token.expand(B, -1, -1)
+        x = torch.cat([cls_tokens, x], dim=1)
+        
+        # Add position embeddings
+        x = x + self.pos_embed
+        return x
+
+class TransformerBlock(nn.Module):
+    def __init__(self, embed_dim=768, num_heads=12, mlp_ratio=4.0):
+        super().__init__()
+        self.norm1 = nn.LayerNorm(embed_dim)
+        self.attn = nn.MultiheadAttention(embed_dim, num_heads, batch_first=True)
+        self.norm2 = nn.LayerNorm(embed_dim)
+        self.mlp = nn.Sequential(
+            nn.Linear(embed_dim, int(embed_dim * mlp_ratio)),
+            nn.GELU(),
+            nn.Linear(int(embed_dim * mlp_ratio), embed_dim)
+        )
+    
+    def forward(self, x):
+        h = self.norm1(x)
+        h, _ = self.attn(h, h, h)
+        x = x + h
+        x = x + self.mlp(self.norm2(x))
+        return x
+
+class SimpleViT(nn.Module):
+    def __init__(self, img_size=224, patch_size=16, in_channels=3, 
+                 num_classes=10, embed_dim=768, num_layers=12):
+        super().__init__()
+        self.patch_embed = PatchEmbedding(img_size, patch_size, in_channels, embed_dim)
+        self.blocks = nn.ModuleList([
+            TransformerBlock(embed_dim) for _ in range(num_layers)
+        ])
+        self.norm = nn.LayerNorm(embed_dim)
+        self.head = nn.Linear(embed_dim, num_classes)
+    
+    def forward(self, x):
+        x = self.patch_embed(x)
+        for block in self.blocks:
+            x = block(x)
+        x = self.norm(x)
+        cls_token = x[:, 0]  # [CLS] token
+        return self.head(cls_token)
+
+# Example
+model = SimpleViT(img_size=224, patch_size=16, num_classes=10)
+x = torch.randn(1, 3, 224, 224)
+output = model(x)  # (1, 10)`}
+        />
       </div>
     </div>
   );

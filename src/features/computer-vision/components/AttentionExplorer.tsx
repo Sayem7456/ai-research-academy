@@ -158,7 +158,7 @@ export default function AttentionExplorer() {
             <div className="flex gap-1">
               {(['se', 'cbam', 'self'] as const).map(type => (
                 <button key={type} onClick={() => { setAttentionType(type); stopAnim(); }}
-                  className={`flex-1 px-2 py-1.5 text-xs rounded transition-colors ${
+                  className={`flex-1 px-2 py-1.5 text-xs rounded cursor-pointer transition-colors ${
                     attentionType === type ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
                   }`}>
                   {type === 'se' ? 'SE-Net' : type === 'cbam' ? 'CBAM' : 'Self-Attn'}
@@ -170,16 +170,16 @@ export default function AttentionExplorer() {
             <div>
               <label className="block text-sm font-medium mb-1">Reduction: {reduction}</label>
               <input type="range" min="1" max="4" step="1" value={reduction}
-                onChange={e => setReduction(parseInt(e.target.value))} className="w-full" />
+                onChange={e => setReduction(parseInt(e.target.value))} className="w-full cursor-pointer" />
             </div>
           )}
           <div className="flex items-end gap-2">
             <button onClick={isAnimating ? stopAnim : startAnim}
-              className={`flex-1 px-3 py-1.5 text-sm rounded transition-colors ${isAnimating ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'} hover:opacity-90`}>
+              className={`flex-1 px-3 py-1.5 text-sm rounded cursor-pointer transition-colors ${isAnimating ? 'bg-red-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>
               {isAnimating ? '■ Stop' : '▶ Animate'}
             </button>
             <button onClick={() => { stopAnim(); setSeed(s => s + 1); }}
-              className="px-3 py-1.5 text-sm rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+              className="px-3 py-1.5 text-sm rounded cursor-pointer bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
               New
             </button>
           </div>

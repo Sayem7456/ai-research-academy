@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import ArchitectureViewer, { type Architecture } from './ArchitectureViewer';
+import LearnMoreSection from './LearnMoreSection';
 
 const YOLO_ARCHITECTURE: Architecture = {
   title: 'YOLO (You Only Look Once)',
@@ -244,6 +245,127 @@ export default function YOLOVisualizer() {
           </p>
         </div>
       </div>
+
+      <LearnMoreSection
+        title="Learn More: YOLO Single-Shot Detection"
+        gradientFrom="from-red-500"
+        gradientTo="to-orange-500"
+        darkGradientFrom="from-red-600"
+        darkGradientTo="to-orange-600"
+        hoverFrom="hover:from-red-600"
+        hoverTo="hover:to-orange-600"
+        darkHoverFrom="dark:hover:from-red-700"
+        darkHoverTo="dark:hover:to-orange-700"
+        analogyTitle="The Single Glance Analogy"
+        analogyIcon="👁️"
+        analogyContent={
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            Imagine looking at a scene and <strong>instantly identifying everything</strong> in one glance —
+            no need to examine each region separately like two-stage detectors. YOLO divides the image into
+            a grid, and each grid cell simultaneously predicts "what" and "where" objects are, like a
+            well-organized detective who scans an entire room at once instead of checking each corner sequentially.
+          </p>
+        }
+        stepsTitle="How YOLO Detection Works"
+        stepsContent={[
+          {
+            step: 1,
+            title: "Divide image into grid",
+            desc: "The input image is divided into an S×S grid (e.g., 13×13). Each cell is responsible for detecting objects whose center falls within it.",
+            formula: "Grid: S × S cells, each covering (416/S) × (416/S) pixels"
+          },
+          {
+            step: 2,
+            title: "Predict bounding boxes per cell",
+            desc: "Each cell predicts B anchor boxes with (x, y, w, h, confidence). Confidence = P(object) × IoU.",
+            formula: "Each cell → B boxes × (5 + C) values"
+          },
+          {
+            step: 3,
+            title: "Multi-scale feature fusion",
+            desc: "Features from backbone are fused at 3 scales (13×13, 26×26, 52×52) via FPN for detecting large, medium, and small objects.",
+            formula: "FPN: 13×13 (large) ⊕ 26×26 (medium) ⊕ 52×52 (small)"
+          },
+          {
+            step: 4,
+            title: "Non-maximum suppression",
+            desc: "After prediction, overlapping boxes with high IoU are suppressed, keeping only the best detection per object.",
+            formula: "For each class: sort by score → keep best → suppress IoU > threshold"
+          }
+        ]}
+        simpleTitle="YOLO in PyTorch"
+        simpleCode={`class YOLOv3(nn.Module):
+    def __init__(self, num_classes=80):
+        super().__init__()
+        # Backbone: Darknet-53
+        self.backbone = Darknet53()
+
+        # Detection heads at 3 scales
+        self.head_13 = self._make_head(1024, 255)  # 13×13
+        self.head_26 = self._make_head(512, 255)   # 26×26
+        self.head_52 = self._make_head(256, 255)   # 52×52
+
+    def _make_head(self, in_ch, out_ch):
+        return nn.Sequential(
+            self._conv_block(in_ch, 256, 1),
+            self._conv_block(256, 512, 3),
+            self._conv_block(512, 1024, 3),
+            nn.Conv2d(1024, out_ch, 1)
+        )
+
+    def forward(self, x):
+        features = self.backbone(x)
+        # Detect at 3 scales
+        pred_13 = self.head_13(features[0])
+        pred_26 = self.head_26(features[1])
+        pred_52 = self.head_52(features[2])
+        return pred_13, pred_26, pred_52`}
+        scratchTitle="YOLO Forward Pass from Scratch"
+        scratchCode={`import numpy as np
+
+def darknet_forward(x, weights):
+    """Simplified Darknet backbone"""
+    for layer in weights:
+        x = conv_batch_relu(x, layer['conv'], layer['bn'])
+        if layer.get('pool'):
+            x = maxpool(x, layer['pool'])
+    return x
+
+def yolo_head(x, W, B=3, C=80):
+    """
+    x: feature map (batch, channels, H, W)
+    W: weight matrix (channels, B*(5+C), 1, 1)
+    Returns: (batch, B*(5+C), H, W)
+    """
+    batch, ch, H, W_map = x.shape
+    out = conv1x1(x, W)  # (batch, B*(5+C), H, W)
+
+    # Reshape to per-box predictions
+    out = out.reshape(batch, B, 5 + C, H, W_map)
+    out = out.transpose(0, 1, 3, 4, 2)  # (B, B, H, W, 5+C)
+
+    # Apply sigmoid to tx, ty, confidence
+    out[..., 0:2] = sigmoid(out[..., 0:2])  # center offsets
+    out[..., 4:5] = sigmoid(out[..., 4:5])  # objectness
+
+    # Apply softmax to class scores
+    out[..., 5:] = softmax(out[..., 5:])
+
+    return out
+
+def non_max_suppression(predictions, iou_threshold=0.5):
+    """Filter overlapping boxes"""
+    boxes = predictions[predictions[..., 4] > 0.25]
+    boxes = boxes[boxes[:, 4].argsort()[::-1]]
+
+    keep = []
+    while len(boxes) > 0:
+        best = boxes[0]
+        keep.append(best)
+        ious = compute_iou(best, boxes[1:])
+        boxes = boxes[1:][ious < iou_threshold]
+    return np.array(keep)`}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
+import LearnMoreSection from './LearnMoreSection';
 
 type PatternId = 'gradient' | 'step-edge' | 'checkerboard' | 'spot' | 'constant' | 'noise';
 
@@ -629,6 +630,140 @@ export default function ConvolutionExplorer() {
             </div>
           </div>
         </div>
+
+        {/* Learn More Section */}
+        <LearnMoreSection
+          title="Learn CNNs & Convolution"
+          gradientFrom="from-purple-50"
+          gradientTo="to-blue-50"
+          darkGradientFrom="from-purple-950/30"
+          darkGradientTo="from-blue-950/30"
+          hoverFrom="hover:from-purple-100"
+          hoverTo="hover:to-blue-100"
+          darkHoverFrom="dark:hover:from-purple-950/50"
+          darkHoverTo="dark:hover:to-blue-950/50"
+          analogyTitle="Magnifying Glass Over an Image"
+          analogyIcon="🔍"
+          analogyContent={
+            <>
+              <p className="text-xs text-gray-700 dark:text-gray-300 mb-3">
+                Imagine holding a <strong>magnifying glass</strong> over a photograph and sliding it around.
+                At each position, you&apos;re looking at a small patch and making a decision:
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-purple-600 text-[10px] mb-2">The Kernel (Filter)</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    A small pattern you&apos;re looking for — like &quot;is there a vertical edge?&quot;
+                    or &quot;is there a texture?&quot;. The kernel is the pattern template.
+                  </div>
+                </div>
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-blue-600 text-[10px] mb-2">The Feature Map</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    The result: &quot;here&apos;s where the pattern appears!&quot; Bright spots = strong match.
+                    Like a heat map showing where each feature is found.
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-700 dark:text-gray-300">
+                <strong>Key insight:</strong> CNNs learn <strong>hierarchical features</strong> automatically.
+                Early layers detect edges, middle layers detect textures, deep layers detect objects.
+                No manual feature engineering needed!
+              </p>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border-l-4 border-amber-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-amber-700 dark:text-amber-400">⚡ Why CNNs Beat FC Networks</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    A 224×224×3 image has 150,528 pixels. A fully connected layer to 1000 neurons
+                    would have 150 million parameters! A 3×3 conv layer has only 27 parameters
+                    (shared across the image). That&apos;s 5 million times fewer!
+                  </p>
+                </div>
+                <div className="p-3 bg-cyan-50 dark:bg-cyan-950/30 rounded-lg border-l-4 border-cyan-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-cyan-700 dark:text-cyan-400">🔄 Translation Invariance</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Because the same kernel slides everywhere, a cat is detected whether it&apos;s
+                    in the top-left or bottom-right. The network learns &quot;what&quot; not &quot;where&quot;.
+                  </p>
+                </div>
+              </div>
+            </>
+          }
+          stepsTitle="How Convolution Works"
+          stepsContent={[
+            { step: 1, title: 'Input Image', desc: 'Start with an image (or feature map from previous layer). Each pixel has a value.', formula: 'Input: (H, W, C) — height, width, channels' },
+            { step: 2, title: 'Slide the Kernel', desc: 'A small filter (e.g., 3×3) slides across the input. At each position, look at a local patch.', formula: 'Receptive field: 3×3 = 9 values at a time' },
+            { step: 3, title: 'Multiply & Sum', desc: 'Element-wise multiply kernel weights × input values, then sum everything into one number.', formula: 'output = Σ(kernel × input_patch)' },
+            { step: 4, title: 'Stride & Padding', desc: 'Stride = how far to move each step. Padding = add zeros around border to control output size.', formula: 'Output size = (H - K + 2P) / S + 1' },
+          ]}
+          simpleTitle="Convolution with PyTorch nn.Conv2d"
+          simpleCode={`import torch
+import torch.nn as nn
+
+# Create a 3x3 convolution layer
+# in_channels=1 (grayscale), out_channels=16 (filters), kernel_size=3
+conv = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, stride=1, padding=1)
+
+# Input: batch of 1 grayscale images, 28x28
+x = torch.randn(1, 1, 28, 28)
+print(x.shape)  # (1, 1, 28, 28)
+
+# Apply convolution
+out = conv(x)
+print(out.shape)  # (1, 16, 28, 28) — 16 feature maps
+
+# Access the learned kernels
+print(conv.weight.shape)  # (16, 1, 3, 3) — 16 filters of size 3x3
+
+# Typical CNN building block
+block = nn.Sequential(
+    nn.Conv2d(3, 32, 3, padding=1),
+    nn.BatchNorm2d(32),
+    nn.ReLU(),
+    nn.MaxPool2d(2),  # Downsample by 2x
+)
+out = block(torch.randn(1, 3, 64, 64))
+print(out.shape)  # (1, 32, 32, 32)`}
+          scratchTitle="Convolution from scratch"
+          scratchCode={`import torch
+
+def conv2d_manual(input, kernel, stride=1, padding=0):
+    """2D convolution without nn.Conv2d"""
+    if padding > 0:
+        input = torch.nn.functional.pad(input, [padding]*4)
+    
+    batch, in_ch, h, w = input.shape
+    out_ch, _, kh, kw = kernel.shape
+    out_h = (h - kh) // stride + 1
+    out_w = (w - kw) // stride + 1
+    
+    output = torch.zeros(batch, out_ch, out_h, out_w)
+    
+    for b in range(batch):
+        for oc in range(out_ch):
+            for i in range(out_h):
+                for j in range(out_w):
+                    h_start = i * stride
+                    w_start = j * stride
+                    patch = input[b, :, h_start:h_start+kh, w_start:w_start+kw]
+                    output[b, oc, i, j] = (patch * kernel[oc]).sum()
+    
+    return output
+
+# Example: edge detection kernel
+edge_kernel = torch.tensor([
+    [[-1, -1, -1],
+     [-1,  8, -1],
+     [-1, -1, -1]]
+]).float().unsqueeze(0)  # (1, 3, 3)
+
+# Apply to image
+image = torch.randn(1, 1, 8, 8)
+edges = conv2d_manual(image, edge_kernel, stride=1, padding=1)
+print(edges.shape)  # (1, 1, 8, 8)`}
+        />
       </div>
     </div>
   );

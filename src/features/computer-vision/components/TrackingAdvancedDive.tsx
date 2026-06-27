@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import LearnMoreSection from './LearnMoreSection';
 
 type Section = 'kalman' | 'iou' | 'evolution';
 
@@ -398,6 +399,161 @@ export default function TrackingAdvancedDive() {
           {section === 'iou' && <IoUMatching />}
           {section === 'evolution' && <Evolution />}
         </motion.div>
+
+        <LearnMoreSection
+          title="Learn Object Tracking"
+          gradientFrom="from-blue-50"
+          gradientTo="to-cyan-50"
+          darkGradientFrom="from-blue-950/30"
+          darkGradientTo="from-cyan-950/30"
+          hoverFrom="hover:from-blue-100"
+          hoverTo="hover:to-cyan-100"
+          darkHoverFrom="dark:hover:from-blue-950/50"
+          darkHoverTo="dark:hover:to-cyan-950/50"
+          analogyTitle="Following a Friend in a Crowd"
+          analogyIcon="👥"
+          analogyContent={
+            <>
+              <p className="text-xs text-gray-700 dark:text-gray-300 mb-3">
+                Imagine tracking a friend walking through a busy market. You have two sources
+                of information — your <strong>prediction</strong> of where they&apos;re headed, and
+                <strong>glimpses</strong> when you spot them:
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-blue-600 text-[10px] mb-2">Kalman Filter (Prediction)</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Your mental model: &quot;They were walking east at 4 mph, so they should be
+                    about 40 meters further east by now.&quot; This is the motion model prediction.
+                  </div>
+                </div>
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-red-600 text-[10px] mb-2">Detection (Measurement)</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    You spot someone in a red jacket 38 meters east. The measurement is noisy
+                    (other people look similar), but it corrects your prediction.
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-700 dark:text-gray-300">
+                <strong>Key insight:</strong> The Kalman gain K balances trust between prediction and measurement.
+                When measurements are noisy (high R), trust the prediction more. When the motion model
+                is uncertain (high P), trust measurements more.
+              </p>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border-l-4 border-emerald-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-emerald-700 dark:text-emerald-400">🔗 Data Association</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    When multiple friends are in the crowd, you need to match each spotted person to
+                    the right friend. IoU (overlap area) and appearance features help solve this
+                    assignment problem using the Hungarian algorithm.
+                  </p>
+                </div>
+                <div className="p-3 bg-violet-50 dark:bg-violet-950/30 rounded-lg border-l-4 border-violet-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-violet-700 dark:text-violet-400">🔄 Track Lifecycle</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    New friends enter the crowd (initialization), walk together (tracking),
+                    get lost behind stalls (occlusion), and leave (termination). Each state
+                    needs different handling.
+                  </p>
+                </div>
+              </div>
+            </>
+          }
+          stepsTitle="How Multi-Object Tracking Works"
+          stepsContent={[
+            { step: 1, title: 'Object Detection', desc: 'Run an object detector (YOLO, Faster R-CNN) on each frame to get bounding boxes.', formula: 'detections_t = Detector(frame_t)' },
+            { step: 2, title: 'Kalman Prediction', desc: 'For each active track, predict the new position using the motion model.', formula: 'x_pred = A × x_prev, P_pred = A × P_prev × A^T + Q' },
+            { step: 3, title: 'Build Cost Matrix', desc: 'Compute IoU or appearance distance between every prediction-detection pair.', formula: 'C[i,j] = 1 - IoU(track_i, detection_j)' },
+            { step: 4, title: 'Hungarian Assignment', desc: 'Find the optimal one-to-one assignment that minimizes total cost.', formula: 'assignment = HungarianAlgorithm(C)' },
+          ]}
+          simpleTitle="Kalman filter with PyTorch"
+          simpleCode={`import torch
+
+class KalmanFilter:
+    def __init__(self):
+        # State: [x, y, vx, vy]
+        self.x = torch.zeros(4)
+        self.P = torch.eye(4) * 10.0
+        self.F = torch.tensor([  # Transition matrix
+            [1, 0, 1, 0],
+            [0, 1, 0, 1],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]
+        ], dtype=torch.float)
+        self.H = torch.tensor([  # Measurement matrix
+            [1, 0, 0, 0],
+            [0, 1, 0, 0]
+        ], dtype=torch.float)
+        self.Q = torch.eye(4) * 0.1   # Process noise
+        self.R = torch.eye(2) * 5.0   # Measurement noise
+    
+    def predict(self):
+        self.x = self.F @ self.x
+        self.P = self.F @ self.P @ self.F.T + self.Q
+        return self.x[:2]
+    
+    def update(self, measurement):
+        y = measurement - self.H @ self.x
+        S = self.H @ self.P @ self.H.T + self.R
+        K = self.P @ self.H.T @ torch.inverse(S)
+        self.x = self.x + K @ y
+        self.P = (torch.eye(4) - K @ self.H) @ self.P
+        return self.x[:2]`}
+          scratchTitle="Kalman filter from scratch"
+          scratchCode={`import torch
+
+def kalman_predict(x, P, F, Q):
+    """Predict step: project state and covariance forward"""
+    x_pred = F @ x
+    P_pred = F @ P @ F.T + Q
+    return x_pred, P_pred
+
+def kalman_update(x_pred, P_pred, z, H, R):
+    """Update step: correct prediction with measurement"""
+    # Innovation (measurement residual)
+    y = z - H @ x_pred
+    # Innovation covariance
+    S = H @ P_pred @ H.T + R
+    # Kalman gain
+    K = P_pred @ H.T @ torch.inverse(S)
+    # Updated state
+    x_upd = x_pred + K @ y
+    # Updated covariance
+    P_upd = (torch.eye(len(x_pred)) - K @ H) @ P_pred
+    return x_upd, P_upd
+
+# Hungarian algorithm for data association
+from scipy.optimize import linear_sum_assignment
+
+def assign_detections_to_tracks(cost_matrix):
+    """Find optimal assignment using Hungarian algorithm"""
+    row_indices, col_indices = linear_sum_assignment(cost_matrix)
+    assignments = list(zip(row_indices, col_indices))
+    return assignments
+
+# Complete tracking loop
+def track_frames(detections, dt=1.0):
+    tracks = []
+    for frame_dets in detections:
+        # Predict for all tracks
+        for track in tracks:
+            track.predict(dt)
+        
+        # Build cost matrix
+        cost = build_cost_matrix(tracks, frame_dets)
+        
+        # Assign
+        assignments = assign_detections_to_tracks(cost)
+        
+        # Update matched tracks
+        for track_idx, det_idx in assignments:
+            tracks[track_idx].update(frame_dets[det_idx])
+        
+        # Handle unmatched (create new / delete lost)
+        handle_unmatched(tracks, frame_dets, assignments)`}
+        />
       </div>
     </div>
   );

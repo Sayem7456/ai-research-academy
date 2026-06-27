@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
+import LearnMoreSection from './LearnMoreSection';
 
 const GRID_SIZE = 7;
 const FEAT_SIZE = 140;
@@ -400,6 +401,155 @@ export default function FasterRCNNVisualizer() {
             </p>
           </div>
         </div>
+
+        {/* Learn More Section */}
+        <LearnMoreSection
+          title="Learn Faster R-CNN"
+          gradientFrom="from-orange-50"
+          gradientTo="to-red-50"
+          darkGradientFrom="from-orange-950/30"
+          darkGradientTo="from-red-950/30"
+          hoverFrom="hover:from-orange-100"
+          hoverTo="hover:to-red-100"
+          darkHoverFrom="dark:hover:from-orange-950/50"
+          darkHoverTo="dark:hover:to-red-950/50"
+          analogyTitle="Treasure Hunt with a Scout"
+          analogyIcon="🗺️"
+          analogyContent={
+            <>
+              <p className="text-xs text-gray-700 dark:text-gray-300 mb-3">
+                Imagine searching a large map for treasure chests. Instead of checking every square inch,
+                you send a <strong>scout</strong> (RPN) to find promising spots first:
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-orange-600 text-[10px] mb-2">The Scout (RPN)</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Quickly scans the map and says &quot;treasure might be here, here, or here&quot;.
+                    Not perfect, but fast! Generates ~2000 candidate regions.
+                  </div>
+                </div>
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-red-600 text-[10px] mb-2">The Expert (ROI Head)</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Carefully examines each spot the scout found. Uses more computation to
+                    precisely locate and classify the treasure. Final detection!
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-700 dark:text-gray-300">
+                <strong>Key insight:</strong> Two-stage detection = <strong>propose then refine</strong>.
+                The RPN finds &quot;where&quot; cheaply, the ROI head figures out &quot;what&quot; precisely.
+                This is faster than checking every possible location!
+              </p>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border-l-4 border-blue-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-blue-700 dark:text-blue-400">📦 Anchor Boxes</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Pre-defined boxes of different sizes and ratios at each location.
+                    Like placing frames of various sizes on the image to &quot;catch&quot; objects.
+                    RPN learns to adjust these frames to better fit objects.
+                  </p>
+                </div>
+                <div className="p-3 bg-violet-50 dark:bg-violet-950/30 rounded-lg border-l-4 border-violet-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-violet-700 dark:text-violet-400">🔄 NMS (Non-Maximum Suppression)</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Multiple boxes might detect the same object. NMS keeps the best one and
+                    removes overlapping duplicates. Like keeping only the clearest photo
+                    of the same subject.
+                  </p>
+                </div>
+              </div>
+            </>
+          }
+          stepsTitle="How Faster R-CNN Works"
+          stepsContent={[
+            { step: 1, title: 'Backbone Feature Extraction', desc: 'CNN (e.g., ResNet) extracts feature maps from the input image.', formula: 'image → CNN → feature map (H/16 × W/16 × 256)' },
+            { step: 2, title: 'Region Proposal Network (RPN)', desc: 'Sliding window over feature maps. For each position, predict objectness + box refinement.', formula: 'RPN: (H/16 × W/16 × 256) → ~2000 proposals' },
+            { step: 3, title: 'ROI Pooling/Align', desc: 'Extract fixed-size features from each proposal. ROI Align is more precise than ROI Pooling.', formula: 'proposal → ROI Align → 7×7×256 feature' },
+            { step: 4, title: 'Classification + BBox Refinement', desc: 'Two heads: one classifies (car, person, etc.), one refines bounding box coordinates.', formula: 'features → cls_head + bbox_head' },
+          ]}
+          simpleTitle="Faster R-CNN with PyTorch"
+          simpleCode={`import torch
+import torch.nn as nn
+import torchvision
+
+# Use torchvision's pretrained Faster R-CNN
+model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
+model.eval()
+
+# Inference
+image = torch.randn(3, 800, 800)  # RGB image
+predictions = model([image])
+print(predictions[0]['boxes'].shape)   # (N, 4) — detected boxes
+print(predictions[0]['labels'].shape)  # (N,) — class labels
+print(predictions[0]['scores'].shape)  # (N,) — confidence scores
+
+# Custom Faster R-CNN
+from torchvision.models.detection import FasterRCNN
+from torchvision.models.detection.rpn import AnchorGenerator
+
+# Define anchor sizes and ratios
+anchor_sizes = ((32,), (64,), (128,), (256,), (512,))
+aspect_ratios = ((0.5, 1.0, 2.0),) * len(anchor_sizes)
+anchor_generator = AnchorGenerator(anchor_sizes, aspect_ratios)
+
+# Build model with custom anchors
+model = FasterRCNN(
+    backbone=resnet50_fpn,
+    num_classes=91,
+    rpn_anchor_generator=anchor_generator
+)`}
+          scratchTitle="Faster R-CNN components from scratch"
+          scratchCode={`import torch
+
+class SimpleRPN(torch.nn.Module):
+    """Simplified Region Proposal Network"""
+    def __init__(self, in_channels=256, num_anchors=9):
+        super().__init__()
+        self.conv = torch.nn.Conv2d(in_channels, 256, 3, padding=1)
+        self.cls_head = torch.nn.Conv2d(256, num_anchors, 1)  # objectness
+        self.reg_head = torch.nn.Conv2d(256, num_anchors * 4, 1)  # bbox reg
+    
+    def forward(self, feature_map):
+        x = torch.relu(self.conv(feature_map))
+        cls_score = self.cls_head(x)  # (B, 9, H, W)
+        bbox_pred = self.reg_head(x)  # (B, 36, H, W)
+        return cls_score, bbox_pred
+
+def non_max_suppression(boxes, scores, iou_threshold=0.5):
+    """Simple NMS implementation"""
+    keep = []
+    indices = scores.argsort(descending=True)
+    
+    while indices.numel() > 0:
+        i = indices[0]
+        keep.append(i)
+        
+        if indices.numel() == 1:
+            break
+        
+        ious = compute_iou(boxes[i], boxes[indices[1:]])
+        mask = ious < iou_threshold
+        indices = indices[1:][mask]
+    
+    return torch.stack(keep)
+
+def compute_iou(box1, boxes):
+    """Compute IoU between box1 and multiple boxes"""
+    x1 = torch.max(box1[0], boxes[:, 0])
+    y1 = torch.max(box1[1], boxes[:, 1])
+    x2 = torch.min(box1[2], boxes[:, 2])
+    y2 = torch.min(box1[3], boxes[:, 3])
+    
+    intersection = (x2 - x1).clamp(0) * (y2 - y1).clamp(0)
+    area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
+    area2 = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
+    union = area1 + area2 - intersection
+    
+    return intersection / (union + 1e-6)`}
+        />
       </div>
     </div>
   );

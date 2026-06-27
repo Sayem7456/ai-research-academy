@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import LearnMoreSection from './LearnMoreSection';
 
 type Section = 'gradient' | 'degradation' | 'math' | 'variants';
 
@@ -750,6 +751,154 @@ export default function ResNetAdvancedDive() {
           {section === 'math' && <MathDeepDive />}
           {section === 'variants' && <VariantExplorer />}
         </motion.div>
+
+        {/* Learn More Section */}
+        <LearnMoreSection
+          title="Learn ResNets & Skip Connections"
+          gradientFrom="from-emerald-50"
+          gradientTo="to-teal-50"
+          darkGradientFrom="from-emerald-950/30"
+          darkGradientTo="from-teal-950/30"
+          hoverFrom="hover:from-emerald-100"
+          hoverTo="hover:to-teal-100"
+          darkHoverFrom="dark:hover:from-emerald-950/50"
+          darkHoverTo="dark:hover:to-teal-950/50"
+          analogyTitle="Highway with Express Lanes"
+          analogyIcon="🛣️"
+          analogyContent={
+            <>
+              <p className="text-xs text-gray-700 dark:text-gray-300 mb-3">
+                Imagine a <strong>highway system</strong> where information travels from city A to city B.
+                Without skip connections, every car must pass through every intersection (layer):
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-red-600 text-[10px] mb-2">Plain Network (No Skip)</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    A→B→C→D→E. Every car must go through all intersections.
+                    Traffic jams build up (vanishing gradients). Deep networks become slower, not better.
+                  </div>
+                </div>
+                <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <div className="font-bold text-emerald-600 text-[10px] mb-2">ResNet (With Skip)</div>
+                  <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Express lanes let cars bypass intersections!
+                    Information flows directly via skip connections. Even 152 layers work because
+                    gradients have a &quot;highway&quot; to flow back.
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-700 dark:text-gray-300">
+                <strong>Key insight:</strong> Skip connections make learning <strong>residual functions</strong>:
+                instead of learning H(x) from scratch, learn F(x) = H(x) - x (the difference).
+                It&apos;s easier to learn &quot;what to change&quot; than &quot;what to create&quot;.
+              </p>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border-l-4 border-blue-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-blue-700 dark:text-blue-400">🎯 The Degradation Problem</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    Adding more layers to a plain network actually <strong>increases</strong> training error!
+                    This isn&apos;t overfitting — it&apos;s optimization difficulty. ResNets solve this by
+                    making it easy to learn identity mappings.
+                  </p>
+                </div>
+                <div className="p-3 bg-violet-50 dark:bg-violet-950/30 rounded-lg border-l-4 border-violet-400">
+                  <h5 className="font-semibold text-[10px] mb-1 text-violet-700 dark:text-violet-400">📐 Residual Learning</h5>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                    If the optimal transformation is close to identity, the network just learns F(x) ≈ 0.
+                    This is easier than learning H(x) = x from scratch. The skip connection
+                    provides a &quot;default&quot; identity path.
+                  </p>
+                </div>
+              </div>
+            </>
+          }
+          stepsTitle="How Skip Connections Work"
+          stepsContent={[
+            { step: 1, title: 'Input passes through layers', desc: 'Standard forward pass through conv layers.', formula: 'y = F(x, {W_i}) — residual function' },
+            { step: 2, title: 'Add skip connection', desc: 'The input is added directly to the output of the layers.', formula: 'output = F(x) + x — element-wise addition' },
+            { step: 3, title: 'Gradient flows backwards', desc: 'During backprop, gradients flow through both paths: layers AND skip connection.', formula: '∂L/∂x = ∂L/∂out × (∂F/∂x + 1)' },
+            { step: 4, title: 'Identity is easy to learn', desc: 'If layers don&apos;t help, just learn F(x)=0. The skip connection preserves the input.', formula: 'H(x) = F(x) + x → if F(x)=0, then H(x)=x' },
+          ]}
+          simpleTitle="ResNet block with PyTorch"
+          simpleCode={`import torch
+import torch.nn as nn
+
+class ResidualBlock(nn.Module):
+    def __init__(self, channels):
+        super().__init__()
+        self.conv1 = nn.Conv2d(channels, channels, 3, padding=1)
+        self.bn1 = nn.BatchNorm2d(channels)
+        self.conv2 = nn.Conv2d(channels, channels, 3, padding=1)
+        self.bn2 = nn.BatchNorm2d(channels)
+    
+    def forward(self, x):
+        residual = x  # Save input for skip connection
+        out = torch.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        out += residual  # Skip connection!
+        return torch.relu(out)
+
+# Build a ResNet
+class SimpleResNet(nn.Module):
+    def __init__(self, num_classes=10):
+        super().__init__()
+        self.conv1 = nn.Conv2d(3, 64, 7, stride=2, padding=3)
+        self.bn1 = nn.BatchNorm2d(64)
+        self.layer1 = self._make_layer(64, 2)
+        self.layer2 = self._make_layer(128, 2, stride=2)
+        self.layer3 = self._make_layer(256, 2, stride=2)
+        self.avgpool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Linear(256, num_classes)
+    
+    def _make_layer(self, channels, blocks, stride=1):
+        layers = [ResidualBlock(channels)]
+        for _ in range(1, blocks):
+            layers.append(ResidualBlock(channels))
+        return nn.Sequential(*layers)
+    
+    def forward(self, x):
+        x = torch.relu(self.bn1(self.conv1(x)))
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.avgpool(x)
+        x = x.view(x.size(0), -1)
+        return self.fc(x)`}
+          scratchTitle="ResNet from scratch"
+          scratchCode={`import torch
+
+class ResidualBlock(torch.nn.Module):
+    def __init__(self, channels):
+        super().__init__()
+        self.conv1 = torch.nn.Conv2d(channels, channels, 3, padding=1)
+        self.bn1 = torch.nn.BatchNorm2d(channels)
+        self.conv2 = torch.nn.Conv2d(channels, channels, 3, padding=1)
+        self.bn2 = torch.nn.BatchNorm2d(channels)
+    
+    def forward(self, x):
+        residual = x
+        out = torch.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        out += residual  # Skip connection!
+        return torch.relu(out)
+
+# Manual forward pass with gradient tracking
+x = torch.randn(1, 64, 32, 32, requires_grad=True)
+block = ResidualBlock(64)
+
+# Forward
+out = block(x)
+loss = out.sum()
+loss.backward()
+
+# Gradients flow through BOTH paths:
+# 1. Through conv layers: ∂loss/∂x via conv1 → conv2
+# 2. Through skip connection: ∂loss/∂x = 1 (identity)
+print(f"Input gradient shape: {x.grad.shape}")
+print(f"Gradient flow: skip connection ensures gradients ≠ 0")`}
+        />
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function seededRandom(seed: number): number {
   const x = Math.sin(seed * 12.9898) * 43758.5453;
@@ -64,12 +64,14 @@ export default function GANExplorer() {
   const [epoch, setEpoch] = useState(0);
   const [isTraining, setIsTraining] = useState(false);
   const [trainPhase, setTrainPhase] = useState(0);
+  const [showLearn, setShowLearn] = useState(false);
+  const [learnTab, setLearnTab] = useState<'analogy' | 'steps' | 'simple' | 'scratch'>('analogy');
   const [realImages] = useState(() =>
     Array.from({ length: 4 }, (_, i) => generateRealImage(i * 31 + 7))
   );
   const latentVectors = useRef(
-    Array.from({ length: 4 }, () =>
-      Array.from({ length: LATENT_DIM }, () => seededRandom(Math.random() * 10000) * 2 - 1)
+    Array.from({ length: 4 }, (_, i) =>
+      Array.from({ length: LATENT_DIM }, (_, j) => seededRandom(i * 100 + j * 7 + 42) * 2 - 1)
     )
   );
   const [fakeImages, setFakeImages] = useState(() =>
@@ -88,9 +90,9 @@ export default function GANExplorer() {
       setFakeImages(latentVectors.current.map(latent => generateFakeImage(latent, imp)));
       setDRealScore(0.85 + seededRandom(next * 3 + 1) * 0.1);
       setDFakeScore(0.15 + imp * 0.35 + seededRandom(next * 7 + 100) * 0.02);
-      setTrainPhase(prev => (prev + 1) % PHASES.length);
       return next;
     });
+    setTrainPhase(prev => (prev + 1) % PHASES.length);
   }, []);
 
   const toggleTraining = useCallback(() => {
@@ -108,8 +110,8 @@ export default function GANExplorer() {
     setIsTraining(false);
     setEpoch(0);
     setTrainPhase(0);
-    latentVectors.current = Array.from({ length: 4 }, () =>
-      Array.from({ length: LATENT_DIM }, () => seededRandom(Math.random() * 10000) * 2 - 1)
+    latentVectors.current = Array.from({ length: 4 }, (_, i) =>
+      Array.from({ length: LATENT_DIM }, (_, j) => seededRandom(i * 100 + j * 7 + 42) * 2 - 1)
     );
     setFakeImages(latentVectors.current.map(latent => generateFakeImage(latent, 0)));
     setDRealScore(0.88);
@@ -134,13 +136,13 @@ export default function GANExplorer() {
           <h3 className="font-semibold mb-3">Training Controls</h3>
           <div className="flex flex-wrap items-center gap-4">
             <button onClick={toggleTraining}
-              className={`px-4 py-2 text-sm rounded transition-colors ${
-                isTraining ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'
-              } hover:opacity-90`}>
+              className={`px-4 py-2 text-sm rounded cursor-pointer transition-colors ${
+                isTraining ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}>
               {isTraining ? 'Stop Training' : 'Start Training'}
             </button>
             <button onClick={reset}
-              className="px-4 py-2 text-sm rounded transition-colors bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
+              className="px-4 py-2 text-sm rounded cursor-pointer transition-colors bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600">
               Reset
             </button>
             <span className="text-sm text-gray-600 dark:text-gray-400">Epoch: {epoch}</span>
@@ -183,7 +185,7 @@ export default function GANExplorer() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <motion.div animate={isTraining && trainPhase === 0 ? { scale: 1.02 } : {}}>
+          <motion.div animate={isTraining && (trainPhase === 0 || trainPhase === 2) ? { scale: 1.02 } : {}}>
             <h3 className="font-semibold text-sm mb-3 text-center text-green-700 dark:text-green-400">
               Real Images (from Dataset)
             </h3>
@@ -274,6 +276,257 @@ export default function GANExplorer() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Learn More Section */}
+      <div className="mt-6 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+        <button onClick={() => setShowLearn(!showLearn)}
+          className="w-full px-4 py-3 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 flex items-center justify-between cursor-pointer hover:from-purple-100 hover:to-blue-100 dark:hover:from-purple-950/50 dark:hover:to-blue-950/50 transition-all">
+          <span className="font-semibold text-sm">Learn GANs</span>
+          <motion.span animate={{ rotate: showLearn ? 180 : 0 }} className="text-gray-500">▼</motion.span>
+        </button>
+        <AnimatePresence>
+          {showLearn && (
+            <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
+              className="overflow-hidden">
+              <div className="p-4 space-y-4">
+                <div className="flex gap-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg">
+                  {[
+                    { id: 'analogy' as const, label: '💡 Analogy', },
+                    { id: 'steps' as const, label: '📝 How It Works', },
+                    { id: 'simple' as const, label: '🐍 Simple PyTorch', },
+                    { id: 'scratch' as const, label: '🔧 From Scratch', },
+                  ].map(tab => (
+                    <button key={tab.id} onClick={() => setLearnTab(tab.id)}
+                      className={`flex-1 px-2 py-1.5 text-xs rounded-md cursor-pointer transition-all ${
+                        learnTab === tab.id
+                          ? 'bg-white dark:bg-gray-800 shadow-sm font-semibold'
+                          : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                      }`}>
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                <AnimatePresence mode="wait">
+                  {learnTab === 'analogy' && (
+                    <motion.div key="analogy" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
+                      <div className="p-4 bg-purple-50 dark:bg-purple-950/30 rounded-lg border-l-4 border-purple-400">
+                        <h4 className="font-semibold text-sm mb-2">🎨 Art Forger vs Art Critic</h4>
+                        <p className="text-xs text-gray-700 dark:text-gray-300 mb-3">
+                          Imagine an <strong>art forger</strong> (Generator) trying to create realistic paintings,
+                          while an <strong>art critic</strong> (Discriminator) tries to detect forgeries:
+                        </p>
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                          <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                            <div className="font-bold text-purple-600 text-[10px] mb-2">🎨 Generator (Forger)</div>
+                            <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                              Takes random inspiration (noise) and creates fake paintings.
+                              Tries to fool the critic into thinking they&apos;re real.
+                            </div>
+                          </div>
+                          <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                            <div className="font-bold text-red-600 text-[10px] mb-2">🔍 Discriminator (Critic)</div>
+                            <div className="text-[10px] text-gray-600 dark:text-gray-400">
+                              Examines paintings and decides: real or fake?
+                              Gets better at spotting forgeries over time.
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">
+                          As they compete, the forger gets better at creating realistic art, and the critic
+                          gets better at detecting fakes. Eventually, the forger creates art that&apos;s
+                          <strong> indistinguishable from real paintings</strong> — that&apos;s Nash equilibrium!
+                        </p>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-2 gap-3">
+                        <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border-l-4 border-amber-400">
+                          <h5 className="font-semibold text-[10px] mb-1 text-amber-700 dark:text-amber-400">🎯 The Training Dance</h5>
+                          <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                            Think of it like a dance: The forger shows a painting, the critic says &quot;fake!&quot;
+                            The forger learns from the feedback and tries again. Over hundreds of rounds,
+                            the forger&apos;s technique improves until the critic can&apos;t tell anymore.
+                          </p>
+                        </div>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border-l-4 border-blue-400">
+                          <h5 className="font-semibold text-[10px] mb-1 text-blue-700 dark:text-blue-400">⚖️ Balance is Key</h5>
+                          <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                            If the critic is too good early on, the forger gives up (vanishing gradients).
+                            If the forger is too good, the critic can&apos;t learn (mode collapse).
+                            They must improve together — like sparring partners.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border-l-4 border-green-400">
+                        <h5 className="font-semibold text-[10px] mb-1 text-green-700 dark:text-green-400">🏆 Nash Equilibrium</h5>
+                        <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                          The end goal: The critic guesses randomly (50/50) because every painting looks real.
+                          The forger has learned the true distribution of art. Neither can improve without
+                          the other changing strategy — this is the Nash equilibrium.
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {learnTab === 'steps' && (
+                    <motion.div key="steps" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
+                      <div className="space-y-3">
+                        {[
+                          { step: 1, title: 'Sample Random Noise', desc: 'Draw z from simple distribution (usually Gaussian). This is the "seed" for generation.', formula: 'z ~ N(0, I)' },
+                          { step: 2, title: 'Generate Fake Image', desc: 'Generator transforms noise into a fake image. Initially random noise, gradually improves.', formula: 'x_fake = G(z)' },
+                          { step: 3, title: 'D Classifies Real vs Fake', desc: 'Discriminator outputs probability: 1 = real, 0 = fake. Trained on both real and fake images.', formula: 'D(x) → [0, 1]' },
+                          { step: 4, title: 'Update Discriminator', desc: 'D learns to correctly classify real as 1 and fake as 0. Binary cross-entropy loss.', formula: 'L_D = -[log D(x_real) + log(1 - D(x_fake))]' },
+                          { step: 5, title: 'Update Generator', desc: 'G learns to make D(G(z)) close to 1. Wants to fool the discriminator.', formula: 'L_G = -log D(G(z))' },
+                          { step: 6, title: 'Repeat Until Convergence', desc: 'At equilibrium: D(x) = D(G(z)) = 0.5. Generator produces realistic samples.', formula: 'D(x) = D(G(z)) = 0.5' },
+                        ].map(item => (
+                          <div key={item.step} className="flex gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                            <div className="w-6 h-6 rounded-full bg-purple-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{item.step}</div>
+                            <div className="flex-1">
+                              <h5 className="font-semibold text-xs mb-1">{item.title}</h5>
+                              <p className="text-[11px] text-gray-600 dark:text-gray-400 mb-1">{item.desc}</p>
+                              <code className="text-[10px] font-mono bg-white dark:bg-gray-800 px-2 py-0.5 rounded">{item.formula}</code>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg text-xs">
+                        <strong>Training tip:</strong> G and D must be balanced. If D is too strong, G gets no
+                        useful gradients (vanishing). If G is too strong, D can't distinguish real from fake
+                        (mode collapse). Typical ratio: 1 step of G per 1-5 steps of D.
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {learnTab === 'simple' && (
+                    <motion.div key="simple" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
+                      <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                        <div className="text-[10px] text-gray-400 mb-2">Basic GAN with PyTorch nn.Sequential</div>
+                        <pre className="text-xs text-gray-100 font-mono whitespace-pre">{`import torch
+import torch.nn as nn
+
+# Simple Generator: noise → image
+G = nn.Sequential(
+    nn.Linear(64, 128),
+    nn.ReLU(),
+    nn.Linear(128, 784),
+    nn.Sigmoid()  # Output in [0, 1]
+)
+
+# Simple Discriminator: image → real/fake
+D = nn.Sequential(
+    nn.Linear(784, 128),
+    nn.LeakyReLU(0.2),
+    nn.Linear(128, 1),
+    nn.Sigmoid()
+)
+
+criterion = nn.BCELoss()
+opt_g = torch.optim.Adam(G.parameters(), lr=2e-4)
+opt_d = torch.optim.Adam(D.parameters(), lr=2e-4)
+
+# Training loop
+for epoch in range(100):
+    # === Train Discriminator ===
+    z = torch.randn(32, 64)
+    fake = G(z).detach()  # Detach so G doesn't update
+    
+    real_loss = criterion(D(real_images), torch.ones(32, 1))
+    fake_loss = criterion(D(fake), torch.zeros(32, 1))
+    d_loss = (real_loss + fake_loss) / 2
+    
+    opt_d.zero_grad()
+    d_loss.backward()
+    opt_d.step()
+    
+    # === Train Generator ===
+    z = torch.randn(32, 64)
+    fake = G(z)
+    g_loss = criterion(D(fake), torch.ones(32, 1))
+    
+    opt_g.zero_grad()
+    g_loss.backward()
+    opt_g.step()
+
+print(f"D loss: {d_loss:.4f}, G loss: {g_loss:.4f}")`}</pre>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {learnTab === 'scratch' && (
+                    <motion.div key="scratch" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
+                      <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                        <div className="text-[10px] text-gray-400 mb-2">GAN from scratch — manual gradients</div>
+                        <pre className="text-xs text-gray-100 font-mono whitespace-pre">{`import torch
+
+class Generator(torch.nn.Module):
+    def __init__(self, latent_dim=64, hidden=128, img_dim=784):
+        super().__init__()
+        self.fc1 = torch.nn.Linear(latent_dim, hidden)
+        self.fc2 = torch.nn.Linear(hidden, img_dim)
+    
+    def forward(self, z):
+        z = torch.relu(self.fc1(z))
+        return torch.sigmoid(self.fc2(z))
+
+class Discriminator(torch.nn.Module):
+    def __init__(self, img_dim=784, hidden=128):
+        super().__init__()
+        self.fc1 = torch.nn.Linear(img_dim, hidden)
+        self.fc2 = torch.nn.Linear(hidden, 1)
+    
+    def forward(self, x):
+        x = torch.nn.functional.leaky_relu(self.fc1(x), 0.2)
+        return torch.sigmoid(self.fc2(x))
+
+# Initialize
+G = Generator()
+D = Discriminator()
+lr = 0.001
+
+for epoch in range(100):
+    # --- Train Discriminator ---
+    z = torch.randn(32, 64)
+    fake = G(z).detach()
+    
+    # D(real) should be 1, D(fake) should be 0
+    d_real = D(real_images)
+    d_fake = D(fake)
+    
+    d_loss = -torch.mean(
+        torch.log(d_real + 1e-8) + 
+        torch.log(1 - d_fake + 1e-8)
+    )
+    
+    # Manual backward pass
+    d_loss.backward()
+    for p in D.parameters():
+        p.data -= lr * p.grad
+        p.grad.zero_()
+    
+    # --- Train Generator ---
+    z = torch.randn(32, 64)
+    fake = G(z)
+    d_fake = D(fake)
+    
+    # G wants D(fake) to be 1 (fool discriminator)
+    g_loss = -torch.mean(torch.log(d_fake + 1e-8))
+    
+    g_loss.backward()
+    for p in G.parameters():
+        p.data -= lr * p.grad
+        p.grad.zero_()
+
+print(f"D loss: {d_loss:.4f}, G loss: {g_loss:.4f}")`}</pre>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
