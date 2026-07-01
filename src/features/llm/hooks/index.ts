@@ -1,1 +1,1 @@
-export {}
+export { useLLMTopics } from './useLLMTopics';

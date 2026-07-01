@@ -1,3 +1,8 @@
+export { default as DLOverview } from './DLOverview';
+export { default as DLTopicCard } from './DLTopicCard';
+export { default as DLVisualizationsOverview } from './DLVisualizationsOverview';
+
+// All visualization components
 export { default as PerceptronPlayground } from './visualizations/PerceptronPlayground';
 export { default as BackpropVisualizer } from './visualizations/BackpropVisualizer';
 export { default as LossLandscapeExplorer } from './visualizations/LossLandscapeExplorer';

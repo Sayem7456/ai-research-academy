@@ -1,29 +1,15 @@
-/**
- * MathOverview - Main overview page for the Mathematics module
- * Phase 9: Mathematics Module
- * Phase 10: Added visualizations section
- *
- * Displays:
- * - Progress tracker widget
- * - All 4 math categories with lesson cards
- * - Interactive visualizations gallery
- * - Quick links to content pages
- */
-
 'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useMathProgress } from '../hooks/useMathProgress';
-import { useMathTopics } from '../hooks/useMathTopics';
-import MathTopicCard from './MathTopicCard';
-import VisualizationsOverview from './visualizations/VisualizationsOverview';
-import type { MathCategoryId } from '../types';
+import { useMLTopics } from '../hooks/useMLTopics';
+import MLTopicCard from './MLTopicCard';
+import MLVisualizationsOverview from './MLVisualizationsOverview';
+import type { MLCategoryId } from '../types';
 
-export default function MathOverview() {
-  const { isLessonCompleted } = useMathProgress();
-  const { categories, topics } = useMathTopics();
-  const [expandedCategory, setExpandedCategory] = useState<MathCategoryId | null>(null);
+export default function MLOverview() {
+  const { categories, topics } = useMLTopics();
+  const [expandedCategory, setExpandedCategory] = useState<MLCategoryId | null>(null);
   const [view, setView] = useState<'curriculum' | 'visualizations'>('curriculum');
 
   if (view === 'visualizations') {
@@ -33,7 +19,7 @@ export default function MathOverview() {
           <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
             <Link href="/" className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Home</Link>
             <span>/</span>
-            <Link href="/math" className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Mathematics</Link>
+            <Link href="/ml" className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Machine Learning</Link>
             <span>/</span>
             <span className="text-gray-900 dark:text-gray-100 font-medium">Visualizations</span>
           </nav>
@@ -44,15 +30,15 @@ export default function MathOverview() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Mathematics overview
+            Back to Machine Learning overview
           </button>
         </div>
-        <VisualizationsOverview />
+        <MLVisualizationsOverview />
       </div>
     );
   }
 
-  const toggleCategory = (catId: MathCategoryId) => {
+  const toggleCategory = (catId: MLCategoryId) => {
     setExpandedCategory((prev) => (prev === catId ? null : catId));
   };
 
@@ -61,24 +47,23 @@ export default function MathOverview() {
       <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
         <Link href="/" className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Home</Link>
         <span>/</span>
-        <span className="text-gray-900 dark:text-gray-100 font-medium">Mathematics</span>
+        <span className="text-gray-900 dark:text-gray-100 font-medium">Machine Learning</span>
       </nav>
 
-      {/* Header */}
       <div className="mb-8">
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              📐 Mathematics
+              🤖 Machine Learning
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Build the mathematical foundations for AI research — from linear algebra and calculus
-              to probability and statistics.
+              Explore supervised and unsupervised learning algorithms — from linear regression
+              to clustering and dimensionality reduction.
             </p>
           </div>
           <button
             onClick={() => setView('visualizations')}
-            className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md cursor-pointer"
+            className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -87,10 +72,9 @@ export default function MathOverview() {
             Interactive Visualizations
           </button>
         </div>
-        {/* Mobile visualizations button */}
         <button
           onClick={() => setView('visualizations')}
-          className="sm:hidden flex items-center gap-2 w-full px-5 py-2.5 mt-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium cursor-pointer"
+          className="sm:hidden flex items-center gap-2 w-full px-5 py-2.5 mt-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-medium cursor-pointer"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -100,7 +84,6 @@ export default function MathOverview() {
         </button>
       </div>
 
-{/* Category Cards */}
       <div className="space-y-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           Topics
@@ -108,25 +91,23 @@ export default function MathOverview() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {categories.map((category) => {
             const topic = topics.find((t) => t.category.id === category.id);
-            const lessons = topic?.lessons.map((l) => ({
-              id: l.id,
-              title: l.title,
-              order: l.order,
-              completed: isLessonCompleted(l.id),
-            })) ?? [];
+            const lessons = topic?.lessons ?? [];
 
             return (
               <div key={category.id} onClick={() => toggleCategory(category.id)} className="cursor-pointer">
-                <MathTopicCard
+                <MLTopicCard
                   category={category}
-                  lessons={expandedCategory === category.id ? lessons : undefined}
+                  lessons={expandedCategory === category.id ? lessons.map((l) => ({
+                    id: l.id,
+                    title: l.title,
+                    order: l.order,
+                  })) : undefined}
                   onStart={() => {
-                    const firstIncomplete = topic?.lessons.find((l) => !isLessonCompleted(l.id));
-                    const target = firstIncomplete ?? topic?.lessons[0];
-                    if (target) window.location.href = `/content/math/${target.slug}`;
+                    const first = topic?.lessons[0];
+                    if (first) window.location.href = `/content/ml/${first.slug}`;
                   }}
                   onLessonClick={(lessonId) => {
-                    window.location.href = `/content/math/${topic?.lessons.find((l) => l.id === lessonId)?.slug ?? lessonId}`;
+                    window.location.href = `/content/ml/${topic?.lessons.find((l) => l.id === lessonId)?.slug ?? lessonId}`;
                   }}
                 />
               </div>

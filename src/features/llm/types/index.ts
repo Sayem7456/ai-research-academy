@@ -16,6 +16,34 @@ export interface LLMTopic {
   difficulty: 'beginner' | 'intermediate' | 'advanced'
 }
 
+export type LLCategoryId = 'tokenization-embeddings' | 'attention' | 'transformer' | 'advanced';
+
+export interface LLCategory {
+  id: LLCategoryId;
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+  totalLessons: number;
+}
+
+export interface LLLesson {
+  id: string;
+  title: string;
+  slug: string;
+  categoryId: LLCategoryId;
+  description: string;
+  order: number;
+  topics: string[];
+  prerequisites?: string[];
+  visualComponents?: string[];
+}
+
+export interface LLMTopicGroup {
+  category: LLCategory;
+  lessons: LLLesson[];
+}
+
 export interface Token {
   id: string
   text: string

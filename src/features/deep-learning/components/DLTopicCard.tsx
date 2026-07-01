@@ -1,26 +1,20 @@
-/**
- * MathTopicCard - Card component for a math category
- * Phase 9: Mathematics Module
- */
-
 'use client';
 
-import React from 'react';
-import type { MathCategory } from '../types';
+import type { DLCategory } from '../types';
 
-interface MathTopicCardProps {
-  category: MathCategory;
-  onLessonClick?: (lessonId: string) => void;
+interface DLTopicCardProps {
+  category: DLCategory;
+  lessons?: { id: string; title: string; order: number }[];
   onStart?: () => void;
-  lessons?: { id: string; title: string; order: number; completed: boolean }[];
+  onLessonClick?: (lessonId: string) => void;
 }
 
-export default function MathTopicCard({
+export default function DLTopicCard({
   category,
-  onLessonClick,
-  onStart,
   lessons,
-}: MathTopicCardProps) {
+  onStart,
+  onLessonClick,
+}: DLTopicCardProps) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden transition-all hover:shadow-lg">
       <div
@@ -60,24 +54,12 @@ export default function MathTopicCard({
             <button
               key={lesson.id}
               onClick={() => onLessonClick?.(lesson.id)}
-              className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
-                lesson.completed
-                  ? 'text-gray-500 dark:text-gray-400 hover:bg-green-50 dark:hover:bg-green-900/20'
-                  : 'text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-              }`}
+              className="w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
             >
-              <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium border-2 border-current">
-                {lesson.completed ? (
-                  <svg className="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                ) : (
-                  <span className="text-gray-400 dark:text-gray-300">{lesson.order}</span>
-                )}
+              <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium border-2 border-gray-400 dark:border-gray-500 text-gray-500 dark:text-gray-400">
+                {lesson.order}
               </span>
-              <span className={`text-sm ${lesson.completed ? 'line-through' : ''}`}>
-                {lesson.title}
-              </span>
+              <span className="text-sm">{lesson.title}</span>
             </button>
           ))}
         </div>

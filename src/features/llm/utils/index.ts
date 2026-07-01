@@ -1,4 +1,5 @@
 import type { LLMTopic, LLMTopicId } from '../types'
+export { LLM_CATEGORIES, LLM_TOPIC_GROUPS, ALL_LLM_LESSONS, TOTAL_LLM_LESSONS } from './llm-data';
 
 export const LLM_TOPICS: LLMTopic[] = [
   {
